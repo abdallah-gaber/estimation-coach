@@ -94,11 +94,22 @@ Run the bootstrap checks on pull requests and require them before merge.
 - CI checks formatting, analysis, tests and a web build.
 - GitHub main protection requires the passing CI job.
 
+## EC-025 — Expand nested scenario schema constraints
+**Status:** READY
+
+Bring the canonical schema's broad nested fields into alignment with the
+supported bidding parser contract, in a separate schema-focused PR.
+
+### Acceptance criteria
+- Define previous action, allowed decision, evaluation and feedback structures.
+- Preserve the existing fixture and document any compatibility changes.
+- Verify schema/parser agreement using valid and invalid fixtures.
+
 ## EC-024 — Confirm bidding rules and review the draft fixture
 **Status:** READY
 
 Agree the rules needed before exposing authored coaching. The existing fixture
-has only three evaluated choices, so most allowed combinations have no rating.
+has only one evaluated choice out of 21, so most allowed combinations have no rating.
 
 ### Acceptance criteria
 - Document Dash eligibility, minimum bids, equal-bid/suit ordering and no-trump support.
@@ -146,9 +157,14 @@ UI scenario integration remains with the planned play-training milestones.
 ---
 
 ## EC-022 — Scenario data format v1
-**Status:** BACKLOG
+**Status:** DONE
 
 Define the first structured scenario representation.
+
+Implemented on `codex/scenario-validation`: immutable pure Dart bidding models
+and field-path parsing checks using the existing canonical fixture. Hand, seats,
+previous actions, allowed choices, ratings and feedback are typed. The schema and
+fixture are unchanged; supported constraints are documented in the authoring guide.
 
 ### Acceptance criteria
 - Scenario is independent from widgets.
@@ -160,9 +176,15 @@ Define the first structured scenario representation.
 
 
 ## EC-023 — Standalone scenario validator
-**Status:** BACKLOG
+**Status:** DONE
 
 Create a repository-level validation command that can validate scenario content independently from the Flutter UI.
+
+Implemented `dart run tool/validate_scenarios.dart`: canonical schema checks,
+domain parsing, recursive discovery and cross-file duplicate IDs. Incomplete
+coverage warns by default and fails with `--require-complete`. Both CLI exit paths
+verified. All 65 tests, formatting, analysis and web build pass. Structural
+validation does not resolve EC-024 or certify authored coaching.
 
 ### Acceptance criteria
 - Validates files under `content/scenarios/v1/`.

@@ -315,3 +315,85 @@ When asked to add scenarios:
 A future editor may provide a visual UI for creating scenarios, but it must produce the same versioned scenario files.
 
 The files remain the portable source of truth.
+
+## Standalone validation (EC-022 / EC-023)
+
+From the repository root, after `flutter pub get`:
+
+```sh
+dart run tool/validate_scenarios.dart
+```
+
+The command recursively scans `content/scenarios/v1/`, validates each JSON file
+against `schemas/scenario.v1.schema.json`, then parses it through the same pure
+Dart `BiddingScenario.fromJson` representation available to the application.
+No Flutter engine, Python installation or runtime network service is required.
+`json_schema` is a development-only dependency using synchronous local validation.
+
+You may select files or directories explicitly:
+
+```sh
+dart run tool/validate_scenarios.dart content/scenarios/v1/bidding
+```
+
+Files are checked in sorted order. Duplicate IDs across the selected files fail.
+Overlapping paths are deduplicated. Missing paths, empty directories and invalid
+JSON fail; the checker continues through the other files. Symlinks are not followed.
+
+### Supported representation
+
+Only `scenario_version: 1`, `type: bidding` is implemented. `play` remains reserved
+by the schema but produces an unsupported-type error until its model is defined.
+The current schema is preserved; the parser applies these additional checks to
+its loosely specified nested fields:
+
+- Required nonempty title, primary skill and skill tags; primary skill must be
+  included in distinct `skills`. Skill strings remain extensible tags.
+- `difficulty`: beginner, intermediate, advanced; seats: north, east, south, west.
+- A bidding hand contains exactly 13 distinct canonical cards.
+- Previous actions contain a player and pass/dash/bid action. Bid requires integer
+  tricks (1–13) and a supported suit; pass/dash must omit tricks and trump.
+- `allowed_decisions` requires boolean `dash`, integer bid min/max (1–13,
+  min ≤ max), and a nonempty distinct list of suits. These are representable
+  ranges, not a ruling on minimum legal bids or auction precedence.
+- Suits are spades, hearts, diamonds, clubs. No-trump is not currently represented.
+- Each evaluation has a dash/bid decision, strong/reasonable/risky/weak rating,
+  and feedback containing nonempty title/summary plus an array of nonempty points.
+- Evaluated choices must be allowed and may appear at most once.
+- Missing or malformed nested data produces a field-path diagnostic.
+
+Model lists are immutable snapshots. Top-level additional properties allowed by
+v1 are not interpreted as coaching or new behavior. No authored content is
+hardcoded into the models or validator. The schema's nested constraints can be
+expanded in a separate schema-focused change (EC-025).
+
+### Coverage and review are separate
+
+Normal validation allows an incomplete draft with a warning. For complete
+feedback coverage, use:
+
+```sh
+dart run tool/validate_scenarios.dart --require-complete
+```
+
+The current canonical fixture has **one evaluation out of 21 choices**, so default
+validation exits 0 with a warning about 20 missing evaluations. Strict coverage
+exits 1 for that fixture. The longer example above illustrates three evaluations;
+it is not the exact content of the canonical fixture.
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | Selected files passed structural checks (coverage warnings may remain) |
+| 1 | Invalid/missing content, duplicate IDs, or incomplete strict coverage |
+| 2 | Invalid options or schema configuration |
+
+Even complete coverage does not certify game legality or coaching quality. Auction
+order, Dash eligibility, minimum bids, suit precedence and the authored advice
+still require EC-024 review. The parser never supplies a rating for an unevaluated
+choice. Do not use a structural pass as permission to publish a coaching pack.
+
+Run parser and validator tests with:
+
+```sh
+flutter test test/scenarios
+```
