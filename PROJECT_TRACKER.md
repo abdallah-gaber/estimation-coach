@@ -128,9 +128,15 @@ as do formatting, analysis and the web build. See D-007 for equality semantics.
 ---
 
 ## EC-021 — Trick legality rules
-**Status:** BACKLOG
+**Status:** DONE
 
 Implement legal-card selection for a trick.
+
+Implemented on `codex/follow-suit-legality`: pure Dart `legalCards` and
+`isLegalPlay`, including membership checks and immutable ordered results. Seven
+rule tests and all 21 tests pass; formatting, analysis and web build pass.
+Contract and caller responsibilities are documented in `docs/GAME_RULES.md`.
+UI scenario integration remains with the planned play-training milestones.
 
 ### Acceptance criteria
 - Following suit is enforced when possible.
