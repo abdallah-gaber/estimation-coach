@@ -149,7 +149,7 @@ Potential ideas, not current commitments:
 
 See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation status and next task.
 
-## Run the follow-suit checkpoint
+## Run the scenario validation checkpoint
 
 The domain now includes deterministic follow-suit legality; see
 [implemented game rules](docs/GAME_RULES.md). This milestone adds core behavior
@@ -157,13 +157,13 @@ and tests; the preview remains a UI specimen with no current trick.
 The preview uses immutable typed cards backed by a pure Dart domain model.
 It retains the interactive card preview: all four suits, selected and
 disabled states, keyboard controls and a responsive layout. The four cards are UI
-specimens, not a dealt hand or scored scenario. Bidding, game-rule enforcement,
-progress storage and coaching evaluation remain future milestones.
+specimens, not a dealt hand or scored scenario. Interactive bidding/play, progress storage and coaching evaluation remain
+future milestones.
 
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/follow-suit-legality
+git switch codex/scenario-validation
 flutter pub get
 flutter run -d chrome
 ```
@@ -189,7 +189,7 @@ to see available targets. iOS device builds require your own signing setup.
 ### Automated checks
 
 ```sh
-dart format --output=none --set-exit-if-changed lib test
+dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze
 flutter test
 flutter build web
@@ -202,5 +202,19 @@ and hand equality, defensive copying and validation. Run these alone with
 Five widget tests cover selection/toggle/reset, disabled interaction, accessibility
 labels and states, keyboard activation, and a 320×568 layout at 1× and 2× text
 scaling. Seven rule tests cover follow-suit legality; run them with
-`flutter test test/core/game_rules/legal_cards_test.dart`. All 21 tests run with
-`flutter test`. Scenario parsing and validation are the next domain tasks.
+`flutter test test/core/game_rules/legal_cards_test.dart`. The existing card, rule and widget tests run with
+`flutter test`. Parser and validator tests run with `flutter test test/scenarios`.
+
+### Validate scenario content
+
+```sh
+flutter pub get
+dart run tool/validate_scenarios.dart
+flutter test test/scenarios
+```
+
+Expected: the one draft fixture passes structural checks with a warning that
+20 of 21 choices lack evaluations. `--require-complete` intentionally exits 1
+until that coverage is authored. Both modes still require manual rules/coaching
+review; no new training UI is enabled. Full usage and exit codes are in
+[the authoring guide](docs/SCENARIO_AUTHORING.md#standalone-validation-ec-022--ec-023).

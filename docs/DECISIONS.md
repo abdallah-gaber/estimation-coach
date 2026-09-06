@@ -115,6 +115,27 @@ This replaces the temporary `SuitVisual` metadata described in D-006. The previe
 still uses four UI specimens with the same behavior. EC-021 will add legality;
 EC-024 remains the prerequisite for resolving bidding-rule ambiguity.
 
+## D-008 — Scenario parsing and offline content validation
+
+**Status:** Accepted
+
+EC-022/EC-023 add an immutable, pure Dart bidding representation under
+`lib/scenarios/` and a standalone command under `tool/`. The existing 2020-12 JSON
+Schema and canonical fixture remain unchanged. Its broad nested fields receive
+explicit parser validation; supported fields and constraints are documented in
+the authoring guide. This is not a reinterpretation of bidding rules.
+
+Use `json_schema` 5.2.2 as a dev dependency for the canonical schema check.
+Its synchronous API resolves locally, without network fetching. Application
+models do not import that dependency, Flutter or dart:io. CLI file discovery and
+cross-file duplicate-ID checks remain outside the domain.
+
+Incomplete authored evaluation coverage is a warning by default, so draft content
+can be maintained. `--require-complete` makes it an error. Neither mode certifies
+coaching quality or auction legality. EC-024 remains required before presenting
+the draft as trusted coaching. No fallback ratings are fabricated. Play content
+is explicitly unsupported until its model is introduced.
+
 ## Decision template
 
 Copy this section for future decisions.
