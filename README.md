@@ -149,9 +149,12 @@ Potential ideas, not current commitments:
 
 See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation status and next task.
 
-## Run the card domain checkpoint
+## Run the follow-suit checkpoint
 
-The preview now uses immutable typed cards backed by a pure Dart domain model.
+The domain now includes deterministic follow-suit legality; see
+[implemented game rules](docs/GAME_RULES.md). This milestone adds core behavior
+and tests; the preview remains a UI specimen with no current trick.
+The preview uses immutable typed cards backed by a pure Dart domain model.
 It retains the interactive card preview: all four suits, selected and
 disabled states, keyboard controls and a responsive layout. The four cards are UI
 specimens, not a dealt hand or scored scenario. Bidding, game-rule enforcement,
@@ -160,7 +163,7 @@ progress storage and coaching evaluation remain future milestones.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/card-domain-model
+git switch codex/follow-suit-legality
 flutter pub get
 flutter run -d chrome
 ```
@@ -198,5 +201,6 @@ and hand equality, defensive copying and validation. Run these alone with
 
 Five widget tests cover selection/toggle/reset, disabled interaction, accessibility
 labels and states, keyboard activation, and a 320×568 layout at 1× and 2× text
-scaling. All 14 tests run with `flutter test`. Follow-suit rules remain the next
-domain task (EC-021).
+scaling. Seven rule tests cover follow-suit legality; run them with
+`flutter test test/core/game_rules/legal_cards_test.dart`. All 21 tests run with
+`flutter test`. Scenario parsing and validation are the next domain tasks.
