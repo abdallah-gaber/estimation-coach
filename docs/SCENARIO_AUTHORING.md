@@ -2,6 +2,10 @@
 
 This document defines how humans and AI agents add training content without changing application code.
 
+[game_rules_v1](GAME_RULES_V1.md) is authoritative for normal bidding. The
+historical examples below illustrate structure but conflict with its minimum bid
+and Dash timing. They are not approved gameplay content; EC-026 tracks migration.
+
 ## Goal
 
 Scenario content must be independently maintainable from the Flutter UI and domain implementation.
@@ -344,8 +348,8 @@ JSON fail; the checker continues through the other files. Symlinks are not follo
 
 Only `scenario_version: 1`, `type: bidding` is implemented. `play` remains reserved
 by the schema but produces an unsupported-type error until its model is defined.
-The current schema is preserved; the parser applies these additional checks to
-its loosely specified nested fields:
+The schema now defines nested bidding fields, and the parser enforces the
+remaining cross-field checks:
 
 - Required nonempty title, primary skill and skill tags; primary skill must be
   included in distinct `skills`. Skill strings remain extensible tags.
@@ -364,8 +368,8 @@ its loosely specified nested fields:
 
 Model lists are immutable snapshots. Top-level additional properties allowed by
 v1 are not interpreted as coaching or new behavior. No authored content is
-hardcoded into the models or validator. The schema's nested constraints can be
-expanded in a separate schema-focused change (EC-025).
+hardcoded into the models or validator. EC-025 aligns schema shape checks with this provisional parser contract.
+The schema cannot replace cross-field validation in the parser.
 
 ### Coverage and review are separate
 
@@ -387,9 +391,11 @@ it is not the exact content of the canonical fixture.
 | 1 | Invalid/missing content, duplicate IDs, or incomplete strict coverage |
 | 2 | Invalid options or schema configuration |
 
-Even complete coverage does not certify game legality or coaching quality. Auction
-order, Dash eligibility, minimum bids, suit precedence and the authored advice
-still require EC-024 review. The parser never supplies a rating for an unevaluated
+Even complete coverage does not certify game legality or coaching quality.
+Canonical bidding rules are now documented in [game_rules_v1](GAME_RULES_V1.md).
+The draft conflicts with its minimum opening bid and Dash timing. EC-026 will
+add rule enforcement and migrate the content; the authored advice still requires
+EC-024 review. The parser never supplies a rating for an unevaluated
 choice. Do not use a structural pass as permission to publish a coaching pack.
 
 Run parser and validator tests with:
@@ -397,3 +403,27 @@ Run parser and validator tests with:
 ```sh
 flutter test test/scenarios
 ```
+
+### Schema alignment compatibility (EC-025)
+
+The v1 field names and canonical fixture are preserved. Bidding now requires its
+previously parser-required title, seat, 13-card hand, previous actions, allowed
+decisions and evaluations at schema level. Nested action/decision shapes, numeric
+bounds, supported enum values and nonblank feedback are enforced by the schema.
+Non-bid actions cannot carry tricks/trump, even with null values. Additional
+properties remain permitted. The ID regex now matches the parser's permitted
+lowercase letters, digits, underscores and hyphens.
+
+Documents accepted by the old broad schema but rejected by the parser may now
+fail earlier at the schema stage, with JSON-pointer paths. This is an intentional
+validation tightening, not a new game rule. The reserved play schema is unchanged
+and remains unsupported by the application parser.
+
+Some checks still require Dart: primary-skill membership, min ≤ max, evaluation
+membership in allowed choices, duplicate decisions with differing feedback, and
+cross-file duplicate IDs. Schema `uniqueItems` catches exact duplicate evaluation
+objects only. Coverage and canonical rule compliance are separate concerns.
+
+The provisional 1–13 shape bounds and four-suit trump enum are not the canonical
+bidding rules. They remain implementation gaps tracked in EC-026; external tools
+must also respect [game_rules_v1](GAME_RULES_V1.md).

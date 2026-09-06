@@ -95,18 +95,41 @@ Run the bootstrap checks on pull requests and require them before merge.
 - GitHub main protection requires the passing CI job.
 
 ## EC-025 — Expand nested scenario schema constraints
-**Status:** READY
+**Status:** DONE
 
 Bring the canonical schema's broad nested fields into alignment with the
 supported bidding parser contract, in a separate schema-focused PR.
+
+Implemented on `codex/scenario-schema`: nested definitions and conditional bidding
+requirements, with 42 schema/parser alignment tests. All 107 tests, formatting,
+analysis and default structural validation pass. The canonical fixture is
+preserved; its game_rules_v1 conflicts are audited and tracked in EC-026.
 
 ### Acceptance criteria
 - Define previous action, allowed decision, evaluation and feedback structures.
 - Preserve the existing fixture and document any compatibility changes.
 - Verify schema/parser agreement using valid and invalid fixtures.
 
-## EC-024 — Confirm bidding rules and review the draft fixture
+## EC-026 — Implement canonical game_rules_v1 bidding
 **Status:** READY
+
+Apply the owner's confirmed rules to domain models, validation and draft content.
+
+### Acceptance criteria
+- Normal bids start at 4 tricks; raises compare count, then trump rank.
+- Sans > Spades > Hearts > Diamonds > Clubs; Sans is distinct from card suits.
+- Dash is a separate pre-bidding estimate of zero; Dash players do not bid.
+- Scenario schema and parser represent the required phase and trump category.
+- Migrate the conflicting draft and review its situation before rating review.
+- Regression tests cover minimum bids, equal-bid ordering and Dash timing.
+- Special/fixed-trump rounds remain out of scope.
+
+## EC-024 — Confirm bidding rules and review the draft fixture
+**Status:** IN PROGRESS
+
+Canonical normal-round bidding rules are confirmed in `docs/GAME_RULES_V1.md`.
+The draft audit identifies illegal 3-trick bids and late Dash choices. Correcting
+the scenario and reviewing its rating remain pending EC-026.
 
 Agree the rules needed before exposing authored coaching. The existing fixture
 has only one evaluated choice out of 21, so most allowed combinations have no rating.

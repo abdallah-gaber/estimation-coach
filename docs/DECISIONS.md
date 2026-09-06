@@ -136,6 +136,27 @@ coaching quality or auction legality. EC-024 remains required before presenting
 the draft as trusted coaching. No fallback ratings are fabricated. Play content
 is explicitly unsupported until its model is introduced.
 
+## D-009 — Align bidding schema with the supported parser
+
+**Status:** Accepted
+
+EC-025 expands the existing v1 schema's bidding constraints, preserving the
+canonical fixture and field names. Conditional bidding requirements leave the
+reserved play shape unchanged; the application still rejects unsupported play
+content. Nested action, bid range, suit, evaluation and feedback structures are
+defined using local schema references. Additional properties remain permitted,
+matching the current parser's extensibility behavior.
+
+This tightens schema acceptance of malformed data that the parser already
+rejected. Cross-field checks (primary skill membership, min <= max, evaluation
+membership and uniqueness by decision) remain in Dart. Schema acceptance alone
+does not imply feedback coverage, game legality or coaching review.
+
+The owner has now confirmed canonical `game_rules_v1` in `GAME_RULES_V1.md`.
+It takes precedence over provisional parser/schema bounds and historical examples.
+EC-026 tracks the coordinated model/schema/content migration, including Sans and
+the pre-bidding Dash phase; EC-024 tracks the remaining coaching review.
+
 ## Decision template
 
 Copy this section for future decisions.

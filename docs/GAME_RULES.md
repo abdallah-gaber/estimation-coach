@@ -1,5 +1,9 @@
 # Implemented game rules
 
+Canonical normal bidding rules are in [game_rules_v1](GAME_RULES_V1.md). They
+take precedence over implementation and content. This page describes the
+currently implemented follow-suit rule.
+
 ## EC-021: following suit
 
 The rule in AGENTS.md and PROJECT_TRACKER.md is implemented by the pure Dart

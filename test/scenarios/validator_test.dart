@@ -78,7 +78,7 @@ void main() {
       write('valid', fixture());
       expect(run(), 1);
       expect(errors.toString(), contains('broken.json'));
-      expect(errors.toString(), contains(r'$.hand'));
+      expect(errors.toString(), contains('hand'));
       expect(output.toString(), contains('Checked 3 file(s); 2 failure(s)'));
       expect(output.toString(), contains('VALID'));
     },
@@ -95,17 +95,17 @@ void main() {
   });
 
   test(
-    'schema catches duplicates and domain catches unchecked nested values',
+    'schema catches duplicates and domain catches cross-field inconsistencies',
     () {
       final duplicate = fixture()..['id'] = 'duplicate_card';
       duplicate['hand'][1] = 'AS';
       write('duplicate', duplicate);
-      final rating = fixture()..['id'] = 'bad_rating';
-      rating['evaluations'][0]['rating'] = 'correct';
+      final rating = fixture()..['id'] = 'bad_range';
+      rating['allowed_decisions']['bids']['min'] = 8;
       write('rating', rating);
       expect(run(), 1);
       expect(errors.toString(), contains('schema'));
-      expect(errors.toString(), contains(r'$.evaluations[0].rating'));
+      expect(errors.toString(), contains(r'$.allowed_decisions.bids'));
     },
   );
 
