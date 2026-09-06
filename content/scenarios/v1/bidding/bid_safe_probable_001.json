@@ -1,0 +1,74 @@
+{
+  "scenario_version": 1,
+  "id": "bid_safe_probable_001",
+  "type": "bidding",
+  "title": "Strong Spades, uncertain side winners",
+  "difficulty": "beginner",
+  "primary_skill": "bid_sizing",
+  "skills": [
+    "bid_sizing",
+    "trump_selection",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "AS",
+    "JS",
+    "8S",
+    "4S",
+    "KH",
+    "7H",
+    "AD",
+    "QD",
+    "9D",
+    "JC",
+    "10C",
+    "5C",
+    "2C"
+  ],
+  "previous_actions": [
+    {
+      "player": "west",
+      "action": "pass"
+    },
+    {
+      "player": "north",
+      "action": "bid",
+      "tricks": 3,
+      "trump": "hearts"
+    }
+  ],
+  "allowed_decisions": {
+    "dash": true,
+    "bids": {
+      "min": 3,
+      "max": 7
+    },
+    "trumps": [
+      "spades",
+      "hearts",
+      "diamonds",
+      "clubs"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "spades"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "Balanced bid",
+        "summary": "Four Spades uses your strongest suit without assuming every side honor will win.",
+        "points": [
+          "Ace of Spades is a strong control card.",
+          "Ace of Diamonds is a strong side winner.",
+          "King of Hearts is conditional, not guaranteed."
+        ]
+      }
+    }
+  ],
+  "author_notes": "Example structure only. Final game judgment must follow documented rules."
+}

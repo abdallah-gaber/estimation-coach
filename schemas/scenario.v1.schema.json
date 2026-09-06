@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/estimation-coach/scenario.v1.schema.json",
+  "title": "Estimation Coach Scenario v1",
+  "type": "object",
+  "required": [
+    "scenario_version",
+    "id",
+    "type",
+    "difficulty",
+    "primary_skill",
+    "skills"
+  ],
+  "properties": {
+    "scenario_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_\\-]+$"
+    },
+    "type": {
+      "enum": [
+        "bidding",
+        "play"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "difficulty": {
+      "enum": [
+        "beginner",
+        "intermediate",
+        "advanced"
+      ]
+    },
+    "primary_skill": {
+      "type": "string",
+      "minLength": 1
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "player_position": {
+      "enum": [
+        "north",
+        "east",
+        "south",
+        "west"
+      ]
+    },
+    "hand": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^(A|K|Q|J|10|[2-9])[SHDC]$"
+      }
+    },
+    "previous_actions": {
+      "type": "array"
+    },
+    "allowed_decisions": {
+      "type": "object"
+    },
+    "evaluations": {
+      "type": "array"
+    },
+    "author_notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
