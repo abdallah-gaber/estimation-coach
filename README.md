@@ -149,16 +149,17 @@ Potential ideas, not current commitments:
 
 See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation status and next task.
 
-## Run the first checkpoint
+## Run the visual foundations checkpoint
 
-This branch contains a Flutter foundation preview, not playable training yet.
-It has a launch screen and smoke tests. There is no bidding, card play, progress
-storage or scenario evaluation in this checkpoint.
+This branch contains an interactive card preview: all four suits, selected and
+disabled states, keyboard controls and a responsive layout. The four cards are UI
+specimens, not a dealt hand or scored scenario. Bidding, game-rule enforcement,
+progress storage and coaching evaluation remain future milestones.
 
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch chore/flutter-bootstrap
+git switch codex/visual-foundations
 flutter pub get
 flutter run -d chrome
 ```
@@ -170,12 +171,16 @@ to see available targets. iOS device builds require your own signing setup.
 
 ### What to test
 
-1. Launch: see **Estimation Coach**, its tagline and **Foundation preview**.
-2. Resize to a narrow phone width: text stays readable with no overflow stripes.
-3. Increase text size/browser zoom: scroll if necessary to reach the final line.
-4. Refresh/relaunch: the same preview opens without an error screen.
-
-There are intentionally no training buttons in this bootstrap.
+1. Launch: see **Get a feel for the cards** and A ♠, K ♥, 10 ♦, J ♣.
+2. Tap an available card: it rises with a gold border and checkmark; its name
+   appears below the table. Tap another to switch, or tap it again to deselect.
+3. Tap the locked 10 ♦: selection must not change. Its disabled state is a UI
+   demonstration, not a claim about legal play.
+4. Tap **Clear selection**: selection resets and the button becomes disabled.
+5. Use Tab and Enter: available cards can be selected; the locked card is skipped.
+6. Resize to a 320-pixel phone width: cards wrap into rows without overlap.
+   At large text sizes, scroll to reach the remaining cards and controls.
+7. Refresh/relaunch: selection resets; this preview does not persist progress.
 
 ### Automated checks
 
@@ -186,5 +191,6 @@ flutter test
 flutter build web
 ```
 
-Tests cover app launch and a 320×568 layout with 2× text scaling. Training-rule
-tests will arrive with the deterministic domain implementation.
+Five widget tests cover selection/toggle/reset, disabled interaction, accessibility
+labels and states, keyboard activation, and a 320×568 layout at 1× and 2× text
+scaling. Training-rule tests will arrive with the domain implementation.

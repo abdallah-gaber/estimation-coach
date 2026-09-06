@@ -60,7 +60,7 @@ When time is limited, prioritize:
 
 The initial `main` contains the supplied documents, schema and draft content.
 `chore/flutter-bootstrap` adds a minimal launch screen for user testing before
-feature implementation. It remains unmerged until review. Android, iOS, macOS
+feature implementation. It was reviewed and merged through PR #1. Android, iOS, macOS
 and web runners are generated; web is the first validated target. The browser
 runner is a convenient local Flutter test target, not a hosted product.
 
@@ -71,6 +71,26 @@ Keep machine-specific signing teams out of the shared iOS project.
 The supplied scenario is a draft, with incomplete choice evaluations and a note
 requiring agreed-rule review. Do not expose it as trusted coaching before EC-022,
 EC-023 and the rules clarification task are complete.
+
+## D-006 — Small reusable card surface with a temporary preview
+
+**Status:** Accepted
+
+EC-011 introduces `shared/widgets/playing_card.dart` and a small set of spacing,
+color and card typography values in `app/visual_tokens.dart`. App text continues
+to use Material's text theme. Selection is caller-owned, and a null tap callback
+makes a card unavailable. The widget announces full card identity and state,
+supports keyboard focus, and respects the reduced-motion setting for selection.
+
+`features/visual_preview/` provides four UI specimens with local `setState`.
+They are not scenario content and do not claim to model a legal hand or evaluate
+a decision. `SuitVisual` only supplies display metadata; card equality, deck,
+hand and rules remain EC-020/EC-021 work. The domain can later map suits to this
+presentation widget. No state-management package or runtime dependency is added.
+
+Cards wrap rather than overlap so the preview remains tappable on phones. Card
+faces scale with text size. The preview will be replaced by the training hub
+when the first scenario is ready; authored scenarios remain portable content.
 
 ## Decision template
 

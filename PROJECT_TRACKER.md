@@ -49,13 +49,13 @@ Configure GitHub branch protection.
 # Milestone 1 — Flutter Bootstrap
 
 ## EC-010 — Bootstrap Flutter app
-**Status:** IN PROGRESS
+**Status:** DONE
 
 Create the Flutter application structure without implementing product features.
 
 Implementation and local checks complete on `chore/flutter-bootstrap`:
-analysis, two widget tests and a web build pass. Remains IN PROGRESS until
-user testing and PR merge, as required by the acceptance criteria below.
+analysis, two widget tests and a web build pass. User testing accepted;
+merged through PR #1.
 
 ### Acceptance criteria
 - App runs on at least one target.
@@ -69,9 +69,14 @@ user testing and PR merge, as required by the acceptance criteria below.
 ---
 
 ## EC-011 — Define visual foundations
-**Status:** BACKLOG
+**Status:** DONE
 
 Create only the visual primitives needed for the first training scenario.
+
+Implemented on `codex/visual-foundations`: reusable card widget, visual tokens,
+and an interactive four-card specimen preview. Five widget tests, analysis,
+formatting and web build pass; browser rendering and selection visually checked.
+No authored training content or game rules were changed.
 
 ### Acceptance criteria
 - Card visual supports rank + suit.
