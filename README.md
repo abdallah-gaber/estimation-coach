@@ -148,3 +148,43 @@ Potential ideas, not current commitments:
 ## Status
 
 See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation status and next task.
+
+## Run the first checkpoint
+
+This branch contains a Flutter foundation preview, not playable training yet.
+It has a launch screen and smoke tests. There is no bidding, card play, progress
+storage or scenario evaluation in this checkpoint.
+
+Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
+
+```sh
+git switch chore/flutter-bootstrap
+flutter pub get
+flutter run -d chrome
+```
+
+Alternatively, run `flutter run -d web-server --web-port 8080` and open
+http://localhost:8080 in your browser. Stop the running app with `q` in its terminal.
+The native runners are generated but not yet validated; use `flutter devices`
+to see available targets. iOS device builds require your own signing setup.
+
+### What to test
+
+1. Launch: see **Estimation Coach**, its tagline and **Foundation preview**.
+2. Resize to a narrow phone width: text stays readable with no overflow stripes.
+3. Increase text size/browser zoom: scroll if necessary to reach the final line.
+4. Refresh/relaunch: the same preview opens without an error screen.
+
+There are intentionally no training buttons in this bootstrap.
+
+### Automated checks
+
+```sh
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze
+flutter test
+flutter build web
+```
+
+Tests cover app launch and a 320×568 layout with 2× text scaling. Training-rule
+tests will arrive with the deterministic domain implementation.
