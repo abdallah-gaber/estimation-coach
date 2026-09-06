@@ -1,9 +1,9 @@
-import '../../shared/widgets/playing_card.dart';
+import '../../core/cards/cards.dart';
 
 /// UI specimens, not an authored hand, legal-play exercise or scored scenario.
 const previewCards = [
-  (rank: 'A', label: 'Ace', suit: SuitVisual.spades, enabled: true),
-  (rank: 'K', label: 'King', suit: SuitVisual.hearts, enabled: true),
-  (rank: '10', label: 'Ten', suit: SuitVisual.diamonds, enabled: false),
-  (rank: 'J', label: 'Jack', suit: SuitVisual.clubs, enabled: true),
+  (card: GameCard(Rank.ace, Suit.spades), enabled: true),
+  (card: GameCard(Rank.king, Suit.hearts), enabled: true),
+  (card: GameCard(Rank.ten, Suit.diamonds), enabled: false),
+  (card: GameCard(Rank.jack, Suit.clubs), enabled: true),
 ];
