@@ -15,7 +15,7 @@ This file is the repository-level source of truth for planned and active work.
 # Milestone 0 — Repository Foundation
 
 ## EC-001 — Repository foundation
-**Status:** IN PROGRESS
+**Status:** DONE
 
 Create the initial repository files and commit them to `main`.
 
