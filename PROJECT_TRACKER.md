@@ -30,7 +30,11 @@ Create the initial repository files and commit them to `main`.
 ---
 
 ## EC-002 — Protect main branch
-**Status:** BACKLOG
+**Status:** DONE
+
+Configured on GitHub: PRs required (including admins), force pushes and deletion
+disabled. Zero required approvals for the current solo-contributor workflow;
+add one when another reviewer is available. Required checks are deferred to EC-012.
 
 Configure GitHub branch protection.
 
@@ -45,9 +49,13 @@ Configure GitHub branch protection.
 # Milestone 1 — Flutter Bootstrap
 
 ## EC-010 — Bootstrap Flutter app
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 
 Create the Flutter application structure without implementing product features.
+
+Implementation and local checks complete on `chore/flutter-bootstrap`:
+analysis, two widget tests and a web build pass. Remains IN PROGRESS until
+user testing and PR merge, as required by the acceptance criteria below.
 
 ### Acceptance criteria
 - App runs on at least one target.
@@ -71,6 +79,27 @@ Create only the visual primitives needed for the first training scenario.
 - Basic spacing/typography tokens exist.
 - UI works on a typical phone width.
 - No heavy design system is created.
+
+## EC-012 — Add Flutter continuous integration
+**Status:** READY
+
+Run the bootstrap checks on pull requests and require them before merge.
+
+### Acceptance criteria
+- CI checks formatting, analysis, tests and a web build.
+- GitHub main protection requires the passing CI job.
+
+## EC-024 — Confirm bidding rules and review the draft fixture
+**Status:** READY
+
+Agree the rules needed before exposing authored coaching. The existing fixture
+has only three evaluated choices, so most allowed combinations have no rating.
+
+### Acceptance criteria
+- Document Dash eligibility, minimum bids, equal-bid/suit ordering and no-trump support.
+- Review prior actions and allowed decisions against those rules.
+- Review authored ratings, and define behavior for choices without an evaluation.
+- Record the outcome in the authoring guide before implementing bid evaluation.
 
 ---
 
