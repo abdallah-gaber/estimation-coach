@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/visual_tokens.dart';
 import '../../shared/widgets/playing_card.dart';
+import '../../shared/widgets/card_labels.dart';
 import 'preview_cards.dart';
 
 class VisualPreviewScreen extends StatefulWidget {
@@ -64,9 +65,7 @@ class _VisualPreviewScreenState extends State<VisualPreviewScreen> {
                               for (var i = 0; i < previewCards.length; i++)
                                 PlayingCard(
                                   key: ValueKey('card-$i'),
-                                  rank: previewCards[i].rank,
-                                  rankLabel: previewCards[i].label,
-                                  suit: previewCards[i].suit,
+                                  card: previewCards[i].card,
                                   selected: _selected == i,
                                   onTap: previewCards[i].enabled
                                       ? () => setState(
@@ -93,7 +92,7 @@ class _VisualPreviewScreenState extends State<VisualPreviewScreen> {
                     child: Text(
                       selection == null
                           ? 'No card selected'
-                          : '${selection.label} of ${selection.suit.label} selected',
+                          : '${selection.card.label} selected',
                       style: text.titleMedium,
                     ),
                   ),

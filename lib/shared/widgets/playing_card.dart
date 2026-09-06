@@ -1,38 +1,24 @@
 import 'package:flutter/material.dart';
 
 import '../../app/visual_tokens.dart';
-
-/// Presentation metadata only; game models and legality live in the domain core.
-enum SuitVisual {
-  spades('♠', 'Spades', false),
-  hearts('♥', 'Hearts', true),
-  diamonds('♦', 'Diamonds', true),
-  clubs('♣', 'Clubs', false);
-
-  const SuitVisual(this.symbol, this.label, this.isRed);
-  final String symbol;
-  final String label;
-  final bool isRed;
-}
+import '../../core/cards/cards.dart';
+import 'card_labels.dart';
 
 class PlayingCard extends StatelessWidget {
   const PlayingCard({
     super.key,
-    required this.rank,
-    required this.rankLabel,
-    required this.suit,
+    required this.card,
     this.selected = false,
     this.onTap,
   });
 
-  final String rank;
-  final String rankLabel;
-  final SuitVisual suit;
+  final GameCard card;
   final bool selected;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final suit = card.suit;
     final enabled = onTap != null;
     final active = enabled && selected;
     final color = enabled
@@ -41,7 +27,7 @@ class PlayingCard extends StatelessWidget {
     // Let card text grow along with system text instead of clipping its corners.
     final scale = MediaQuery.textScalerOf(context).scale(26) / 26;
     return Semantics(
-      label: '$rankLabel of ${suit.label}',
+      label: card.label,
       button: true,
       enabled: enabled,
       selected: active,
@@ -79,7 +65,7 @@ class PlayingCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            rank,
+                            card.rank.code,
                             style: VisualTokens.rank.copyWith(color: color),
                           ),
                           if (!enabled || active)

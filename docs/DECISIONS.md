@@ -92,6 +92,29 @@ Cards wrap rather than overlap so the preview remains tappable on phones. Card
 faces scale with text size. The preview will be replaced by the training hub
 when the first scenario is ready; authored scenarios remain portable content.
 
+## D-007 — Immutable card domain and presentation mapping
+
+**Status:** Accepted
+
+`core/cards/cards.dart` is pure Dart with no Flutter dependency. `Suit`, `Rank`
+and `GameCard` encode card identities. A card compares by rank and suit, with a
+matching hash code. Strict parsing accepts only the uppercase v1 notation;
+whitespace, lowercase, jokers and alternate ten notation are rejected with
+`FormatException`. Content errors should be visible to future validators.
+
+`Hand` snapshots 0–13 distinct cards, including partial/empty hands during play.
+It preserves input order for rendering but compares and hashes by membership.
+Duplicate cards and oversized hands throw `ArgumentError` in release builds too.
+Its exposed list and the deterministic `standardDeck()` list are immutable.
+Deck enumeration is suit then rank; it does not define bidding precedence,
+shuffle behavior, dealing or trick-winner rules.
+
+`PlayingCard` now takes one `GameCard`; presentation extensions in
+`shared/widgets/card_labels.dart` provide labels, symbols and suit color.
+This replaces the temporary `SuitVisual` metadata described in D-006. The preview
+still uses four UI specimens with the same behavior. EC-021 will add legality;
+EC-024 remains the prerequisite for resolving bidding-rule ambiguity.
+
 ## Decision template
 
 Copy this section for future decisions.

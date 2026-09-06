@@ -111,9 +111,14 @@ has only three evaluated choices, so most allowed combinations have no rating.
 # Milestone 2 — Domain Core
 
 ## EC-020 — Card domain model
-**Status:** BACKLOG
+**Status:** DONE
 
 Define card, rank, suit and hand models.
+
+Implemented on `codex/card-domain-model`: immutable card/hand value objects,
+strict v1 notation parsing and a deterministic standard deck. The visual preview
+now consumes typed cards. Nine domain tests and five existing widget tests pass,
+as do formatting, analysis and the web build. See D-007 for equality semantics.
 
 ### Acceptance criteria
 - Models have clear equality semantics.

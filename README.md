@@ -149,9 +149,10 @@ Potential ideas, not current commitments:
 
 See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation status and next task.
 
-## Run the visual foundations checkpoint
+## Run the card domain checkpoint
 
-This branch contains an interactive card preview: all four suits, selected and
+The preview now uses immutable typed cards backed by a pure Dart domain model.
+It retains the interactive card preview: all four suits, selected and
 disabled states, keyboard controls and a responsive layout. The four cards are UI
 specimens, not a dealt hand or scored scenario. Bidding, game-rule enforcement,
 progress storage and coaching evaluation remain future milestones.
@@ -159,7 +160,7 @@ progress storage and coaching evaluation remain future milestones.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/visual-foundations
+git switch codex/card-domain-model
 flutter pub get
 flutter run -d chrome
 ```
@@ -191,6 +192,11 @@ flutter test
 flutter build web
 ```
 
+Nine domain tests cover card equality and parsing, deck completeness/immutability,
+and hand equality, defensive copying and validation. Run these alone with
+`flutter test test/core/cards/cards_test.dart`.
+
 Five widget tests cover selection/toggle/reset, disabled interaction, accessibility
 labels and states, keyboard activation, and a 320×568 layout at 1× and 2× text
-scaling. Training-rule tests will arrive with the domain implementation.
+scaling. All 14 tests run with `flutter test`. Follow-suit rules remain the next
+domain task (EC-021).
