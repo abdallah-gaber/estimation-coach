@@ -163,7 +163,7 @@ future milestones.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/scenario-validation
+git switch codex/scenario-schema
 flutter pub get
 flutter run -d chrome
 ```
@@ -218,3 +218,10 @@ Expected: the one draft fixture passes structural checks with a warning that
 until that coverage is authored. Both modes still require manual rules/coaching
 review; no new training UI is enabled. Full usage and exit codes are in
 [the authoring guide](docs/SCENARIO_AUTHORING.md#standalone-validation-ec-022--ec-023).
+
+Canonical normal-round bidding rules are documented as
+[game_rules_v1](docs/GAME_RULES_V1.md): minimum 4 tricks, count-first raises,
+Sans > Spades > Hearts > Diamonds > Clubs, and a separate pre-bidding Dash phase.
+The current structural fixture conflicts with the minimum and Dash timing;
+implementation and content migration are tracked in EC-026. It is not ready for
+training even though structural validation passes.
