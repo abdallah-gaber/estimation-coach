@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../features/visual_preview/visual_preview_screen.dart';
+import '../features/bidding_training/bidding_training_screen.dart';
 import 'visual_tokens.dart';
 
 class EstimationCoachApp extends StatelessWidget {
@@ -15,7 +15,7 @@ class EstimationCoachApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: VisualTokens.table),
         scaffoldBackgroundColor: VisualTokens.paper,
       ),
-      home: const VisualPreviewScreen(),
+      home: const BiddingTrainingScreen(),
     );
   }
 }

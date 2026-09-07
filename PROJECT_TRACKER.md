@@ -132,14 +132,14 @@ still EC-024 work.
 - Special/fixed-trump rounds remain out of scope.
 
 ## EC-024 — Confirm bidding rules and review the draft fixture
-**Status:** IN PROGRESS
+**Status:** DONE
 
 Canonical normal-round bidding rules are confirmed in `docs/GAME_RULES_V1.md`.
-EC-026 corrected the draft's 3-trick bids and late Dash choices. Its situation
-is now rule-valid; strategic rating review and feedback coverage remain pending.
-
-Agree the rules needed before exposing authored coaching. The existing fixture
-has only one evaluated choice out of 17 legal raises, so 16 choices have no rating.
+EC-026 corrected the draft's 3-trick bids and late Dash choices. The strategic
+review is now in `docs/COACHING_REVIEW.md`: 4 Spades is reasonable rather than
+strong, and all 17 legal raises plus the two pre-bidding choices have feedback.
+The pure evaluator returns null for missing feedback; the trainer rejects
+incomplete catalogs before a session starts.
 
 ### Acceptance criteria
 - Document Dash eligibility, minimum bids, equal-bid/suit ordering and no-trump support.
@@ -230,9 +230,13 @@ validation does not resolve EC-024 or certify authored coaching.
 # Milestone 3 — First Playable Bidding Coach
 
 ## EC-030 — Visual bidding scenario screen
-**Status:** BACKLOG
+**Status:** DONE
 
-Render one authored bidding scenario visually.
+Render authored bidding scenarios visually.
+
+Completed: bundled JSON loading, a 13-card hand with font-independent suit
+marks, prior-action chips, pre-bidding Dash/enter, and legal count/trump controls.
+Widget coverage includes 320px with double text scaling and load-error retry.
 
 ### Acceptance criteria
 - Player sees a card hand.
@@ -245,9 +249,12 @@ Render one authored bidding scenario visually.
 ---
 
 ## EC-031 — Deterministic bid evaluation
-**Status:** BACKLOG
+**Status:** DONE
 
 Evaluate the player's authored scenario choice.
+
+Completed: pure exact authored lookup, illegal-choice rejection, explicit
+missing feedback, and regression coverage across all 19 choices/four ratings.
 
 ### Acceptance criteria
 - Returns a decision rating.
@@ -258,9 +265,12 @@ Evaluate the player's authored scenario choice.
 ---
 
 ## EC-032 — Coaching feedback card
-**Status:** BACKLOG
+**Status:** DONE
 
 Show concise visual feedback after a bidding decision.
+
+Completed: rating, choice-specific explanation, optional Why? evidence, explicit
+unsimulated outcome, retry, next independent hand, and session restart.
 
 ### Acceptance criteria
 - Decision quality is shown separately from outcome.
@@ -274,6 +284,9 @@ Show concise visual feedback after a bidding decision.
 **Status:** BACKLOG
 
 Author a small curated scenario pack.
+
+Progress: 2 reviewed hands and 19 evaluated choices are bundled for the first
+user-test checkpoint. Expand to 10 after feedback on this training loop.
 
 ### Acceptance criteria
 - At least 10 scenarios.

@@ -72,6 +72,6 @@ undocumented permanent withdrawal rule.
 The canonical draft was migrated from an illegal prior 3 Hearts bid to 4 Hearts,
 with a minimum choice bound of 4, Dash disabled and Sans supported. Its 4 Spades
 choice is a legal raise. Bounds 4–7 over the five trump categories produce 17
-legal choices (4 Spades, 4 Sans, and all five trumps for 5–7), with one authored
-evaluation. The 16 unevaluated choices remain ungraded; coaching certification
-is still pending EC-024. Rule-valid data is not proof of a strong decision.
+legal choices (4 Spades, 4 Sans, and all five trumps for 5–7), now all evaluated.
+The [coaching review](COACHING_REVIEW.md) rates 4 Spades reasonable and records
+its conditional assumptions. Rule-valid data is not proof of a strong decision.

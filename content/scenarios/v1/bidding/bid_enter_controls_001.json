@@ -1,0 +1,69 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_enter_controls_001",
+  "type": "bidding",
+  "title": "Three Aces. Is zero a sound plan?",
+  "difficulty": "beginner",
+  "primary_skill": "dash_decisions",
+  "skills": [
+    "dash_decisions",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "AS",
+    "KS",
+    "QS",
+    "7S",
+    "2S",
+    "AH",
+    "5H",
+    "3H",
+    "AD",
+    "8D",
+    "9C",
+    "6C",
+    "2C"
+  ],
+  "bidding_phase": "pre_bidding",
+  "dash_players": [],
+  "previous_actions": [],
+  "allowed_decisions": {
+    "dash": true,
+    "enter": true
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "dash"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "Zero is a poor fit for these controls",
+        "summary": "Dash commits you to exactly zero. Three Aces and a strong Spade sequence make that a fragile plan.",
+        "points": [
+          "The trump is not known yet, so do not count a final trick total.",
+          "Your Aces are strong controls, and Ace-King-Queen of Spades may take tricks even without being trump.",
+          "Enter normal bidding to keep your options; this decision does not commit you to a particular bid."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "enter"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "Keep your options open",
+        "summary": "Entering preserves flexibility with three Aces and a strong Spade sequence. You are not choosing a bid or trump yet.",
+        "points": [
+          "Control: three Aces make a zero-trick plan hard to defend.",
+          "Probable: Ace-King-Queen of Spades provides potential successive winners when that suit is played.",
+          "Risk: trump and distribution are unknown, so these controls are not a guaranteed trick total."
+        ]
+      }
+    }
+  ],
+  "author_notes": "Reviewed 2026-09-07 for pre-bidding participation only; see docs/COACHING_REVIEW.md. Independent of the next normal-bidding hand. No numerical trick guarantee."
+}

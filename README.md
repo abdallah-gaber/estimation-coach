@@ -149,42 +149,42 @@ Potential ideas, not current commitments:
 
 See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation status and next task.
 
-## Run the scenario validation checkpoint
+## Run the first bidding trainer
 
-The domain now includes deterministic follow-suit legality; see
-[implemented game rules](docs/GAME_RULES.md). This milestone adds core behavior
-and tests; the preview remains a UI specimen with no current trick.
-The preview uses immutable typed cards backed by a pure Dart domain model.
-It retains the interactive card preview: all four suits, selected and
-disabled states, keyboard controls and a responsive layout. The four cards are UI
-specimens, not a dealt hand or scored scenario. Interactive bidding/play, progress storage and coaching evaluation remain
-future milestones.
+This checkpoint has two independent hands: Dash versus enter, then a normal
+bid facing 4 Hearts. All 19 legal choices have deterministic authored feedback.
+Read the [coaching review](docs/COACHING_REVIEW.md) for rating rationale.
+There is no full auction, simulated outcome, saved progress, or mid-hand play yet.
 
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/canonical-bidding
+git switch codex/first-bidding-trainer
 flutter pub get
 flutter run -d chrome
 ```
 
-Alternatively, run `flutter run -d web-server --web-port 8080` and open
-http://localhost:8080 in your browser. Stop the running app with `q` in its terminal.
-The native runners are generated but not yet validated; use `flutter devices`
-to see available targets. iOS device builds require your own signing setup.
+Alternatively, run `flutter run -d web-server --web-port 8082` and open
+http://localhost:8082. Stop the app with `q` in its terminal. Native runners are
+generated but unvalidated; use `flutter devices` to see available targets.
 
 ### What to test
 
-1. Launch: see **Get a feel for the cards** and A ♠, K ♥, 10 ♦, J ♣.
-2. Tap an available card: it rises with a gold border and checkmark; its name
-   appears below the table. Tap another to switch, or tap it again to deselect.
-3. Tap the locked 10 ♦: selection must not change. Its disabled state is a UI
-   demonstration, not a claim about legal play.
-4. Tap **Clear selection**: selection resets and the button becomes disabled.
-5. Use Tab and Enter: available cards can be selected; the locked card is skipped.
-6. Resize to a 320-pixel phone width: cards wrap into rows without overlap.
-   At large text sizes, scroll to reach the remaining cards and controls.
-7. Refresh/relaunch: selection resets; this preview does not persist progress.
+1. See a 13-card hand, South's position, and **Before bidding · Trump unknown**.
+2. Choose **Dash · 0 tricks**: expect **Weak decision** and a fixed zero estimate.
+   Open **Why?** for the evidence. Choose **Try another choice**, then
+   **Enter bidding**: expect **Strong decision**, with no target chosen yet.
+3. Choose **Next hand**: a different hand appears with West's pass and North's
+   4 Hearts. Dash must not be available during normal bidding.
+4. Choose **4**: only Spades and Sans are enabled. Choose **5**: all suits unlock.
+   Select Hearts, then change to 4: Hearts clears and **Review bid** is disabled.
+5. Submit **4 Spades**: expect **Reasonable**. Try **4 Sans** (Risky),
+   **5 Spades** (Risky), and **7 Clubs** (Weak decision). Check that the explanation
+   matches your choice. Outcomes are explicitly not simulated.
+6. Choose **Finish session**, then **Practice again**: the first hand resets.
+7. Resize to 320px and increase text size: cards and controls should wrap and
+   remain reachable by scrolling. Use Tab/Enter to choose buttons and chips.
+8. Refresh: the session starts over. Progress is not persisted in this checkpoint.
 
 ### Automated checks
 
@@ -192,43 +192,15 @@ to see available targets. iOS device builds require your own signing setup.
 dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze
 flutter test
+dart run tool/validate_scenarios.dart --require-complete
 flutter build web
 ```
 
-Nine domain tests cover card equality and parsing, deck completeness/immutability,
-and hand equality, defensive copying and validation. Run these alone with
-`flutter test test/core/cards/cards_test.dart`.
+Strict validation should pass both scenario files with no missing evaluations.
+Tests cover cards, game rules, parser/schema alignment, validator failure cases,
+authored evaluation, bundled loading, legal choice controls, feedback, session
+restart, load retry, and a 320px layout with double text scaling.
+The older card specimen remains independently tested.
 
-Five widget tests cover selection/toggle/reset, disabled interaction, accessibility
-labels and states, keyboard activation, and a 320×568 layout at 1× and 2× text
-scaling. Seven rule tests cover follow-suit legality; run them with
-`flutter test test/core/game_rules/legal_cards_test.dart`. The existing card, rule and widget tests run with
-`flutter test`. Parser and validator tests run with `flutter test test/scenarios`.
-
-### Validate scenario content
-
-```sh
-flutter pub get
-dart run tool/validate_scenarios.dart
-flutter test test/scenarios
-```
-
-Expected: the one draft fixture passes structural checks with a warning that
-16 of 17 choices lack evaluations. `--require-complete` intentionally exits 1
-until that coverage is authored. Both modes still require manual coaching
-review; no new training UI is enabled. Full usage and exit codes are in
-[the authoring guide](docs/SCENARIO_AUTHORING.md#standalone-validation-ec-022--ec-023).
-
-Canonical normal-round bidding rules are implemented in the domain and scenario
-validator: [game_rules_v1](docs/GAME_RULES_V1.md). Bids start at 4, compare count
-then Sans > Spades > Hearts > Diamonds > Clubs, and exclude Dash players.
-Dash is a separate pre-bidding decision with a fixed estimate of zero.
-
-The draft now faces 4 Hearts with 17 legal raises in its authored bounds, including
-Sans. Its 4 Spades evaluation is still draft coaching; 16 choices lack feedback.
-The card preview is unchanged. Run the focused regressions with:
-
-```sh
-flutter test test/core/game_rules/bidding_test.dart
-flutter test test/scenarios/canonical_bidding_test.dart
-```
+Canonical rules: [game_rules_v1](docs/GAME_RULES_V1.md).
+Content contract and CLI usage: [authoring guide](docs/SCENARIO_AUTHORING.md).
