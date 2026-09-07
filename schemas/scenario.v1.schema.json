@@ -104,7 +104,7 @@
     },
     "tricks": {
       "type": "integer",
-      "minimum": 1,
+      "minimum": 4,
       "maximum": 13
     },
     "previousAction": {
@@ -118,14 +118,15 @@
           "enum": [
             "pass",
             "dash",
-            "bid"
+            "bid",
+            "enter"
           ]
         },
         "tricks": {
           "$ref": "#/$defs/tricks"
         },
         "trump": {
-          "$ref": "#/$defs/suit"
+          "$ref": "#/$defs/trump"
         },
         "player": {
           "$ref": "#/$defs/seat"
@@ -163,14 +164,15 @@
         "action": {
           "enum": [
             "dash",
-            "bid"
+            "bid",
+            "enter"
           ]
         },
         "tricks": {
           "$ref": "#/$defs/tricks"
         },
         "trump": {
-          "$ref": "#/$defs/suit"
+          "$ref": "#/$defs/trump"
         }
       },
       "if": {
@@ -205,7 +207,7 @@
       ],
       "properties": {
         "dash": {
-          "type": "boolean"
+          "const": false
         },
         "bids": {
           "type": "object",
@@ -227,8 +229,11 @@
           "minItems": 1,
           "uniqueItems": true,
           "items": {
-            "$ref": "#/$defs/suit"
+            "$ref": "#/$defs/trump"
           }
+        },
+        "enter": {
+          "const": false
         }
       }
     },
@@ -277,6 +282,48 @@
           "$ref": "#/$defs/feedback"
         }
       }
+    },
+    "trump": {
+      "enum": [
+        "clubs",
+        "diamonds",
+        "hearts",
+        "spades",
+        "no_trump"
+      ]
+    },
+    "preDecisions": {
+      "type": "object",
+      "required": [
+        "dash",
+        "enter"
+      ],
+      "properties": {
+        "dash": {
+          "type": "boolean"
+        },
+        "enter": {
+          "type": "boolean"
+        },
+        "bids": false,
+        "trumps": false
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "dash": {
+              "const": true
+            }
+          }
+        },
+        {
+          "properties": {
+            "enter": {
+              "const": true
+            }
+          }
+        }
+      ]
     }
   },
   "allOf": [
@@ -298,7 +345,10 @@
           "hand",
           "previous_actions",
           "allowed_decisions",
-          "evaluations"
+          "evaluations",
+          "rules_version",
+          "bidding_phase",
+          "dash_players"
         ],
         "properties": {
           "title": {
@@ -321,9 +371,6 @@
               "$ref": "#/$defs/previousAction"
             }
           },
-          "allowed_decisions": {
-            "$ref": "#/$defs/allowedDecisions"
-          },
           "evaluations": {
             "uniqueItems": true,
             "items": {
@@ -332,8 +379,104 @@
           },
           "author_notes": {
             "$ref": "#/$defs/nonblank"
+          },
+          "rules_version": {
+            "const": "game_rules_v1"
+          },
+          "bidding_phase": {
+            "enum": [
+              "pre_bidding",
+              "normal"
+            ]
+          },
+          "dash_players": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/seat"
+            }
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "bidding_phase": {
+                  "const": "pre_bidding"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "allowed_decisions": {
+                  "$ref": "#/$defs/preDecisions"
+                },
+                "previous_actions": {
+                  "items": {
+                    "properties": {
+                      "action": {
+                        "enum": [
+                          "dash",
+                          "enter"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "evaluations": {
+                  "items": {
+                    "properties": {
+                      "decision": {
+                        "properties": {
+                          "action": {
+                            "enum": [
+                              "dash",
+                              "enter"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "allowed_decisions": {
+                  "$ref": "#/$defs/allowedDecisions"
+                },
+                "previous_actions": {
+                  "items": {
+                    "properties": {
+                      "action": {
+                        "enum": [
+                          "pass",
+                          "bid"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "evaluations": {
+                  "items": {
+                    "properties": {
+                      "decision": {
+                        "properties": {
+                          "action": {
+                            "enum": [
+                              "bid"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     }
   ]

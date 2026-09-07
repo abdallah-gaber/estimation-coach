@@ -3,6 +3,7 @@
 - `main.dart`: Flutter entry point.
 - `app/`: app shell, theme and minimal visual tokens.
 - `core/cards/cards.dart`: pure Dart suit, rank, card, hand and deck types.
+- `core/game_rules/bidding.dart`: bids, trump categories and phased Dash/bidding state.
 - `core/game_rules/legal_cards.dart`: follow-suit legality and card membership.
 - `shared/widgets/playing_card.dart`: typed selectable/disabled card face.
 - `shared/widgets/card_labels.dart`: UI labels and suit symbols/colors.

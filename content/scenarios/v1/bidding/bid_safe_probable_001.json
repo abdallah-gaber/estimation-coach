@@ -34,21 +34,22 @@
     {
       "player": "north",
       "action": "bid",
-      "tricks": 3,
+      "tricks": 4,
       "trump": "hearts"
     }
   ],
   "allowed_decisions": {
-    "dash": true,
+    "dash": false,
     "bids": {
-      "min": 3,
+      "min": 4,
       "max": 7
     },
     "trumps": [
       "spades",
       "hearts",
       "diamonds",
-      "clubs"
+      "clubs",
+      "no_trump"
     ]
   },
   "evaluations": [
@@ -70,5 +71,8 @@
       }
     }
   ],
-  "author_notes": "Example structure only. Final game judgment must follow documented rules."
+  "author_notes": "Migrated to game_rules_v1: South faces 4 Hearts and may legally raise to 4 Spades. Bounds are filtered to legal raises. Coaching remains a draft pending EC-024 review; this is not an approved training scenario.",
+  "rules_version": "game_rules_v1",
+  "bidding_phase": "normal",
+  "dash_players": []
 }

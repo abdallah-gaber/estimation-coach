@@ -163,7 +163,7 @@ future milestones.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/scenario-schema
+git switch codex/canonical-bidding
 flutter pub get
 flutter run -d chrome
 ```
@@ -214,14 +214,21 @@ flutter test test/scenarios
 ```
 
 Expected: the one draft fixture passes structural checks with a warning that
-20 of 21 choices lack evaluations. `--require-complete` intentionally exits 1
-until that coverage is authored. Both modes still require manual rules/coaching
+16 of 17 choices lack evaluations. `--require-complete` intentionally exits 1
+until that coverage is authored. Both modes still require manual coaching
 review; no new training UI is enabled. Full usage and exit codes are in
 [the authoring guide](docs/SCENARIO_AUTHORING.md#standalone-validation-ec-022--ec-023).
 
-Canonical normal-round bidding rules are documented as
-[game_rules_v1](docs/GAME_RULES_V1.md): minimum 4 tricks, count-first raises,
-Sans > Spades > Hearts > Diamonds > Clubs, and a separate pre-bidding Dash phase.
-The current structural fixture conflicts with the minimum and Dash timing;
-implementation and content migration are tracked in EC-026. It is not ready for
-training even though structural validation passes.
+Canonical normal-round bidding rules are implemented in the domain and scenario
+validator: [game_rules_v1](docs/GAME_RULES_V1.md). Bids start at 4, compare count
+then Sans > Spades > Hearts > Diamonds > Clubs, and exclude Dash players.
+Dash is a separate pre-bidding decision with a fixed estimate of zero.
+
+The draft now faces 4 Hearts with 17 legal raises in its authored bounds, including
+Sans. Its 4 Spades evaluation is still draft coaching; 16 choices lack feedback.
+The card preview is unchanged. Run the focused regressions with:
+
+```sh
+flutter test test/core/game_rules/bidding_test.dart
+flutter test test/scenarios/canonical_bidding_test.dart
+```

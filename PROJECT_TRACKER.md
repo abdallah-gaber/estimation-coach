@@ -111,9 +111,16 @@ preserved; its game_rules_v1 conflicts are audited and tracked in EC-026.
 - Verify schema/parser agreement using valid and invalid fixtures.
 
 ## EC-026 — Implement canonical game_rules_v1 bidding
-**Status:** READY
+**Status:** DONE
 
 Apply the owner's confirmed rules to domain models, validation and draft content.
+
+Implemented on `codex/canonical-bidding`: count/trump bid ranking, Sans, immutable
+Dash state, explicit scenario rules/phase metadata, phase-aware history checks
+and filtered legal choices. Draft migrated to face 4 Hearts with 17 legal raises.
+All 140 tests, formatting, analysis, default validation and web build pass.
+Strict coverage correctly fails for 16 missing evaluations; coaching review is
+still EC-024 work.
 
 ### Acceptance criteria
 - Normal bids start at 4 tricks; raises compare count, then trump rank.
@@ -128,11 +135,11 @@ Apply the owner's confirmed rules to domain models, validation and draft content
 **Status:** IN PROGRESS
 
 Canonical normal-round bidding rules are confirmed in `docs/GAME_RULES_V1.md`.
-The draft audit identifies illegal 3-trick bids and late Dash choices. Correcting
-the scenario and reviewing its rating remain pending EC-026.
+EC-026 corrected the draft's 3-trick bids and late Dash choices. Its situation
+is now rule-valid; strategic rating review and feedback coverage remain pending.
 
 Agree the rules needed before exposing authored coaching. The existing fixture
-has only one evaluated choice out of 21, so most allowed combinations have no rating.
+has only one evaluated choice out of 17 legal raises, so 16 choices have no rating.
 
 ### Acceptance criteria
 - Document Dash eligibility, minimum bids, equal-bid/suit ordering and no-trump support.

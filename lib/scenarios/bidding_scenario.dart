@@ -1,14 +1,14 @@
 import '../core/cards/cards.dart';
+import '../core/game_rules/bidding.dart';
+export '../core/game_rules/bidding.dart' show PlayerSeat, BiddingPhase, Trump;
 
 enum Difficulty { beginner, intermediate, advanced }
 
-enum PlayerSeat { north, east, south, west }
-
 enum DecisionRating { strong, reasonable, risky, weak }
 
-enum BiddingAction { dash, bid }
+enum BiddingAction { dash, enter, bid }
 
-enum PreviousActionKind { pass, dash, bid }
+enum PreviousActionKind { pass, dash, enter, bid }
 
 /// Typed, immutable authored content. Parsing does not endorse coaching quality.
 final class BiddingScenario {
@@ -24,6 +24,7 @@ final class BiddingScenario {
     required this.allowedDecisions,
     required this.evaluations,
     required this.authorNotes,
+    required this.biddingState,
   });
 
   final String id;
@@ -37,6 +38,8 @@ final class BiddingScenario {
   final AllowedDecisions allowedDecisions;
   final List<AuthoredEvaluation> evaluations;
   final String? authorNotes;
+  final BiddingState biddingState;
+  String get rulesVersion => 'game_rules_v1';
 
   factory BiddingScenario.fromJson(Object? value) {
     final data = _object(value, r'$');
@@ -71,8 +74,76 @@ final class BiddingScenario {
     if (cards.toSet().length != cards.length) {
       _fail(r'$.hand', 'duplicate card');
     }
-    final allowed = AllowedDecisions._parse(data['allowed_decisions']);
-    final previous = _array(data['previous_actions'], r'$.previous_actions');
+    if (data['rules_version'] != 'game_rules_v1') {
+      _fail(
+        r'$.rules_version',
+        'expected game_rules_v1; migrate legacy content',
+      );
+    }
+    final phase = switch (data['bidding_phase']) {
+      'pre_bidding' => BiddingPhase.preBidding,
+      'normal' => BiddingPhase.normal,
+      _ => _fail(r'$.bidding_phase', 'expected pre_bidding or normal'),
+    };
+    final player = _enum(
+      data['player_position'],
+      PlayerSeat.values,
+      r'$.player_position',
+    );
+    var state = BiddingState.start();
+    for (final value in _array(data['dash_players'], r'$.dash_players')) {
+      final seat = _enum(value, PlayerSeat.values, r'$.dash_players');
+      if (state.dashPlayers.contains(seat)) {
+        _fail(r'$.dash_players', 'duplicate Dash player');
+      }
+      state = state.declareDash(seat);
+    }
+    if (phase == BiddingPhase.normal) state = state.startNormalBidding();
+    final rawPrevious = _array(data['previous_actions'], r'$.previous_actions');
+    final previous = <PreviousAction>[];
+    final preDecisions = <PlayerSeat>{...state.dashPlayers};
+    for (var i = 0; i < rawPrevious.length; i++) {
+      final path = '\$.previous_actions[$i]';
+      final action = PreviousAction._parse(rawPrevious[i], path);
+      if (phase == BiddingPhase.preBidding) {
+        if (action.action != PreviousActionKind.dash &&
+            action.action != PreviousActionKind.enter) {
+          _fail(path, 'only Dash/enter decisions belong before normal bidding');
+        }
+        if (!preDecisions.add(action.player)) {
+          _fail(path, 'player already made a pre-bidding decision');
+        }
+        if (action.action == PreviousActionKind.dash) {
+          state = state.declareDash(action.player);
+        }
+      } else {
+        if (state.dashPlayers.contains(action.player)) {
+          _fail(path, 'Dash players cannot participate in normal bidding');
+        }
+        if (action.action == PreviousActionKind.bid) {
+          final bid = Bid(action.tricks!, action.trump!);
+          if (!state.canBid(action.player, bid)) {
+            _fail(path, 'bid must outrank the previous bid');
+          }
+          state = state.placeBid(action.player, bid);
+        } else if (action.action != PreviousActionKind.pass) {
+          _fail(path, 'Dash/enter decisions must occur before normal bidding');
+        }
+      }
+      previous.add(action);
+    }
+    if (state.dashPlayers.contains(player) ||
+        (phase == BiddingPhase.preBidding && preDecisions.contains(player))) {
+      _fail(
+        r'$.player_position',
+        'player cannot make another decision in this phase',
+      );
+    }
+    final allowed = AllowedDecisions._parse(
+      data['allowed_decisions'],
+      state,
+      player,
+    );
     final rawEvaluations = _array(data['evaluations'], r'$.evaluations');
     final evaluations = <AuthoredEvaluation>[];
     final seen = <BiddingDecision>{};
@@ -99,10 +170,8 @@ final class BiddingScenario {
         r'$.player_position',
       ),
       hand: Hand(cards),
-      previousActions: List.unmodifiable([
-        for (var i = 0; i < previous.length; i++)
-          PreviousAction._parse(previous[i], '\$.previous_actions[$i]'),
-      ]),
+      previousActions: List.unmodifiable(previous),
+      biddingState: state,
       allowedDecisions: allowed,
       evaluations: List.unmodifiable(evaluations),
       authorNotes: data.containsKey('author_notes')
@@ -119,19 +188,19 @@ final class BiddingDecision {
   const BiddingDecision._(this.action, this.tricks, this.trump);
   final BiddingAction action;
   final int? tricks;
-  final Suit? trump;
+  final Trump? trump;
 
   factory BiddingDecision._parse(Object? value, String path) {
     final data = _object(value, path);
     final action = _enum(data['action'], BiddingAction.values, '$path.action');
-    if (action == BiddingAction.dash) {
+    if (action != BiddingAction.bid) {
       _noBidFields(data, path);
-      return const BiddingDecision._(BiddingAction.dash, null, null);
+      return BiddingDecision._(action, null, null);
     }
     return BiddingDecision._(
       action,
       _tricks(data['tricks'], '$path.tricks'),
-      _enum(data['trump'], Suit.values, '$path.trump'),
+      _trump(data['trump'], '$path.trump'),
     );
   }
 
@@ -146,16 +215,56 @@ final class BiddingDecision {
 }
 
 final class AllowedDecisions {
-  const AllowedDecisions._(this.dash, this.minBid, this.maxBid, this.trumps);
+  const AllowedDecisions._(
+    this.dash,
+    this.enter,
+    this.minBid,
+    this.maxBid,
+    this.trumps,
+    this.choices,
+  );
   final bool dash;
-  final int minBid;
-  final int maxBid;
-  final List<Suit> trumps;
+  final bool enter;
+  final int? minBid;
+  final int? maxBid;
+  final List<Trump> trumps;
+  final List<BiddingDecision> choices;
 
-  factory AllowedDecisions._parse(Object? value) {
+  factory AllowedDecisions._parse(
+    Object? value,
+    BiddingState state,
+    PlayerSeat player,
+  ) {
     const path = r'$.allowed_decisions';
     final data = _object(value, path);
     if (data['dash'] is! bool) _fail('$path.dash', 'expected boolean');
+    if (state.phase == BiddingPhase.preBidding) {
+      if (data['enter'] is! bool) _fail('$path.enter', 'expected boolean');
+      if (data.containsKey('bids') || data.containsKey('trumps')) {
+        _fail(path, 'pre-bidding has no trick or trump choices');
+      }
+      final choices = [
+        if (data['dash'] == true)
+          const BiddingDecision._(BiddingAction.dash, null, null),
+        if (data['enter'] == true)
+          const BiddingDecision._(BiddingAction.enter, null, null),
+      ];
+      if (choices.isEmpty) {
+        _fail(path, 'at least one participation choice is required');
+      }
+      return AllowedDecisions._(
+        data['dash'] as bool,
+        data['enter'] as bool,
+        null,
+        null,
+        const [],
+        List.unmodifiable(choices),
+      );
+    }
+    if (data['dash'] != false ||
+        (data.containsKey('enter') && data['enter'] != false)) {
+      _fail(path, 'Dash/enter are unavailable during normal bidding');
+    }
     final bids = _object(data['bids'], '$path.bids');
     final min = _tricks(bids['min'], '$path.bids.min');
     final max = _tricks(bids['max'], '$path.bids.max');
@@ -163,27 +272,30 @@ final class AllowedDecisions {
     final rawTrumps = _array(data['trumps'], '$path.trumps');
     final trumps = [
       for (var i = 0; i < rawTrumps.length; i++)
-        _enum(rawTrumps[i], Suit.values, '$path.trumps[$i]'),
+        _trump(rawTrumps[i], '$path.trumps[$i]'),
     ];
     if (trumps.isEmpty || trumps.toSet().length != trumps.length) {
-      _fail('$path.trumps', 'expected distinct supported suits');
+      _fail('$path.trumps', 'expected distinct supported trump categories');
     }
+    final choices = [
+      for (var count = min; count <= max; count++)
+        for (final trump in trumps)
+          if (state.canBid(player, Bid(count, trump)))
+            BiddingDecision._(BiddingAction.bid, count, trump),
+    ];
+    if (choices.isEmpty) _fail(path, 'bounds contain no legal raises');
     return AllowedDecisions._(
-      data['dash'] as bool,
+      false,
+      false,
       min,
       max,
       List.unmodifiable(trumps),
+      List.unmodifiable(choices),
     );
   }
 
-  int get count => (maxBid - minBid + 1) * trumps.length + (dash ? 1 : 0);
-  bool contains(BiddingDecision decision) => switch (decision.action) {
-    BiddingAction.dash => dash,
-    BiddingAction.bid =>
-      decision.tricks! >= minBid &&
-          decision.tricks! <= maxBid &&
-          trumps.contains(decision.trump),
-  };
+  int get count => choices.length;
+  bool contains(BiddingDecision decision) => choices.contains(decision);
 }
 
 final class PreviousAction {
@@ -191,7 +303,7 @@ final class PreviousAction {
   final PlayerSeat player;
   final PreviousActionKind action;
   final int? tricks;
-  final Suit? trump;
+  final Trump? trump;
 
   factory PreviousAction._parse(Object? value, String path) {
     final data = _object(value, path);
@@ -209,7 +321,7 @@ final class PreviousAction {
       player,
       action,
       _tricks(data['tricks'], '$path.tricks'),
-      _enum(data['trump'], Suit.values, '$path.trump'),
+      _trump(data['trump'], '$path.trump'),
     );
   }
 }
@@ -283,8 +395,8 @@ T _enum<T extends Enum>(Object? value, List<T> values, String path) {
 }
 
 int _tricks(Object? value, String path) {
-  if (value is! int || value < 1 || value > 13) {
-    _fail(path, 'expected integer from 1 to 13');
+  if (value is! int || value < 4 || value > 13) {
+    _fail(path, 'expected integer from 4 to 13');
   }
   return value;
 }
@@ -293,4 +405,11 @@ void _noBidFields(Map<String, dynamic> data, String path) {
   if (data.containsKey('tricks') || data.containsKey('trump')) {
     _fail(path, 'non-bid action must not carry tricks or trump');
   }
+}
+
+Trump _trump(Object? value, String path) {
+  for (final trump in Trump.values) {
+    if (trump.code == value) return trump;
+  }
+  _fail(path, 'expected clubs, diamonds, hearts, spades or no_trump');
 }

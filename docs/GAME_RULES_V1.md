@@ -55,26 +55,23 @@ termination, or the treatment of a player who passes rather than declares Dash.
 Those details must be documented before an implementation depends on them.
 Following-suit behavior already implemented is documented in [GAME_RULES.md](GAME_RULES.md).
 
-## Implementation and draft-content audit
+## Implementation status (EC-026)
 
-The existing parser and schema validate a provisional content shape; they do not
-yet enforce these bidding rules. EC-026 tracks the required implementation:
+`lib/core/game_rules/bidding.dart` implements `Bid`, `Trump` and immutable
+`BiddingState`. Bids enforce 4–13 tricks. Trump rank is explicit and independent
+from card-suit enumeration order. Dash declarations fix a player's estimate at
+zero, survive the transition to normal bidding, and exclude that player from bids.
+Late or repeated Dash declarations fail. Bid state rejects equal/lower raises.
 
-- Normal opening/raising bids must respect the 4-trick minimum and bid ranking.
-- Add a trump-category type including Sans, separate from the card-suit type.
-- Model the pre-bidding Dash phase and exclude Dash players from normal bidding.
-- Update schema, parser, tests and affected content together to express the rules.
+Scenario files explicitly declare `rules_version: game_rules_v1`,
+`bidding_phase: pre_bidding|normal` and `dash_players`. The parser checks history
+against these rules and filters authored bid bounds to legal raises. The caller
+still owns turn order and auction termination; passing does not imply an
+undocumented permanent withdrawal rule.
 
-`content/scenarios/v1/bidding/bid_safe_probable_001.json` is a structural draft,
-not approved training content. It currently conflicts with these rules:
-
-- A prior bid of 3 Hearts is below the opening minimum.
-- Its selectable range starts at 3 tricks.
-- It offers Dash after a normal bid, when Dash must already have been declared.
-- Its trump options omit Sans. An authored exercise may eventually offer a subset
-  of choices, but the engine must support Sans as a valid category.
-
-Its one rating has not been certified against a corrected scenario. Do not use
-the draft to teach a game decision until the situation is migrated and its
-coaching reviewed. A successful structural validator result is not approval of
-these conflicting rules or the authored rating.
+The canonical draft was migrated from an illegal prior 3 Hearts bid to 4 Hearts,
+with a minimum choice bound of 4, Dash disabled and Sans supported. Its 4 Spades
+choice is a legal raise. Bounds 4–7 over the five trump categories produce 17
+legal choices (4 Spades, 4 Sans, and all five trumps for 5–7), with one authored
+evaluation. The 16 unevaluated choices remain ungraded; coaching certification
+is still pending EC-024. Rule-valid data is not proof of a strong decision.
