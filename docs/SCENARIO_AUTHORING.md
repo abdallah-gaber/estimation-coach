@@ -2,8 +2,7 @@
 
 This document defines how humans and AI agents add training content without changing application code.
 
-[game_rules_v1](GAME_RULES_V1.md) is authoritative for normal bidding. The example below has been migrated to those rules. Its authored feedback
-remains a draft pending EC-024 coaching review.
+[game_rules_v1](GAME_RULES_V1.md) is authoritative for normal bidding. The first two training hands have complete feedback; see the [coaching review](COACHING_REVIEW.md).
 
 ## Goal
 
@@ -145,88 +144,13 @@ Do not rely on:
 
 ## Bidding scenario example
 
-This migrated example is rule-valid but its coaching still requires review.
+The complete examples are maintained directly in portable content:
 
-```json
-{
-  "scenario_version": 1,
-  "id": "bid_safe_probable_001",
-  "type": "bidding",
-  "title": "Strong Spades, uncertain side winners",
-  "difficulty": "beginner",
-  "primary_skill": "bid_sizing",
-  "skills": [
-    "bid_sizing",
-    "trump_selection",
-    "safe_vs_probable"
-  ],
-  "player_position": "south",
-  "hand": [
-    "AS",
-    "JS",
-    "8S",
-    "4S",
-    "KH",
-    "7H",
-    "AD",
-    "QD",
-    "9D",
-    "JC",
-    "10C",
-    "5C",
-    "2C"
-  ],
-  "previous_actions": [
-    {
-      "player": "west",
-      "action": "pass"
-    },
-    {
-      "player": "north",
-      "action": "bid",
-      "tricks": 4,
-      "trump": "hearts"
-    }
-  ],
-  "allowed_decisions": {
-    "dash": false,
-    "bids": {
-      "min": 4,
-      "max": 7
-    },
-    "trumps": [
-      "spades",
-      "hearts",
-      "diamonds",
-      "clubs",
-      "no_trump"
-    ]
-  },
-  "evaluations": [
-    {
-      "decision": {
-        "action": "bid",
-        "tricks": 4,
-        "trump": "spades"
-      },
-      "rating": "strong",
-      "feedback": {
-        "title": "Balanced bid",
-        "summary": "Four Spades uses your strongest suit without assuming every side honor will win.",
-        "points": [
-          "Ace of Spades is a strong control card.",
-          "Ace of Diamonds is a strong side winner.",
-          "King of Hearts is conditional, not guaranteed."
-        ]
-      }
-    }
-  ],
-  "author_notes": "Migrated to game_rules_v1: South faces 4 Hearts and may legally raise to 4 Spades. Bounds are filtered to legal raises. Coaching remains a draft pending EC-024 review; this is not an approved training scenario.",
-  "rules_version": "game_rules_v1",
-  "bidding_phase": "normal",
-  "dash_players": []
-}
-```
+- [Pre-bidding: Dash or enter](../content/scenarios/v1/bidding/bid_enter_controls_001.json)
+- [Normal bidding: 17 legal raises](../content/scenarios/v1/bidding/bid_safe_probable_001.json)
+
+Read those files for the exact schema, decisions, and authored feedback used by
+the app. Avoid maintaining a second, divergent copy in this guide.
 
 ---
 
@@ -397,9 +321,9 @@ dart run tool/validate_scenarios.dart --require-complete
 ```
 
 Default validation permits incomplete feedback with a warning. Strict coverage
-fails until every legal choice has an evaluation. The migrated draft has one of
-17 evaluations: default exits 0 with a warning about 16 missing evaluations;
-strict coverage exits 1. Neither mode certifies the authored coaching.
+fails until every legal choice has an evaluation. Both bundled scenarios now
+pass strict coverage (19 choices total). Neither mode certifies the authored
+coaching. The app rejects incomplete catalogs rather than inventing a rating.
 
 | Exit code | Meaning |
 | --- | --- |
@@ -409,5 +333,6 @@ strict coverage exits 1. Neither mode certifies the authored coaching.
 
 The canonical situation has been reviewed for rule legality: 4 Spades legally
 raises 4 Hearts, no late Dash is offered, and Sans is supported. The strategic
-rating and evidence remain pending EC-024 review before use in training. Tests
+review is recorded in [COACHING_REVIEW.md](COACHING_REVIEW.md), including why
+4 Spades is reasonable rather than strong. Tests
 cover phase boundaries, bid order, Dash participation and feedback coverage.

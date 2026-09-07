@@ -173,6 +173,26 @@ legal raises above the prior bids. Coverage counts only available legal choices.
 Previous actions are checked in order against the known phase and Dash players.
 Turn order, pass re-entry and auction termination are not inferred.
 
+## D-011 — First bidding trainer uses complete local authored feedback
+
+**Status:** Accepted
+
+Load bidding JSON assets from Flutter's asset manifest, parse with the domain
+model and require complete evaluation coverage before showing a training session.
+Evaluation is an exact authored lookup; illegal decisions throw and a missing
+rating is explicitly unreviewed, never guessed. UI uses only legal choices.
+
+The first session contains two independent hands: a pre-bidding Dash/enter
+exercise, then a normal-bidding exercise. “Next hand” never implies a player who
+Dashed later bids in that same hand. Feedback describes the decision and its
+commitment; no played outcome is invented. Long evidence sits behind “Why?”.
+Local StatefulWidget state is enough; results are session-only, with no storage
+or new runtime dependencies. The previous card specimen remains testable as a
+widget while the app now opens the trainer. Content review is recorded in
+`docs/COACHING_REVIEW.md` and portable JSON remains the source of feedback.
+Card suits use small vector painters because browser font fallback failed during
+visual verification. Trump controls use explicit suit names.
+
 ## Decision template
 
 Copy this section for future decisions.

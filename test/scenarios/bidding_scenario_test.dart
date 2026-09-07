@@ -5,13 +5,18 @@ import 'package:estimation_coach/core/cards/cards.dart';
 import 'package:estimation_coach/scenarios/bidding_scenario.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Map<String, dynamic> fixture() =>
-    jsonDecode(
-          File(
-            'content/scenarios/v1/bidding/bid_safe_probable_001.json',
-          ).readAsStringSync(),
-        )
-        as Map<String, dynamic>;
+// Deliberately incomplete fixture for parser and validator coverage tests.
+Map<String, dynamic> fixture() {
+  final data =
+      jsonDecode(
+            File(
+              'content/scenarios/v1/bidding/bid_safe_probable_001.json',
+            ).readAsStringSync(),
+          )
+          as Map<String, dynamic>;
+  data['evaluations'] = [data['evaluations'][0]];
+  return data;
+}
 
 Map<String, dynamic> preFixture() {
   final data = fixture();
@@ -24,7 +29,7 @@ Map<String, dynamic> preFixture() {
 
 void main() {
   test(
-    'parses the canonical fixture into typed content without inventing feedback',
+    'parses the incomplete test fixture into typed content without inventing feedback',
     () {
       final scenario = BiddingScenario.fromJson(fixture());
       expect(scenario.id, 'bid_safe_probable_001');
@@ -42,11 +47,11 @@ void main() {
       expect(scenario.allowedDecisions.maxBid, 7);
       expect(scenario.allowedDecisions.count, 17);
       expect(scenario.evaluations, hasLength(1));
-      expect(scenario.evaluations.single.rating, DecisionRating.strong);
+      expect(scenario.evaluations.single.rating, DecisionRating.reasonable);
       expect(scenario.evaluations.single.decision.tricks, 4);
       expect(scenario.evaluations.single.feedback.points, hasLength(3));
       expect(scenario.missingEvaluationCount, 16);
-      expect(scenario.authorNotes, contains('Migrated to game_rules_v1'));
+      expect(scenario.authorNotes, contains('Reviewed for the first trainer'));
     },
   );
 

@@ -1,4 +1,4 @@
-import 'package:estimation_coach/app/estimation_coach_app.dart';
+import 'package:estimation_coach/features/visual_preview/visual_preview_screen.dart';
 import 'package:estimation_coach/shared/widgets/playing_card.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui' show Tristate;
@@ -11,7 +11,7 @@ void main() {
   testWidgets(
     'selection switches, toggles off, clears and ignores locked card',
     (tester) async {
-      await tester.pumpWidget(const EstimationCoachApp());
+      await tester.pumpWidget(const MaterialApp(home: VisualPreviewScreen()));
       expect(find.byType(PlayingCard), findsNWidgets(4));
       expect(find.text('No card selected'), findsOneWidget);
       await tester.tap(card(0));
@@ -41,7 +41,7 @@ void main() {
     'cards expose identity and enabled/selected state to accessibility',
     (tester) async {
       final handle = tester.ensureSemantics();
-      await tester.pumpWidget(const EstimationCoachApp());
+      await tester.pumpWidget(const MaterialApp(home: VisualPreviewScreen()));
       var ace = tester.getSemantics(find.bySemanticsLabel('Ace of Spades'));
       expect(ace.flagsCollection.isButton, isTrue);
       expect(ace.flagsCollection.isEnabled, Tristate.isTrue);
@@ -61,7 +61,7 @@ void main() {
   testWidgets('keyboard activates cards and skips the disabled specimen', (
     tester,
   ) async {
-    await tester.pumpWidget(const EstimationCoachApp());
+    await tester.pumpWidget(const MaterialApp(home: VisualPreviewScreen()));
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
     await tester.pumpAndSettle();
@@ -83,7 +83,7 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-      await tester.pumpWidget(const EstimationCoachApp());
+      await tester.pumpWidget(const MaterialApp(home: VisualPreviewScreen()));
       expect(
         MediaQuery.textScalerOf(tester.element(card(0))).scale(26),
         26 * scale,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/visual_tokens.dart';
 import '../../core/cards/cards.dart';
 import 'card_labels.dart';
+import 'suit_symbol.dart';
 
 class PlayingCard extends StatelessWidget {
   const PlayingCard({
@@ -10,17 +11,21 @@ class PlayingCard extends StatelessWidget {
     required this.card,
     this.selected = false,
     this.onTap,
+    this.readOnly = false,
+    this.compact = false,
   });
 
   final GameCard card;
   final bool selected;
   final VoidCallback? onTap;
+  final bool readOnly;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final suit = card.suit;
-    final enabled = onTap != null;
-    final active = enabled && selected;
+    final enabled = readOnly || onTap != null;
+    final active = !readOnly && enabled && selected;
     final color = enabled
         ? (suit.isRed ? const Color(0xFFAD343B) : VisualTokens.ink)
         : const Color(0xFF646B66);
@@ -28,24 +33,24 @@ class PlayingCard extends StatelessWidget {
     final scale = MediaQuery.textScalerOf(context).scale(26) / 26;
     return Semantics(
       label: card.label,
-      button: true,
-      enabled: enabled,
-      selected: active,
+      button: !readOnly,
+      enabled: readOnly ? null : enabled,
+      selected: readOnly ? null : active,
       child: AnimatedSlide(
         offset: active ? const Offset(0, -0.04) : Offset.zero,
         duration: MediaQuery.disableAnimationsOf(context)
             ? Duration.zero
             : const Duration(milliseconds: 140),
         child: SizedBox(
-          width: 96 * (scale < 1 ? 1 : scale),
-          height: 144 * (scale < 1 ? 1 : scale),
+          width: (compact ? 56 : 96) * (scale < 1 ? 1 : scale),
+          height: (compact ? 82 : 144) * (scale < 1 ? 1 : scale),
           child: Material(
             color: enabled ? Colors.white : const Color(0xFFCED5CF),
             elevation: active ? 6 : 1,
             borderRadius: BorderRadius.circular(12),
             child: InkWell(
-              onTap: onTap,
-              canRequestFocus: enabled,
+              onTap: readOnly ? null : onTap,
+              canRequestFocus: !readOnly && enabled,
               borderRadius: BorderRadius.circular(12),
               focusColor: const Color(0xFFB9DCCF),
               child: Container(
@@ -56,7 +61,7 @@ class PlayingCard extends StatelessWidget {
                     width: 3,
                   ),
                 ),
-                padding: const EdgeInsets.all(VisualTokens.small),
+                padding: EdgeInsets.all(compact ? 4 : VisualTokens.small),
                 child: ExcludeSemantics(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +71,10 @@ class PlayingCard extends StatelessWidget {
                         children: [
                           Text(
                             card.rank.code,
-                            style: VisualTokens.rank.copyWith(color: color),
+                            style: VisualTokens.rank.copyWith(
+                              color: color,
+                              fontSize: compact ? 18 : 26,
+                            ),
                           ),
                           if (!enabled || active)
                             Icon(
@@ -78,17 +86,19 @@ class PlayingCard extends StatelessWidget {
                       ),
                       Expanded(
                         child: Center(
-                          child: Text(
-                            suit.symbol,
-                            style: VisualTokens.suit.copyWith(color: color),
+                          child: SuitSymbol(
+                            suit: suit,
+                            color: color,
+                            size: (compact ? 24 : 38) * scale,
                           ),
                         ),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: Text(
-                          suit.symbol,
-                          style: TextStyle(color: color, fontSize: 18),
+                        child: SuitSymbol(
+                          suit: suit,
+                          color: color,
+                          size: (compact ? 12 : 18) * scale,
                         ),
                       ),
                     ],

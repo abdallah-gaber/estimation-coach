@@ -59,19 +59,291 @@
         "tricks": 4,
         "trump": "spades"
       },
-      "rating": "strong",
+      "rating": "reasonable",
       "feedback": {
-        "title": "Balanced bid",
-        "summary": "Four Spades uses your strongest suit without assuming every side honor will win.",
+        "title": "A measured raise",
+        "summary": "Four Spades is a plausible plan, but two Aces do not guarantee four tricks.",
         "points": [
-          "Ace of Spades is a strong control card.",
-          "Ace of Diamonds is a strong side winner.",
-          "King of Hearts is conditional, not guaranteed."
+          "Control: the Spade Ace is your top trump; the Diamond Ace is a likely side winner if opponents can follow.",
+          "Probable, not safe: extra Spade tricks need promotion or useful ruffs; four trumps alone do not secure four tricks.",
+          "Risk: the Heart King can lose to the Ace, and the Diamond Queen is conditional."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "no_trump"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Sans needs more established winners",
+        "summary": "Four Sans is legal, but it gives up ruffing opportunities while your side honors remain conditional.",
+        "points": [
+          "Control: you hold two Aces, but no long sequence of established winners.",
+          "Probable: the Diamond Queen and Heart King need favorable play or distribution.",
+          "Risk: Spades headed by Ace-Jack still lack King-Queen control; Sans does not turn the low cards into winners."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "spades"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Five relies on several things going well",
+        "summary": "Your four Spades give a direction, but five tricks needs too much help from conditional cards.",
+        "points": [
+          "Control: two Aces provide the clearest starting point.",
+          "Probable: a promoted Spade or a ruff may add a trick, but neither is established now.",
+          "Risk: counting the Heart King and Diamond Queen as certain winners overstates the hand."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "hearts"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "5 Hearts asks more of this hand than its controls support.",
+        "points": [
+          "King-seven is only a doubleton, and North has already bid Hearts. This is a fragile trump base.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "diamonds"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "5 Diamonds asks more of this hand than its controls support.",
+        "points": [
+          "Ace-Queen-nine has useful honors but only three trumps. It does not establish this many tricks.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "clubs"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "5 Clubs asks more of this hand than its controls support.",
+        "points": [
+          "Jack-ten-five-two has length but no top trump control. Length alone does not support this target.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "no_trump"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "5 Sans asks more of this hand than its controls support.",
+        "points": [
+          "Two Aces and conditional side honors do not establish this many Sans winners.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "6 Spades asks more of this hand than its controls support.",
+        "points": [
+          "Even with your four Spades, this target depends on too many promotions and favorable ruffs.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "hearts"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "6 Hearts asks more of this hand than its controls support.",
+        "points": [
+          "King-seven is only a doubleton, and North has already bid Hearts. This is a fragile trump base.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "diamonds"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "6 Diamonds asks more of this hand than its controls support.",
+        "points": [
+          "Ace-Queen-nine has useful honors but only three trumps. It does not establish this many tricks.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "clubs"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "6 Clubs asks more of this hand than its controls support.",
+        "points": [
+          "Jack-ten-five-two has length but no top trump control. Length alone does not support this target.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "no_trump"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "6 Sans asks more of this hand than its controls support.",
+        "points": [
+          "Two Aces and conditional side honors do not establish this many Sans winners.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 7,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "7 Spades asks more of this hand than its controls support.",
+        "points": [
+          "Even with your four Spades, this target depends on too many promotions and favorable ruffs.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 7,
+        "trump": "hearts"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "7 Hearts asks more of this hand than its controls support.",
+        "points": [
+          "King-seven is only a doubleton, and North has already bid Hearts. This is a fragile trump base.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 7,
+        "trump": "diamonds"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "7 Diamonds asks more of this hand than its controls support.",
+        "points": [
+          "Ace-Queen-nine has useful honors but only three trumps. It does not establish this many tricks.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 7,
+        "trump": "clubs"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "7 Clubs asks more of this hand than its controls support.",
+        "points": [
+          "Jack-ten-five-two has length but no top trump control. Length alone does not support this target.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 7,
+        "trump": "no_trump"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "The target outruns the visible strength",
+        "summary": "7 Sans asks more of this hand than its controls support.",
+        "points": [
+          "Two Aces and conditional side honors do not establish this many Sans winners.",
+          "The Heart King and Diamond Queen remain conditional; neither is a guaranteed extra trick.",
+          "A lower legal target is more defensible. This assessment does not predict the exact deal outcome."
         ]
       }
     }
   ],
-  "author_notes": "Migrated to game_rules_v1: South faces 4 Hearts and may legally raise to 4 Spades. Bounds are filtered to legal raises. Coaching remains a draft pending EC-024 review; this is not an approved training scenario.",
+  "author_notes": "Reviewed for the first trainer, 2026-09-07; see docs/COACHING_REVIEW.md. 4 Spades is reasonable, not guaranteed. Every legal authored choice has feedback; no outcome simulation or probability claim.",
   "rules_version": "game_rules_v1",
   "bidding_phase": "normal",
   "dash_players": []
