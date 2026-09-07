@@ -2,9 +2,8 @@
 
 This document defines how humans and AI agents add training content without changing application code.
 
-[game_rules_v1](GAME_RULES_V1.md) is authoritative for normal bidding. The
-historical examples below illustrate structure but conflict with its minimum bid
-and Dash timing. They are not approved gameplay content; EC-026 tracks migration.
+[game_rules_v1](GAME_RULES_V1.md) is authoritative for normal bidding. The example below has been migrated to those rules. Its authored feedback
+remains a draft pending EC-024 coaching review.
 
 ## Goal
 
@@ -146,6 +145,8 @@ Do not rely on:
 
 ## Bidding scenario example
 
+This migrated example is rule-valid but its coaching still requires review.
+
 ```json
 {
   "scenario_version": 1,
@@ -161,10 +162,19 @@ Do not rely on:
   ],
   "player_position": "south",
   "hand": [
-    "AS", "JS", "8S", "4S",
-    "KH", "7H",
-    "AD", "QD", "9D",
-    "JC", "10C", "5C", "2C"
+    "AS",
+    "JS",
+    "8S",
+    "4S",
+    "KH",
+    "7H",
+    "AD",
+    "QD",
+    "9D",
+    "JC",
+    "10C",
+    "5C",
+    "2C"
   ],
   "previous_actions": [
     {
@@ -174,21 +184,22 @@ Do not rely on:
     {
       "player": "north",
       "action": "bid",
-      "tricks": 3,
+      "tricks": 4,
       "trump": "hearts"
     }
   ],
   "allowed_decisions": {
-    "dash": true,
+    "dash": false,
     "bids": {
-      "min": 3,
+      "min": 4,
       "max": 7
     },
     "trumps": [
       "spades",
       "hearts",
       "diamonds",
-      "clubs"
+      "clubs",
+      "no_trump"
     ]
   },
   "evaluations": [
@@ -208,40 +219,12 @@ Do not rely on:
           "King of Hearts is conditional, not guaranteed."
         ]
       }
-    },
-    {
-      "decision": {
-        "action": "bid",
-        "tricks": 5,
-        "trump": "spades"
-      },
-      "rating": "risky",
-      "feedback": {
-        "title": "You are counting too much upside",
-        "summary": "Five requires several conditional cards to behave well.",
-        "points": [
-          "Trump control is useful but not enough by itself.",
-          "The Heart King may lose immediately.",
-          "Diamond Queen needs favorable distribution."
-        ]
-      }
-    },
-    {
-      "decision": {
-        "action": "dash"
-      },
-      "rating": "weak",
-      "feedback": {
-        "title": "Too conservative",
-        "summary": "This hand has enough structure to compete rather than Dash.",
-        "points": [
-          "You have two Aces.",
-          "Spades provide a credible trump direction."
-        ]
-      }
     }
   ],
-  "author_notes": "Teaching scenario. Exact ratings should be reviewed against the agreed Estimation rules before release."
+  "author_notes": "Migrated to game_rules_v1: South faces 4 Hearts and may legally raise to 4 Spades. Bounds are filtered to legal raises. Coaching remains a draft pending EC-024 review; this is not an approved training scenario.",
+  "rules_version": "game_rules_v1",
+  "bidding_phase": "normal",
+  "dash_players": []
 }
 ```
 
@@ -320,110 +303,111 @@ A future editor may provide a visual UI for creating scenarios, but it must prod
 
 The files remain the portable source of truth.
 
-## Standalone validation (EC-022 / EC-023)
+## Standalone validation
 
-From the repository root, after `flutter pub get`:
+From the repository root after `flutter pub get`:
 
 ```sh
 dart run tool/validate_scenarios.dart
+flutter test test/scenarios
 ```
 
-The command recursively scans `content/scenarios/v1/`, validates each JSON file
-against `schemas/scenario.v1.schema.json`, then parses it through the same pure
-Dart `BiddingScenario.fromJson` representation available to the application.
-No Flutter engine, Python installation or runtime network service is required.
-`json_schema` is a development-only dependency using synchronous local validation.
+The command recursively scans `content/scenarios/v1/`, checks the canonical JSON
+schema, then parses and checks `game_rules_v1` bidding constraints using the same
+pure Dart model available to the app. No Flutter engine or network service is
+required; `json_schema` is a development-only dependency using local validation.
+Explicit file/directory paths are supported. Files are sorted and deduplicated;
+missing paths, empty directories, invalid JSON and duplicate IDs fail. Symlinks
+are not followed. Errors identify the file and field; scanning continues.
 
-You may select files or directories explicitly:
+## Required bidding context
 
-```sh
-dart run tool/validate_scenarios.dart content/scenarios/v1/bidding
+Only scenario v1 bidding with `rules_version: game_rules_v1` is implemented.
+`play` remains reserved by the schema and unsupported by the parser. Every
+bidding file now requires:
+
+- `rules_version`: exactly `game_rules_v1`.
+- `bidding_phase`: `pre_bidding` or `normal`.
+- `dash_players`: distinct seats that declared Dash before the listed history.
+  Do not repeat these declarations in `previous_actions`.
+
+This intentionally rejects legacy files lacking phase/rules metadata. There is
+no silent inference from old mixed Dash/bid data. Scenario version 1 is still a
+pre-release content contract; these required fields migrate that contract.
+
+### Pre-bidding phase
+
+Trump is not known and no normal bids have occurred. The player chooses Dash
+(exactly zero tricks) or enter (continue into normal bidding). Choices contain no
+trick or trump fields:
+
+```json
+"allowed_decisions": {"dash": true, "enter": true}
 ```
 
-Files are checked in sorted order. Duplicate IDs across the selected files fail.
-Overlapping paths are deduplicated. Missing paths, empty directories and invalid
-JSON fail; the checker continues through the other files. Symlinks are not followed.
+At least one of the two flags must be true. `bids` and `trumps` are forbidden.
+Evaluation decisions use `{"action":"dash"}` or `{"action":"enter"}`.
+Previous actions may only be Dash/enter with a player seat. Each player may have
+only one recorded pre-bidding decision, and the current player must not already
+have decided. Recorded Dash declarations update the parsed bidding state and
+fix that player's estimate at zero.
 
-### Supported representation
+### Normal bidding phase
 
-Only `scenario_version: 1`, `type: bidding` is implemented. `play` remains reserved
-by the schema but produces an unsupported-type error until its model is defined.
-The schema now defines nested bidding fields, and the parser enforces the
-remaining cross-field checks:
+Dash players are excluded. Previous actions may be pass or bid; bids require
+4–13 integer tricks and a trump category and must strictly outrank the preceding
+bid. Pass/enter/Dash are not interchangeable: no new Dash/enter declaration is
+allowed once normal bidding starts. Turn order and pass re-entry are outside
+this model's scope.
 
-- Required nonempty title, primary skill and skill tags; primary skill must be
-  included in distinct `skills`. Skill strings remain extensible tags.
-- `difficulty`: beginner, intermediate, advanced; seats: north, east, south, west.
-- A bidding hand contains exactly 13 distinct canonical cards.
-- Previous actions contain a player and pass/dash/bid action. Bid requires integer
-  tricks (1–13) and a supported suit; pass/dash must omit tricks and trump.
-- `allowed_decisions` requires boolean `dash`, integer bid min/max (1–13,
-  min ≤ max), and a nonempty distinct list of suits. These are representable
-  ranges, not a ruling on minimum legal bids or auction precedence.
-- Suits are spades, hearts, diamonds, clubs. No-trump is not currently represented.
-- Each evaluation has a dash/bid decision, strong/reasonable/risky/weak rating,
-  and feedback containing nonempty title/summary plus an array of nonempty points.
-- Evaluated choices must be allowed and may appear at most once.
-- Missing or malformed nested data produces a field-path diagnostic.
+```json
+"allowed_decisions": {
+  "dash": false,
+  "bids": {"min": 4, "max": 7},
+  "trumps": ["clubs", "diamonds", "hearts", "spades", "no_trump"]
+}
+```
 
-Model lists are immutable snapshots. Top-level additional properties allowed by
-v1 are not interpreted as coaching or new behavior. No authored content is
-hardcoded into the models or validator. EC-025 aligns schema shape checks with this provisional parser contract.
-The schema cannot replace cross-field validation in the parser.
+Normal choices are bids only (`enter` must be absent or false). `min <= max`,
+trumps must be nonempty and distinct. Trump codes map to the canonical ranking;
+`no_trump` means Sans, not a fifth card suit.
 
-### Coverage and review are separate
+These are authored bounds, not a claim that every count/trump combination is
+legal. `allowedDecisions.choices` filters them through the bid engine; use that
+list in UI and evaluation. At least one legal choice must remain. Evaluations
+outside that list are invalid. The number of missing evaluations is based on
+legal choices, so equal/lower bids never inflate coverage.
 
-Normal validation allows an incomplete draft with a warning. For complete
-feedback coverage, use:
+## Other structural checks
+
+- Nonempty title, primary skill and skill tags; primary skill is one of the
+  distinct tags. Difficulty is beginner/intermediate/advanced.
+- Seats are north/east/south/west. A bidding hand has 13 distinct canonical cards.
+- Each evaluation has a decision, strong/reasonable/risky/weak rating, and feedback
+  with a nonempty title/summary and an array of nonempty evidence points.
+- Each legal decision has at most one evaluation. No fallback rating is invented.
+- Lists are immutable snapshots. Additional properties remain permitted but do
+  not introduce behavior. Nested schema constraints catch malformed shapes;
+  cross-field and game-rule checks remain in Dart.
+
+## Coverage and coaching review
 
 ```sh
 dart run tool/validate_scenarios.dart --require-complete
 ```
 
-The current canonical fixture has **one evaluation out of 21 choices**, so default
-validation exits 0 with a warning about 20 missing evaluations. Strict coverage
-exits 1 for that fixture. The longer example above illustrates three evaluations;
-it is not the exact content of the canonical fixture.
+Default validation permits incomplete feedback with a warning. Strict coverage
+fails until every legal choice has an evaluation. The migrated draft has one of
+17 evaluations: default exits 0 with a warning about 16 missing evaluations;
+strict coverage exits 1. Neither mode certifies the authored coaching.
 
 | Exit code | Meaning |
 | --- | --- |
-| 0 | Selected files passed structural checks (coverage warnings may remain) |
+| 0 | Selected files passed schema and supported bidding-rule checks |
 | 1 | Invalid/missing content, duplicate IDs, or incomplete strict coverage |
 | 2 | Invalid options or schema configuration |
 
-Even complete coverage does not certify game legality or coaching quality.
-Canonical bidding rules are now documented in [game_rules_v1](GAME_RULES_V1.md).
-The draft conflicts with its minimum opening bid and Dash timing. EC-026 will
-add rule enforcement and migrate the content; the authored advice still requires
-EC-024 review. The parser never supplies a rating for an unevaluated
-choice. Do not use a structural pass as permission to publish a coaching pack.
-
-Run parser and validator tests with:
-
-```sh
-flutter test test/scenarios
-```
-
-### Schema alignment compatibility (EC-025)
-
-The v1 field names and canonical fixture are preserved. Bidding now requires its
-previously parser-required title, seat, 13-card hand, previous actions, allowed
-decisions and evaluations at schema level. Nested action/decision shapes, numeric
-bounds, supported enum values and nonblank feedback are enforced by the schema.
-Non-bid actions cannot carry tricks/trump, even with null values. Additional
-properties remain permitted. The ID regex now matches the parser's permitted
-lowercase letters, digits, underscores and hyphens.
-
-Documents accepted by the old broad schema but rejected by the parser may now
-fail earlier at the schema stage, with JSON-pointer paths. This is an intentional
-validation tightening, not a new game rule. The reserved play schema is unchanged
-and remains unsupported by the application parser.
-
-Some checks still require Dart: primary-skill membership, min ≤ max, evaluation
-membership in allowed choices, duplicate decisions with differing feedback, and
-cross-file duplicate IDs. Schema `uniqueItems` catches exact duplicate evaluation
-objects only. Coverage and canonical rule compliance are separate concerns.
-
-The provisional 1–13 shape bounds and four-suit trump enum are not the canonical
-bidding rules. They remain implementation gaps tracked in EC-026; external tools
-must also respect [game_rules_v1](GAME_RULES_V1.md).
+The canonical situation has been reviewed for rule legality: 4 Spades legally
+raises 4 Hearts, no late Dash is offered, and Sans is supported. The strategic
+rating and evidence remain pending EC-024 review before use in training. Tests
+cover phase boundaries, bid order, Dash participation and feedback coverage.

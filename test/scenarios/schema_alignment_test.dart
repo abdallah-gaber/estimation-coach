@@ -5,7 +5,7 @@ import 'package:estimation_coach/scenarios/bidding_scenario.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:json_schema/json_schema.dart';
 
-import 'bidding_scenario_test.dart' show fixture;
+import 'bidding_scenario_test.dart' show fixture, preFixture;
 
 void main() {
   final schema = JsonSchema.create(
@@ -22,11 +22,12 @@ void main() {
     expectAccepted(fixture());
   });
 
-  test('Dash decisions and previous Dash/pass actions omit bid fields', () {
-    final data = fixture();
+  test('pre-bidding Dash and enter omit bid fields', () {
+    final data = preFixture();
+    data['evaluations'] = fixture()['evaluations'];
     data['previous_actions'] = [
       {'player': 'north', 'action': 'dash'},
-      {'player': 'west', 'action': 'pass'},
+      {'player': 'west', 'action': 'enter'},
     ];
     data['evaluations'][0]['decision'] = {'action': 'dash'};
     data['evaluations'][0]['rating'] = 'reasonable';
@@ -48,7 +49,7 @@ void main() {
     () {
       final data = fixture()..['evaluations'] = [];
       expectAccepted(data);
-      expect(BiddingScenario.fromJson(data).missingEvaluationCount, 21);
+      expect(BiddingScenario.fromJson(data).missingEvaluationCount, 17);
     },
   );
 
@@ -79,7 +80,7 @@ void main() {
     'too many tricks': (d) => d['allowed_decisions']['bids']['max'] = 14,
     'empty trumps': (d) => d['allowed_decisions']['trumps'] = [],
     'duplicate trumps': (d) => d['allowed_decisions']['trumps'].add('spades'),
-    'unsupported trump': (d) => d['allowed_decisions']['trumps'] = ['no_trump'],
+    'unsupported trump': (d) => d['allowed_decisions']['trumps'] = ['joker'],
     'unknown evaluation action': (d) =>
         d['evaluations'][0]['decision']['action'] = 'pass',
     'Dash carrying bid fields': (d) =>

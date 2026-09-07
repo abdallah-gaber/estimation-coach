@@ -13,6 +13,15 @@ Map<String, dynamic> fixture() =>
         )
         as Map<String, dynamic>;
 
+Map<String, dynamic> preFixture() {
+  final data = fixture();
+  data['bidding_phase'] = 'pre_bidding';
+  data['previous_actions'] = [];
+  data['allowed_decisions'] = <String, dynamic>{'dash': true, 'enter': true};
+  data['evaluations'] = [];
+  return data;
+}
+
 void main() {
   test(
     'parses the canonical fixture into typed content without inventing feedback',
@@ -27,17 +36,17 @@ void main() {
       expect(scenario.hand.length, 13);
       expect(scenario.hand.contains(GameCard.parse('AS')), isTrue);
       expect(scenario.previousActions.first.action, PreviousActionKind.pass);
-      expect(scenario.previousActions.last.trump, Suit.hearts);
-      expect(scenario.previousActions.last.tricks, 3);
-      expect(scenario.allowedDecisions.minBid, 3);
+      expect(scenario.previousActions.last.trump, Trump.hearts);
+      expect(scenario.previousActions.last.tricks, 4);
+      expect(scenario.allowedDecisions.minBid, 4);
       expect(scenario.allowedDecisions.maxBid, 7);
-      expect(scenario.allowedDecisions.count, 21);
+      expect(scenario.allowedDecisions.count, 17);
       expect(scenario.evaluations, hasLength(1));
       expect(scenario.evaluations.single.rating, DecisionRating.strong);
       expect(scenario.evaluations.single.decision.tricks, 4);
       expect(scenario.evaluations.single.feedback.points, hasLength(3));
-      expect(scenario.missingEvaluationCount, 20);
-      expect(scenario.authorNotes, contains('Example structure only'));
+      expect(scenario.missingEvaluationCount, 16);
+      expect(scenario.authorNotes, contains('Migrated to game_rules_v1'));
     },
   );
 
@@ -61,18 +70,17 @@ void main() {
     }
   });
 
-  test('can represent all ratings, Dash and complete authored coverage', () {
+  test('can represent all ratings and complete legal bid coverage', () {
     final data = fixture();
-    data['allowed_decisions']['bids'] = {'min': 3, 'max': 5};
     data['allowed_decisions']['trumps'] = ['spades'];
     final feedback = data['evaluations'][0]['feedback'];
     data['evaluations'] = [
-      {
-        'decision': {'action': 'dash'},
-        'rating': 'reasonable',
-        'feedback': feedback,
-      },
-      for (final (tricks, rating) in [(3, 'weak'), (4, 'strong'), (5, 'risky')])
+      for (final (tricks, rating) in [
+        (4, 'strong'),
+        (5, 'reasonable'),
+        (6, 'risky'),
+        (7, 'weak'),
+      ])
         {
           'decision': {'action': 'bid', 'tricks': tricks, 'trump': 'spades'},
           'rating': rating,
@@ -81,8 +89,6 @@ void main() {
     ];
     final scenario = BiddingScenario.fromJson(data);
     expect(scenario.missingEvaluationCount, 0);
-    expect(scenario.evaluations.first.decision.action, BiddingAction.dash);
-    expect(scenario.evaluations.first.decision.tricks, isNull);
     expect(
       scenario.evaluations.map((e) => e.rating).toSet(),
       DecisionRating.values.toSet(),
@@ -111,8 +117,8 @@ void main() {
     'non-integer trick count': (d) =>
         d['allowed_decisions']['bids']['min'] = 3.5,
     'non-boolean Dash': (d) => d['allowed_decisions']['dash'] = 'true',
-    'unsupported no trump': (d) =>
-        d['allowed_decisions']['trumps'] = ['no_trump'],
+    'unsupported trump category': (d) =>
+        d['allowed_decisions']['trumps'] = ['joker'],
     'duplicate trump': (d) => d['allowed_decisions']['trumps'].add('spades'),
     'empty trump list': (d) => d['allowed_decisions']['trumps'] = [],
     'duplicate evaluation': (d) => d['evaluations'].add(d['evaluations'][0]),

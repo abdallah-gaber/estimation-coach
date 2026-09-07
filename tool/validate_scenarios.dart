@@ -114,7 +114,7 @@ int validateScenarios(
         }
         out.writeln('WARNING $message');
       }
-      out.writeln('VALID $path (${scenario.id}; structure only)');
+      out.writeln('VALID $path (${scenario.id}; structure + game_rules_v1)');
     } on FormatException catch (error) {
       err.writeln('ERROR $path: ${error.message}');
       failureCount++;
@@ -125,8 +125,8 @@ int validateScenarios(
   }
   out.writeln('Checked ${files.length} file(s); $failureCount failure(s).');
   out.writeln(
-    'Structural validation does not certify bidding legality or coaching quality; '
-    'manual rules review remains required (EC-024).',
+    'Validation checks supported game_rules_v1 bidding constraints, not turn order or coaching quality; '
+    'manual coaching review remains required (EC-024).',
   );
   return failureCount == 0 ? 0 : 1;
 }

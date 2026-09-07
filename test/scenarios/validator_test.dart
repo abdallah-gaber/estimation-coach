@@ -35,8 +35,8 @@ void main() {
     () {
       write('draft', fixture());
       expect(run(), 0);
-      expect(output.toString(), contains('20 of 21'));
-      expect(output.toString(), contains('structure only'));
+      expect(output.toString(), contains('16 of 17'));
+      expect(output.toString(), contains('structure + game_rules_v1'));
       expect(errors.toString(), isEmpty);
     },
   );
@@ -56,7 +56,10 @@ void main() {
     };
     write('complete', data);
     expect(run(['--require-complete']), 0);
-    expect(output.toString(), contains('manual rules review remains required'));
+    expect(
+      output.toString(),
+      contains('manual coaching review remains required'),
+    );
   });
 
   test('duplicate ids fail even in separate files', () {

@@ -157,6 +157,22 @@ It takes precedence over provisional parser/schema bounds and historical example
 EC-026 tracks the coordinated model/schema/content migration, including Sans and
 the pre-bidding Dash phase; EC-024 tracks the remaining coaching review.
 
+## D-010 — Enforce game_rules_v1 with explicit bidding phases
+
+**Status:** Accepted
+
+Add a pure Dart bid and immutable bidding state, with a trump category distinct
+from card suits. Scenarios must explicitly identify `rules_version: game_rules_v1`,
+`bidding_phase: pre_bidding|normal`, and `dash_players`. This pre-release v1
+migration intentionally rejects older ambiguous files; the canonical draft is
+migrated in the same PR. No silent legacy fallback is used.
+
+Pre-bidding choices are Dash/enter without trick or trump fields. Normal choices
+are bids only; authors supply count/suit bounds and the engine filters them to
+legal raises above the prior bids. Coverage counts only available legal choices.
+Previous actions are checked in order against the known phase and Dash players.
+Turn order, pass re-entry and auction termination are not inferred.
+
 ## Decision template
 
 Copy this section for future decisions.
