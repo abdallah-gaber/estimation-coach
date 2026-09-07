@@ -86,13 +86,22 @@ No authored training content or game rules were changed.
 - No heavy design system is created.
 
 ## EC-012 — Add Flutter continuous integration
-**Status:** READY
+**Status:** DONE
 
 Run the bootstrap checks on pull requests and require them before merge.
 
+Implemented on `feat/flutter-ci`: a GitHub Actions workflow
+(`.github/workflows/ci.yml`) running on pull requests to and pushes on `main`,
+pinned to Flutter 3.44.1 stable. It runs the same checks as the README's local
+"Automated checks" section: format check, analyze, test, strict scenario
+validation and a web build. Enabling the required status check on `main`
+branch protection is a manual GitHub configuration step, tracked separately
+below.
+
 ### Acceptance criteria
 - CI checks formatting, analysis, tests and a web build.
-- GitHub main protection requires the passing CI job.
+- GitHub main protection requires the passing CI job. *(workflow ready; enabling
+  the required check in branch protection settings is a manual follow-up)*
 
 ## EC-025 — Expand nested scenario schema constraints
 **Status:** DONE
