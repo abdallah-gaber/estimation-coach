@@ -151,15 +151,15 @@ See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation st
 
 ## Run the first bidding trainer
 
-This checkpoint has two independent hands: Dash versus enter, then a normal
-bid facing 4 Hearts. All 19 legal choices have deterministic authored feedback.
+This checkpoint has ten independent hands: four Dash/enter decisions and six
+normal-bidding situations. All 53 legal choices have deterministic authored feedback.
 Read the [coaching review](docs/COACHING_REVIEW.md) for rating rationale.
 There is no full auction, simulated outcome, saved progress, or mid-hand play yet.
 
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/first-bidding-trainer
+git switch codex/bidding-scenario-pack
 flutter pub get
 flutter run -d chrome
 ```
@@ -181,10 +181,15 @@ generated but unvalidated; use `flutter devices` to see available targets.
 5. Submit **4 Spades**: expect **Reasonable**. Try **4 Sans** (Risky),
    **5 Spades** (Risky), and **7 Clubs** (Weak decision). Check that the explanation
    matches your choice. Outcomes are explicitly not simulated.
-6. Choose **Finish session**, then **Practice again**: the first hand resets.
-7. Resize to 320px and increase text size: cards and controls should wrap and
+6. Continue through hands 3–5: a balanced low hand makes Dash reasonable, while
+   the singleton King and seven low Clubs make Dash risky. Enter stays reasonable.
+7. Hands 6–10 compare trump control and targets. In hand 8, 5 Clubs beats
+   4 Sans and receives Strong decision; 5 Spades receives Weak decision. In hand
+   9, East is already Dash at zero and is absent from normal bid history.
+8. Finish all ten hands, then **Practice again**: the first hand resets.
+9. Resize to 320px and increase text size: cards and controls should wrap and
    remain reachable by scrolling. Use Tab/Enter to choose buttons and chips.
-8. Refresh: the session starts over. Progress is not persisted in this checkpoint.
+10. Refresh: the session starts over. Progress is not persisted in this checkpoint.
 
 ### Automated checks
 
@@ -196,7 +201,7 @@ dart run tool/validate_scenarios.dart --require-complete
 flutter build web
 ```
 
-Strict validation should pass both scenario files with no missing evaluations.
+Strict validation should pass all ten scenario files with no missing evaluations.
 Tests cover cards, game rules, parser/schema alignment, validator failure cases,
 authored evaluation, bundled loading, legal choice controls, feedback, session
 restart, load retry, and a 320px layout with double text scaling.

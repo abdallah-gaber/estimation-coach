@@ -1,0 +1,158 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_009",
+  "type": "bidding",
+  "title": "Three Aces without a long strong suit",
+  "difficulty": "intermediate",
+  "primary_skill": "trump_selection",
+  "skills": [
+    "trump_selection",
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "AS",
+    "QS",
+    "7S",
+    "AH",
+    "JH",
+    "4H",
+    "AD",
+    "8D",
+    "3D",
+    "KC",
+    "QC",
+    "5C",
+    "2C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [
+    "east"
+  ],
+  "previous_actions": [
+    {
+      "player": "west",
+      "action": "bid",
+      "tricks": 4,
+      "trump": "hearts"
+    }
+  ],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 6
+    },
+    "trumps": [
+      "spades",
+      "no_trump"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "spades"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Short trump limits the plan",
+        "summary": "Four Spades leans on side controls and conditional honors while holding only three trumps.",
+        "points": [
+          "Control: the Spade Ace is top trump, but the King is missing from A-Q-7.",
+          "Probable: the Heart and Diamond Aces can win if opponents follow suit.",
+          "Risk: three trumps give limited control; Club honors still face the Ace."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "Five stretches short trump",
+        "summary": "Five Spades requires several extra winners with too little trump length to protect the plan.",
+        "points": [
+          "Control: the Spade Ace is top trump, but the King is missing from A-Q-7.",
+          "Probable: the Heart and Diamond Aces can win if opponents follow suit.",
+          "Risk: three trumps give limited control; Club honors still face the Ace."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "Honors are not six safe tricks",
+        "summary": "Six Spades counts too much from conditional Queens, Jacks, and a short trump suit.",
+        "points": [
+          "Control: the Spade Ace is top trump, but the King is missing from A-Q-7.",
+          "Probable: the Heart and Diamond Aces can win if opponents follow suit.",
+          "Risk: three trumps give limited control; Club honors still face the Ace."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "no_trump"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Spread controls suit a modest Sans bid",
+        "summary": "Four Sans is plausible with three Aces and potential Club promotion. The fourth trick still needs work.",
+        "points": [
+          "Control: three Aces are clear high-card controls with no ruffing in Sans.",
+          "Conditional: King-Queen of Clubs must face the Ace before both can be counted.",
+          "Risk: the Spade Queen and Heart Jack are not established winners; access and timing matter."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "no_trump"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Five needs more promotion",
+        "summary": "Five Sans requires additional honors to become winners and enough access to cash them.",
+        "points": [
+          "Control: three Aces are clear high-card controls with no ruffing in Sans.",
+          "Conditional: King-Queen of Clubs must face the Ace before both can be counted.",
+          "Risk: the Spade Queen and Heart Jack are not established winners; access and timing matter."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "no_trump"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "Six overcounts the honors",
+        "summary": "Six Sans treats too many conditional honors as if they were established winners.",
+        "points": [
+          "Control: three Aces are clear high-card controls with no ruffing in Sans.",
+          "Conditional: King-Queen of Clubs must face the Ace before both can be counted.",
+          "Risk: the Spade Queen and Heart Jack are not established winners; access and timing matter."
+        ]
+      }
+    }
+  ]
+}

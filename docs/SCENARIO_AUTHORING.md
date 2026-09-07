@@ -2,7 +2,7 @@
 
 This document defines how humans and AI agents add training content without changing application code.
 
-[game_rules_v1](GAME_RULES_V1.md) is authoritative for normal bidding. The first two training hands have complete feedback; see the [coaching review](COACHING_REVIEW.md).
+[game_rules_v1](GAME_RULES_V1.md) is authoritative for normal bidding. The first ten training hands have complete feedback; see the [coaching review](COACHING_REVIEW.md).
 
 ## Goal
 
@@ -104,7 +104,7 @@ Each scenario should have one main teaching objective.
 Examples:
 
 - Do not count a conditional King as guaranteed.
-- Dash when the hand has no credible path to the minimum bid.
+- Distinguish a plausible zero-trick plan from a hand that is merely too weak to open.
 - A player who failed to follow Clubs is now known void in Clubs.
 - After reaching the exact bid, stop maximizing trick count.
 
@@ -321,8 +321,8 @@ dart run tool/validate_scenarios.dart --require-complete
 ```
 
 Default validation permits incomplete feedback with a warning. Strict coverage
-fails until every legal choice has an evaluation. Both bundled scenarios now
-pass strict coverage (19 choices total). Neither mode certifies the authored
+fails until every legal choice has an evaluation. All ten bundled scenarios now
+pass strict coverage (53 choices total). Neither mode certifies the authored
 coaching. The app rejects incomplete catalogs rather than inventing a rating.
 
 | Exit code | Meaning |

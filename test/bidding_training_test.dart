@@ -18,6 +18,20 @@ List<BiddingScenario> pack() => [
     ),
 ];
 
+List<BiddingScenario> catalog() {
+  final files =
+      Directory('content/scenarios/v1/bidding')
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.json'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
+  return [
+    for (final file in files)
+      BiddingScenario.fromJson(jsonDecode(file.readAsStringSync())),
+  ];
+}
+
 Future<void> tap(WidgetTester tester, String label) async {
   final target = RegExp(r'^[4-7]$').hasMatch(label)
       ? find.widgetWithText(ChoiceChip, label)
@@ -31,11 +45,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test(
-    'all 19 legal choices return exact authored feedback across four ratings',
+    'all 53 legal choices return exact authored feedback across four ratings',
     () {
       final ratings = <DecisionRating>{};
       var count = 0;
-      for (final scenario in pack()) {
+      for (final scenario in catalog()) {
         expect(scenario.missingEvaluationCount, 0);
         for (final choice in scenario.allowedDecisions.choices) {
           final result = evaluateBid(scenario, choice)!;
@@ -47,7 +61,7 @@ void main() {
           count++;
         }
       }
-      expect(count, 19);
+      expect(count, 53);
       expect(ratings, DecisionRating.values.toSet());
     },
   );
@@ -81,9 +95,54 @@ void main() {
 
   test('bundled catalog is complete and immutable', () async {
     final scenarios = await loadBiddingScenarios();
-    expect(scenarios.map((s) => s.id), pack().map((s) => s.id));
+    expect(scenarios, hasLength(10));
+    expect(scenarios.map((s) => s.id), catalog().map((s) => s.id));
     expect(() => scenarios.clear(), throwsUnsupportedError);
   });
+
+  testWidgets(
+    'all ten independent hands can be reviewed and session completed',
+    (tester) async {
+      final scenarios = catalog();
+      await tester.pumpWidget(
+        MaterialApp(home: BiddingTrainingScreen(loader: () async => scenarios)),
+      );
+      await tester.pumpAndSettle();
+      for (var index = 0; index < scenarios.length; index++) {
+        final scenario = scenarios[index];
+        expect(find.text(scenario.title), findsOneWidget);
+        final choice = scenario.allowedDecisions.choices.first;
+        if (choice.action == BiddingAction.bid) {
+          await tap(tester, '${choice.tricks}');
+          final label = switch (choice.trump!) {
+            Trump.spades => 'Spades',
+            Trump.hearts => 'Hearts',
+            Trump.diamonds => 'Diamonds',
+            Trump.clubs => 'Clubs',
+            Trump.noTrump => 'Sans',
+          };
+          await tap(tester, label);
+          await tap(tester, 'Review bid');
+        } else {
+          await tap(
+            tester,
+            choice.action == BiddingAction.dash
+                ? 'Dash · 0 tricks'
+                : 'Enter bidding',
+          );
+        }
+        expect(
+          find.text(evaluateBid(scenario, choice)!.feedback.summary),
+          findsOneWidget,
+        );
+        await tap(
+          tester,
+          index == scenarios.length - 1 ? 'Finish session' : 'Next hand',
+        );
+      }
+      expect(find.text('Session complete'), findsOneWidget);
+    },
+  );
 
   testWidgets('default app loads the first training hand', (tester) async {
     await tester.runAsync(() async {

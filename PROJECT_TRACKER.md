@@ -94,14 +94,13 @@ Implemented on `feat/flutter-ci`: a GitHub Actions workflow
 (`.github/workflows/ci.yml`) running on pull requests to and pushes on `main`,
 pinned to Flutter 3.44.1 stable. It runs the same checks as the README's local
 "Automated checks" section: format check, analyze, test, strict scenario
-validation and a web build. Enabling the required status check on `main`
-branch protection is a manual GitHub configuration step, tracked separately
-below.
+validation and a web build. Follow-up on 2026-09-07 enabled the required
+GitHub Actions check `Format, analyze, test, validate, build` on main, with
+up-to-date branches required and existing protections preserved.
 
 ### Acceptance criteria
 - CI checks formatting, analysis, tests and a web build.
-- GitHub main protection requires the passing CI job. *(workflow ready; enabling
-  the required check in branch protection settings is a manual follow-up)*
+- GitHub main protection requires the passing CI job.
 
 ## EC-025 — Expand nested scenario schema constraints
 **Status:** DONE
@@ -290,12 +289,15 @@ unsimulated outcome, retry, next independent hand, and session restart.
 ---
 
 ## EC-033 — First 10 bidding scenarios
-**Status:** BACKLOG
+**Status:** DONE
 
 Author a small curated scenario pack.
 
-Progress: 2 reviewed hands and 19 evaluated choices are bundled for the first
-user-test checkpoint. Expand to 10 after feedback on this training loop.
+Progress: 10 reviewed hands and 53 evaluated choices are bundled. Four hands
+cover pre-bidding Dash/enter; six cover normal bid sizing and trump choice.
+Review rationale is in `docs/COACHING_REVIEW.md`. A catalog test verifies every
+choice and a widget test completes all ten hands without UI implementation changes.
+Validation: 153 tests, analysis, strict content validation and web build pass.
 
 ### Acceptance criteria
 - At least 10 scenarios.
