@@ -386,9 +386,23 @@ to EC-042/043.
 ---
 
 ## EC-042 — Void tracking scenarios
-**Status:** BACKLOG
+**Status:** DONE
 
 Create scenarios that coach observation of void suits.
+
+Implemented on `feat/void-tracking-scenarios`: `PlaySituation` gains optional
+`observedTricks` (curated prior tricks, never a claim of full history), and
+`lib/core/game_rules/void_tracking.dart` derives known-void suits purely from
+observed off-suit play using the confirmed EC-021 follow-suit rule — no
+`known_voids` field or other authored void metadata exists anywhere. Schema,
+parser and validator extended accordingly. Three reviewed scenarios
+(`play_void_tracking_001`–`003`) ship in `content/scenarios/v1/play/`; one is
+engineered so the correct choice changes once the void is accounted for,
+confirmed by a dedicated regression test. `PlayTrainingScreen` shows a
+compact, de-emphasized "Observed play" section above the current trick. See
+[COACHING_REVIEW.md](docs/COACHING_REVIEW.md#void-tracking-pack-review-ec-042)
+and [D-018](docs/DECISIONS.md) for the full design rationale. Winner
+resolution, scoring and EC-043 remain deferred.
 
 ### Acceptance criteria
 - Scenario can record known void information.

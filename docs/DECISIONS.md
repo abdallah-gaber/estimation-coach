@@ -311,6 +311,43 @@ misleading skill label. It was retagged before this checkpoint's coaching
 review (see `docs/COACHING_REVIEW.md`). Void-tracking and exact-bid-protection
 content packs remain separate, deliberately out of scope (EC-042/043).
 
+## D-018 — Derive void tracking from observed play, never author it as a fact
+
+**Status:** Accepted
+
+EC-042 adds `observedTricks` to `PlaySituation`: an optional list of
+`ObservedTrick`, each exactly four `SeatPlay`s (one per seat, first is that
+trick's own leader). It represents prior tricks the player can see for the
+current decision — an author-curated, visible *subset* of history, not a
+claim of recency (it is never labelled "the last trick") or of the round's
+complete history. Its cards must not duplicate the hand, current trick, or
+each other, and its length cannot exceed the completed-trick total implied
+by `tricksTaken`; no cross-trick leader-succession check is performed, since
+that would require a trick-winner resolver this project does not have.
+
+Known-void suits are always *derived*, never authored: `knownVoidSuits`
+(`lib/core/game_rules/void_tracking.dart`) scans a seat's plays across
+`observedTricks` and the unfinished `currentTrick` uniformly (an empty trick,
+e.g. when leading, is skipped safely) and infers a void from any off-suit
+play, using the already-confirmed EC-021 follow-suit rule as proof — a seat
+that could follow suit must, so failing to do so proves it held none. No
+`known_voids` field, or any other flat void metadata, exists anywhere in the
+schema or content; nothing infers a void from the *absence* of shown history.
+This keeps content and derivable fact from silently drifting apart, and
+avoids inventing a new rule where the existing one already proves the point.
+
+The first pack (EC-042) has three scenarios, all tagged `void_tracking`. At
+least one (`play_void_tracking_001`) is engineered so the correct choice
+*changes* once the observed void is accounted for — confirmed by a regression
+test that strips `observed_tricks` and checks nothing else in the situation
+reveals the void — so the evidence is load-bearing, not decorative. A second
+uses Sans to show a void becomes a full guarantee rather than a mere risk
+signal, and a third reinforces the first pattern with different cards. The
+UI shows observed tricks as a compact, visually de-emphasized "Observed play"
+section above the current trick; it never displays a live computed void
+badge, since that would hand the player the answer instead of letting them
+read the same history the coaching evidence points back to afterward.
+
 ## Decision template
 
 Copy this section for future decisions.

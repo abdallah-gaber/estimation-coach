@@ -78,16 +78,48 @@ connects a reviewed pack of these to the Play practice screen.
   Estimates below four and tricks taken above the estimate are representable.
 - `legalChoices` reuses the established follow-suit helper. Leading or being
   void allows every held card; Sans does not change follow-suit behavior.
+- `observedTricks` (EC-042) is an optional list of `ObservedTrick` — each
+  exactly four `SeatPlay`s, one per seat, first is that trick's own leader.
+  It is a curated, visible *subset* of prior tricks relevant to the current
+  decision, never a claim of recency or completeness; its cards must not
+  duplicate the hand, current trick, or each other, and its length cannot
+  exceed the total completed tricks implied by `tricksTaken`.
 
 The model checks internal public-snapshot consistency, not whether hidden hands
 or a full historical round could produce it. It does not validate opponents'
 follow-suit compliance without their hands, resolve a winner, progress turns,
 assign estimates, infer the winning bidder's identity, or grade decisions.
-Completed tricks/hands are outside this pending-decision model.
+Completed tricks/hands beyond what `observedTricks` explicitly shows are
+outside this pending-decision model — in particular, one observed trick's
+leader is never checked against a previous trick's winner, since that would
+require a winner resolver this project does not have.
 
 ```sh
 flutter test test/core/game_rules/play_situation_test.dart
 ```
 
-The focused 20 tests cover boundaries, low estimates, overtricks, all trump
-categories, all leading seats, voids, defensive copies, and invalid snapshots.
+The 28 tests cover boundaries, low estimates, overtricks, all trump
+categories, all leading seats, voids, defensive copies, observed-trick
+validation, and invalid snapshots.
+
+## EC-042: void tracking
+
+`lib/core/game_rules/void_tracking.dart` derives known-void suits from
+visible play — never authored. `knownVoidSuits` scans a seat's cards across
+`observedTricks` and the unfinished `currentTrick` uniformly: if a seat plays
+off the trick's led suit, the confirmed [follow-suit
+rule](#ec-021-following-suit) proves that seat held none of it at that
+moment. No new game rule is introduced; this is a direct consequence of the
+rule already implemented for EC-021. An empty trick (leading) is skipped
+safely and contributes nothing. The function is pure and does not depend on
+`PlayScenario`, the parser, or any widget.
+
+```sh
+flutter test test/core/game_rules/void_tracking_test.dart
+```
+
+The 7 tests cover: following suit inferring no void, an off-suit play
+inferring one, repeated evidence deduplicating, one seat becoming void in
+multiple suits, an empty trick being ignored, a void revealed within the
+current unfinished trick, and backward compatibility with scenarios that
+carry no observed history at all.
