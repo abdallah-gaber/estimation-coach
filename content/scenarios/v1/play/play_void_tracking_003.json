@@ -23,8 +23,8 @@
       [
         {"player": "west", "card": "9C"},
         {"player": "south", "card": "6C"},
-        {"player": "north", "card": "AC"},
-        {"player": "east", "card": "2D"}
+        {"player": "east", "card": "2D"},
+        {"player": "north", "card": "AC"}
       ]
     ]
   },
@@ -56,5 +56,5 @@
       }
     }
   ],
-  "author_notes": "Third void-tracking scenario (EC-042). A second, independent example of the same 'preserve your master card against a known void' pattern from play_void_tracking_001, with a different seat, suit and trump to reinforce pattern recognition rather than a single memorized case."
+  "author_notes": "Third void-tracking scenario (EC-042). A second, independent example of the same 'preserve your master card against a known void' pattern from play_void_tracking_001, with a different seat, suit and trump to reinforce pattern recognition rather than a single memorized case. Its current_trick already matched the owner-confirmed North -> West -> South -> East rotation; only the observed trick's internal seat order was corrected."
 }

@@ -13,7 +13,7 @@
     "leader": "north",
     "current_trick": [
       {"player": "north", "card": "6H"},
-      {"player": "east", "card": "9H"}
+      {"player": "west", "card": "9H"}
     ],
     "trump": "no_trump",
     "trick_estimate": 4,
@@ -22,9 +22,9 @@
     "observed_tricks": [
       [
         {"player": "north", "card": "8H"},
-        {"player": "east", "card": "QH"},
+        {"player": "west", "card": "QH"},
         {"player": "south", "card": "4H"},
-        {"player": "west", "card": "3C"}
+        {"player": "east", "card": "3C"}
       ]
     ]
   },
@@ -34,11 +34,11 @@
       "rating": "strong",
       "feedback": {
         "title": "A guaranteed trick in Sans",
-        "summary": "West has already shown void in Hearts, and in Sans only Hearts can win this trick — North and East have already played below the king, and West cannot add a Heart to challenge it.",
+        "summary": "East has already shown void in Hearts, and in Sans only Hearts can win this trick — North and West have already played below the king, and East cannot add a Heart to challenge it.",
         "points": [
-          "The earlier trick shows West playing a club when Hearts were led, so West holds no more Hearts this hand.",
-          "In Sans, a card that cannot follow the led suit can never win the trick — West's response cannot beat any Heart you play.",
-          "No higher Heart remains to be added to this trick: North and East have already played, and West cannot follow suit."
+          "The earlier trick shows East playing a club when Hearts were led, so East holds no more Hearts this hand.",
+          "In Sans, a card that cannot follow the led suit can never win the trick — East's response cannot beat any Heart you play.",
+          "No higher Heart remains to be added to this trick: North and West have already played, and East cannot follow suit."
         ]
       }
     },
@@ -49,12 +49,12 @@
         "title": "Giving away a trick you can already win",
         "summary": "Playing the two lets the nine of Hearts win instead; the king guarantees this trick in Sans, and the target's exact estimate still requires both of the two remaining tricks.",
         "points": [
-          "The earlier trick already showed West void in Hearts, so nothing remaining in this trick can beat the king.",
-          "In Sans, West's forced off-suit card cannot win this trick regardless of what West plays.",
+          "The earlier trick already showed East void in Hearts, so nothing remaining in this trick can beat the king.",
+          "In Sans, East's forced off-suit card cannot win this trick regardless of what East plays.",
           "The target's exact estimate still requires both remaining tricks; giving up a trick the king guarantees moves it into the harder, uncertain remainder."
         ]
       }
     }
   ],
-  "author_notes": "Second void-tracking scenario (EC-042). Sans removes the usual trump risk entirely: once West is confirmed void in the led suit, no card West holds can win this trick, making the king a fully certain winner rather than merely a probable one."
+  "author_notes": "Second void-tracking scenario (EC-042). Sans removes the usual trump risk entirely: once East is confirmed void in the led suit, no card East holds can win this trick, making the king a fully certain winner rather than merely a probable one. Seat order corrected to the owner-confirmed North -> West -> South -> East rotation; East (not West) is the seat that plays after South."
 }

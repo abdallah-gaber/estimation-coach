@@ -74,9 +74,9 @@ void main() {
     d['situation']['observed_tricks'] = [
       [
         {'player': 'west', 'card': '8D'},
-        {'player': 'north', 'card': 'JD'},
+        {'player': 'south', 'card': 'JD'},
         {'player': 'east', 'card': '4D'},
-        {'player': 'south', 'card': '9D'},
+        {'player': 'north', 'card': '9D'},
       ],
     ];
     accepted(d);
@@ -186,7 +186,7 @@ void main() {
         d['situation']['current_trick'][1]['card'] = '7H',
     'public card in hand': (d) =>
         d['situation']['current_trick'][0]['card'] = '3H',
-    'wrong leader': (d) => d['situation']['leader'] = 'east',
+    'wrong leader': (d) => d['situation']['leader'] = 'north',
     'already played': (d) =>
         d['situation']['current_trick'][1]['player'] = 'south',
     'count total': (d) => d['situation']['tricks_taken']['north'] = 1,
@@ -206,9 +206,9 @@ void main() {
         d['situation']['observed_tricks'] = [
           [
             {'player': 'west', 'card': '8D'},
-            {'player': 'north', 'card': 'JD'},
+            {'player': 'south', 'card': 'JD'},
             {'player': 'east', 'card': '4D'},
-            {'player': 'south', 'card': '3H'},
+            {'player': 'north', 'card': '3H'},
           ],
         ],
     'more observed tricks than completed': (d) {
@@ -238,9 +238,9 @@ void main() {
       d['situation']['observed_tricks'] = [
         [
           {'player': 'west', 'card': '8D'},
-          {'player': 'north', 'card': 'JD'},
+          {'player': 'south', 'card': 'JD'},
           {'player': 'east', 'card': '4D'},
-          {'player': 'south', 'card': '9D'},
+          {'player': 'north', 'card': '9D'},
         ],
       ];
     },
@@ -258,8 +258,8 @@ void main() {
     'bundled void-tracking scenarios derive the seat/suit their coaching relies on',
     () {
       final expectedVoids = {
-        'play_void_tracking_001': (PlayerSeat.west, Suit.diamonds),
-        'play_void_tracking_002': (PlayerSeat.west, Suit.hearts),
+        'play_void_tracking_001': (PlayerSeat.east, Suit.diamonds),
+        'play_void_tracking_002': (PlayerSeat.east, Suit.hearts),
         'play_void_tracking_003': (PlayerSeat.east, Suit.clubs),
       };
       for (final entry in expectedVoids.entries) {
@@ -298,7 +298,7 @@ void main() {
       );
       expect(
         knownVoidSuits(
-          seat: PlayerSeat.west,
+          seat: PlayerSeat.east,
           observedTricks: scenario.situation.observedTricks,
           currentTrick: scenario.situation.currentTrick,
         ),
@@ -306,14 +306,14 @@ void main() {
       );
       expect(
         knownVoidSuits(
-          seat: PlayerSeat.west,
+          seat: PlayerSeat.east,
           observedTricks: withoutHistory.situation.observedTricks,
           currentTrick: withoutHistory.situation.currentTrick,
         ),
         isEmpty,
         reason:
             'without the observed trick, nothing in this situation reveals '
-            "West's void — the rating genuinely depends on the shown history, "
+            "East's void — the rating genuinely depends on the shown history, "
             'not on decorative evidence',
       );
       expect(

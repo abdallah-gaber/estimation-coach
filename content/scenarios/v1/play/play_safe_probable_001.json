@@ -10,11 +10,11 @@
   "player_position": "south",
   "hand": ["AH", "3H", "2C", "5D"],
   "situation": {
-    "leader": "west",
+    "leader": "east",
     "current_trick": [
-      {"player": "west", "card": "8H"},
+      {"player": "east", "card": "8H"},
       {"player": "north", "card": "4H"},
-      {"player": "east", "card": "6H"}
+      {"player": "west", "card": "6H"}
     ],
     "trump": "clubs",
     "trick_estimate": 5,
