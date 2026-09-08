@@ -34,11 +34,11 @@
       "rating": "strong",
       "feedback": {
         "title": "Save the king; the ace is already gone",
-        "summary": "West has already shown void in Diamonds and is free to trump this trick no matter which Diamond you play; with the ace of Diamonds already out, your king is the highest Diamond left and worth keeping for a trick it can actually win.",
+        "summary": "West has already shown void in Diamonds and is free to trump this trick no matter which Diamond you play; playing the low card avoids exposing your king to that known void, keeping its winning potential for later instead of spending it here.",
         "points": [
           "The earlier trick shows West playing a club when Diamonds were led, so West holds no more Diamonds this hand and is free to trump this one.",
-          "The ace of Diamonds is already out, so the king is the highest Diamond left — a real winner if it survives to a trick West cannot trump away.",
-          "The target still needs one more trick from the two remaining; keeping the king gives the final trick a genuine winner instead of spending it here for nothing."
+          "The ace of Diamonds is already out, so the king is the highest Diamond left — it keeps genuine winning potential once it is not exposed to West's known void.",
+          "The target still needs one more trick from the two remaining; this avoids spending the king on a trick West controls, without giving up on it."
         ]
       }
     },
@@ -47,7 +47,7 @@
       "rating": "risky",
       "feedback": {
         "title": "Risking your best card on a trick you don't control",
-        "summary": "West's confirmed void means West decides whether this trick is trumped, regardless of which Diamond you play, so leading with the king risks your best remaining card for no extra chance of winning it.",
+        "summary": "West's confirmed void means West decides whether this trick is trumped, regardless of which Diamond you play, so leading with the king exposes your best remaining card to that known void for a trick you don't control.",
         "points": [
           "The earlier trick already showed West void in Diamonds — West can trump this trick with any spade no matter which Diamond you offer.",
           "If West trumps, the king is spent for nothing, and only the weak three is left for the final trick the target still needs.",

@@ -187,24 +187,30 @@ king; the void-aware read says three.
 
 **Ratings:** playing the three is `strong` — West is already shown void in
 Diamonds (an earlier trick: Diamonds led, West played a club) and is free to
-trump this trick regardless of which Diamond is offered, and the ace of
-Diamonds is already out, so the king is the highest Diamond left and worth
-keeping for a trick West cannot trump away. Playing the king is `risky` — not
-`weak`, because there is a genuine (if unlikely) chance West declines to
-trump and the king wins outright; the avoidable risk is spending the best
-remaining card on a trick you do not control when an equally-losing, cost-free
-alternative (the three) is available.
+trump this trick regardless of which Diamond is offered, so playing the king
+would expose it to that known void for no gain; the ace of Diamonds is
+already out, so the king is the highest Diamond left and keeps genuine
+winning potential once it is not exposed here. Playing the king is `risky` —
+not `weak`, because there is a genuine (if unlikely) chance West declines to
+trump and the king wins outright; the avoidable risk is exposing the best
+remaining card to a known void on a trick you do not control, when an
+equally-losing, cost-free alternative (the three) is available. Neither
+rating claims the retained king is *guaranteed* to win a future trick — only
+that keeping it avoids a known, avoidable exposure.
 
 **What makes this deterministic:** the observed trick shows West playing a
 club when Diamonds were led — sound proof of void by the follow-suit rule,
 not a guess. The ace being already played is a plain fact from the same
 observed trick. Whether West *chooses* to trump is not claimed as certain —
-only that West is *free* to.
+only that West is *free* to. Whether the preserved king actually wins some
+later trick is not claimed either; no future trick is modeled.
 
 **Confirmed non-decorative:** `test/scenarios/play_scenario_test.dart`
 asserts that removing `observed_tricks` from this file leaves nothing in the
-situation that reveals West's void, i.e. the rating genuinely depends on the
-shown history.
+situation that reveals West's void, i.e. the authored rating's stated
+rationale genuinely depends on the shown history. This is not an algorithmic
+proof that the rating is the objectively optimal decision — ratings remain
+authored judgment, the same as every other scenario in this project.
 
 ### `play_void_tracking_002` — No trump can save this trick
 
@@ -215,10 +221,11 @@ king and a low Heart, already ahead of North's and East's cards.
 
 **Ratings:** the king is `strong` — West cannot add a Heart (confirmed void),
 and in Sans a card that cannot follow suit can never win, so no card left in
-this trick can beat the king. The two is `weak` — it concedes an already-won
-trick for no reason; unlike the trump-round scenarios, there is no defensive
-upside to holding the king back, since nothing threatens it this trick or
-demonstrably threatens it later either.
+this trick can beat the king. The two is `weak` — the king guarantees this
+specific trick in Sans, and the target's exact estimate still requires both
+of the two remaining tricks, so conceding a trick that is already certain
+moves it into the harder, uncertain remainder for no offsetting benefit
+identified in this situation.
 
 **What makes this deterministic:** the observed trick's void evidence plus
 the Sans-only-led-suit-wins rule combine to a closed case — no opponent

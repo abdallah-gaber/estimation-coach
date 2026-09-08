@@ -397,12 +397,23 @@ observed off-suit play using the confirmed EC-021 follow-suit rule — no
 `known_voids` field or other authored void metadata exists anywhere. Schema,
 parser and validator extended accordingly. Three reviewed scenarios
 (`play_void_tracking_001`–`003`) ship in `content/scenarios/v1/play/`; one is
-engineered so the correct choice changes once the void is accounted for,
-confirmed by a dedicated regression test. `PlayTrainingScreen` shows a
+authored so its rating changes once the void is accounted for, and a
+regression test confirms the stated rationale genuinely depends on the
+observed evidence (not an algorithmic proof of optimality — ratings remain
+authored judgment). `PlayTrainingScreen` shows a
 compact, de-emphasized "Observed play" section above the current trick. See
 [COACHING_REVIEW.md](docs/COACHING_REVIEW.md#void-tracking-pack-review-ec-042)
 and [D-018](docs/DECISIONS.md) for the full design rationale. Winner
 resolution, scoring and EC-043 remain deferred.
+
+**Known pending correction:** the four-seat sequence within each authored
+`current_trick`/`observed_tricks` is not yet checked against a documented
+turn-order rule, because `docs/GAME_RULES_V1.md`'s Scope section explicitly
+leaves turn order undefined. Once the owner confirms the canonical rotation,
+seat sequences must be re-verified against it (correcting content if needed),
+domain/scenario validation should reject an impossible seat sequence, and the
+three scenarios' strategic ratings must be re-reviewed, since changing who
+acts after South can change what is deterministically knowable.
 
 ### Acceptance criteria
 - Scenario can record known void information.

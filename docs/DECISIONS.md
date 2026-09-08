@@ -337,10 +337,13 @@ This keeps content and derivable fact from silently drifting apart, and
 avoids inventing a new rule where the existing one already proves the point.
 
 The first pack (EC-042) has three scenarios, all tagged `void_tracking`. At
-least one (`play_void_tracking_001`) is engineered so the correct choice
-*changes* once the observed void is accounted for — confirmed by a regression
-test that strips `observed_tricks` and checks nothing else in the situation
-reveals the void — so the evidence is load-bearing, not decorative. A second
+least one (`play_void_tracking_001`) is authored so its rating *changes* once
+the observed void is accounted for. A regression test confirms this is not
+decorative: stripping `observed_tricks` leaves nothing else in the situation
+that reveals the void, so the authored rating's stated rationale genuinely
+depends on the shown evidence. This is not an algorithmic proof that the
+rating is the objectively optimal decision — ratings remain authored
+judgment here, same as everywhere else in this project. A second scenario
 uses Sans to show a void becomes a full guarantee rather than a mere risk
 signal, and a third reinforces the first pattern with different cards. The
 UI shows observed tricks as a compact, visually de-emphasized "Observed play"

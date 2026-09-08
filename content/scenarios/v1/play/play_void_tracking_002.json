@@ -47,11 +47,11 @@
       "rating": "weak",
       "feedback": {
         "title": "Giving away a trick you can already win",
-        "summary": "Playing the two lets the nine of Hearts win instead, giving away a trick the target still needs even though West's known void guarantees the king would take it.",
+        "summary": "Playing the two lets the nine of Hearts win instead; the king guarantees this trick in Sans, and the target's exact estimate still requires both of the two remaining tricks.",
         "points": [
           "The earlier trick already showed West void in Hearts, so nothing remaining in this trick can beat the king.",
           "In Sans, West's forced off-suit card cannot win this trick regardless of what West plays.",
-          "The target still needs both remaining tricks; there is no reason to concede one that is already yours to take."
+          "The target's exact estimate still requires both remaining tricks; giving up a trick the king guarantees moves it into the harder, uncertain remainder."
         ]
       }
     }

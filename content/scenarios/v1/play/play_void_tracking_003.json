@@ -34,11 +34,11 @@
       "rating": "strong",
       "feedback": {
         "title": "Save the king; the ace is already gone",
-        "summary": "East has already shown void in Clubs and is free to trump this trick with any heart no matter which Club you play; with the ace of Clubs already out, your king is the highest Club left and worth keeping for a trick it can actually win.",
+        "summary": "East has already shown void in Clubs and is free to trump this trick with any heart no matter which Club you play; playing the low card avoids exposing your king to that known void, keeping its winning potential for later instead of spending it here.",
         "points": [
           "The earlier trick shows East playing a diamond when Clubs were led, so East holds no more Clubs this hand and is free to trump this one.",
-          "The ace of Clubs is already out, so the king is the highest Club left — a real winner if it survives to a trick East cannot trump away.",
-          "The target still needs one more trick from the two remaining; keeping the king gives the final trick a genuine winner instead of spending it here for nothing."
+          "The ace of Clubs is already out, so the king is the highest Club left — it keeps genuine winning potential once it is not exposed to East's known void.",
+          "The target still needs one more trick from the two remaining; this avoids spending the king on a trick East controls, without giving up on it."
         ]
       }
     },
@@ -47,7 +47,7 @@
       "rating": "risky",
       "feedback": {
         "title": "Risking your best card on a trick you don't control",
-        "summary": "East's confirmed void means East decides whether this trick is trumped, regardless of which Club you play, so leading with the king risks your best remaining card for no extra chance of winning it.",
+        "summary": "East's confirmed void means East decides whether this trick is trumped, regardless of which Club you play, so leading with the king exposes your best remaining card to that known void for a trick you don't control.",
         "points": [
           "The earlier trick already showed East void in Clubs — East can trump this trick with any heart no matter which Club you offer.",
           "If East trumps, the king is spent for nothing, and only the weak four is left for the final trick the target still needs.",
