@@ -324,6 +324,140 @@
           }
         }
       ]
+    },
+    "card": {
+      "type": "string",
+      "pattern": "^(A|K|Q|J|10|[2-9])[SHDC]$"
+    },
+    "playCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 13
+    },
+    "seatPlay": {
+      "type": "object",
+      "required": [
+        "player",
+        "card"
+      ],
+      "properties": {
+        "player": {
+          "$ref": "#/$defs/seat"
+        },
+        "card": {
+          "$ref": "#/$defs/card"
+        }
+      },
+      "additionalProperties": false
+    },
+    "auctionBid": {
+      "type": "object",
+      "required": [
+        "tricks",
+        "trump"
+      ],
+      "properties": {
+        "tricks": {
+          "$ref": "#/$defs/tricks"
+        },
+        "trump": {
+          "$ref": "#/$defs/trump"
+        }
+      },
+      "additionalProperties": false
+    },
+    "playSituation": {
+      "type": "object",
+      "required": [
+        "leader",
+        "current_trick",
+        "trump",
+        "trick_estimate",
+        "tricks_taken"
+      ],
+      "properties": {
+        "leader": {
+          "$ref": "#/$defs/seat"
+        },
+        "current_trick": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "$ref": "#/$defs/seatPlay"
+          }
+        },
+        "trump": {
+          "$ref": "#/$defs/trump"
+        },
+        "trick_estimate": {
+          "$ref": "#/$defs/playCount"
+        },
+        "tricks_taken": {
+          "type": "object",
+          "required": [
+            "north",
+            "east",
+            "south",
+            "west"
+          ],
+          "properties": {
+            "north": {
+              "$ref": "#/$defs/playCount"
+            },
+            "east": {
+              "$ref": "#/$defs/playCount"
+            },
+            "south": {
+              "$ref": "#/$defs/playCount"
+            },
+            "west": {
+              "$ref": "#/$defs/playCount"
+            }
+          },
+          "additionalProperties": false
+        },
+        "auction_bid": {
+          "$ref": "#/$defs/auctionBid"
+        }
+      },
+      "additionalProperties": false
+    },
+    "playEvaluation": {
+      "type": "object",
+      "required": [
+        "decision",
+        "rating",
+        "feedback"
+      ],
+      "properties": {
+        "decision": {
+          "type": "object",
+          "required": [
+            "action",
+            "card"
+          ],
+          "properties": {
+            "action": {
+              "const": "play"
+            },
+            "card": {
+              "$ref": "#/$defs/card"
+            }
+          },
+          "additionalProperties": false
+        },
+        "rating": {
+          "enum": [
+            "strong",
+            "reasonable",
+            "risky",
+            "weak"
+          ]
+        },
+        "feedback": {
+          "$ref": "#/$defs/feedback"
+        }
+      }
     }
   },
   "allOf": [
@@ -477,6 +611,72 @@
             }
           }
         ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "type": {
+            "const": "play"
+          }
+        },
+        "required": [
+          "type"
+        ]
+      },
+      "then": {
+        "required": [
+          "title",
+          "rules_version",
+          "player_position",
+          "hand",
+          "situation",
+          "evaluations"
+        ],
+        "properties": {
+          "title": {
+            "$ref": "#/$defs/nonblank"
+          },
+          "primary_skill": {
+            "$ref": "#/$defs/nonblank"
+          },
+          "skills": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/nonblank"
+            }
+          },
+          "rules_version": {
+            "const": "game_rules_v1"
+          },
+          "hand": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 13,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/card"
+            }
+          },
+          "situation": {
+            "$ref": "#/$defs/playSituation"
+          },
+          "evaluations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/playEvaluation"
+            }
+          },
+          "author_notes": {
+            "$ref": "#/$defs/nonblank"
+          },
+          "allowed_decisions": false,
+          "previous_actions": false,
+          "bidding_phase": false,
+          "dash_players": false
+        }
       }
     }
   ]

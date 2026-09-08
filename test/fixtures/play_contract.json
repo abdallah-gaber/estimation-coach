@@ -1,0 +1,45 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_contract_fixture",
+  "title": "Play contract fixture — not training content",
+  "difficulty": "beginner",
+  "primary_skill": "card_tracking",
+  "skills": ["card_tracking"],
+  "player_position": "south",
+  "hand": ["3H", "9H", "AS", "2C"],
+  "situation": {
+    "leader": "west",
+    "current_trick": [
+      {"player": "west", "card": "7H"},
+      {"player": "north", "card": "QH"},
+      {"player": "east", "card": "2H"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 1,
+    "tricks_taken": {"north": 2, "east": 2, "south": 3, "west": 2},
+    "auction_bid": {"tricks": 4, "trump": "spades"}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "3H"},
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Fixture feedback",
+        "summary": "Contract test only; this is not an approved strategic rating.",
+        "points": ["The card follows Hearts."]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "9H"},
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Fixture feedback",
+        "summary": "Contract test only; this is not an approved strategic rating.",
+        "points": ["The card follows Hearts."]
+      }
+    }
+  ],
+  "author_notes": "Synthetic schema/parser fixture only. Not bundled or listed as reviewed coaching."
+}

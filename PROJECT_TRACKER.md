@@ -1,6 +1,7 @@
 # PROJECT_TRACKER.md
 
 This file is the repository-level source of truth for planned and active work.
+For milestone status and the remaining release path, see [MVP_STATUS.md](docs/MVP_STATUS.md).
 
 ## Status legend
 
@@ -370,7 +371,7 @@ Create situations where the player must avoid unwanted tricks.
 ---
 
 ## EC-044 — Portable mid-hand scenario contract
-**Status:** IN PROGRESS
+**Status:** DONE
 
 Split into EC-045 (public model) and EC-046 (portable schema/parser/feedback).
 Budget policy: choose a checkpoint small enough to implement, validate, document
@@ -399,7 +400,7 @@ player's next card decision, independent of Flutter and authored feedback.
 
 Implemented `PlaySituation`, `SeatPlay` and `TrickEstimate` with 20 focused
 regressions. All 178 tests, analysis and strict bidding-content validation pass.
-The UI is unchanged; EC-044 remains in progress pending EC-046.
+The UI is unchanged; EC-046 completes the remaining portable contract.
 
 ### Acceptance criteria
 - Keep optional winning auctionBid separate from the player's trickEstimate.
@@ -410,10 +411,13 @@ The UI is unchanged; EC-044 remains in progress pending EC-046.
 - Document model limits; leave UI and portable bidding content working.
 
 ## EC-046 — Play JSON schema and parser
-**Status:** READY
+**Status:** DONE
 
-Next bounded EC-044 checkpoint, after EC-045. Propose and document the portable
-play fields separately before integrating coached play.
+Completed after EC-045: conditional play schema, immutable PlayScenario parser,
+legal card feedback lookup and mixed-catalog CLI validation. Synthetic fixture
+is test-only; production bidding content and UI remain unchanged.
+230 tests, analysis, both strict validator paths and web build pass.
+The contract is documented before coached UI integration in EC-041.
 
 ### Acceptance criteria
 - Add supported play-scenario schema/parser with field-path errors.
@@ -494,6 +498,33 @@ Recommend what the player should train next.
 - Recommendation is computed from actual local performance.
 - Rule is deterministic.
 - User can start relevant scenarios directly.
+
+---
+
+## EC-053 — Training hub
+**Status:** BACKLOG
+
+Connect the MVP's training modes and personal progress in one simple home.
+Depends on play training and EC-051/052; avoid presenting invented progress.
+
+### Acceptance criteria
+- Continue Training resumes a meaningful saved training position.
+- Bid Practice and Play Practice start their supported scenarios.
+- Weak Areas leads to practice recommended from real decisions.
+- Recent progress is visible and an empty-history state is honest and useful.
+- Critical navigation and resume flows have widget tests.
+
+## EC-054 — MVP acceptance and device verification
+**Status:** BACKLOG
+
+Validate the complete experience with the owner before declaring the MVP done.
+
+### Acceptance criteria
+- Agree the intended release device/target and verify the build there.
+- Verify bidding, play, reviewed feedback, saved history/resume and recommendations.
+- Verify English/مصري switching, Arabic glyphs, RTL, accessibility and small screens.
+- Verify local training has no runtime AI dependency and required local assets work offline.
+- Fix acceptance-blocking defects; record tested flows and remaining limitations.
 
 ---
 

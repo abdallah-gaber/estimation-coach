@@ -348,6 +348,9 @@ final class ScenarioFeedback {
   final String summary;
   final List<String> points;
 
+  factory ScenarioFeedback.fromJson(Object? value, {String path = r'$'}) =>
+      ScenarioFeedback._parse(value, path);
+
   factory ScenarioFeedback._parse(Object? value, String path) {
     final data = _object(value, path);
     return ScenarioFeedback._(

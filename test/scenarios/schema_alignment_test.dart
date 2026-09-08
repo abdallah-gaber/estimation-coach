@@ -124,7 +124,7 @@ void main() {
   }
 
   test(
-    'reserved play shape is preserved but remains unsupported by parser',
+    'previously reserved minimal play shape now needs the complete contract',
     () {
       final data = {
         'scenario_version': 1,
@@ -134,7 +134,7 @@ void main() {
         'primary_skill': 'tracking',
         'skills': ['tracking'],
       };
-      expect(schema.validate(data).isValid, isTrue);
+      expect(schema.validate(data).isValid, isFalse);
       expect(() => BiddingScenario.fromJson(data), throwsFormatException);
     },
   );

@@ -246,9 +246,10 @@ are not followed. Errors identify the file and field; scanning continues.
 
 ## Required bidding context
 
-Only scenario v1 bidding with `rules_version: game_rules_v1` is implemented.
-`play` remains reserved by the schema and unsupported by the parser. Every
-bidding file now requires:
+Scenario v1 supports bidding and single-decision play with
+`rules_version: game_rules_v1`. Bidding is bundled in the app; play parsing and
+validation are available for authoring, with UI integration still pending. Every
+bidding file requires:
 
 - `rules_version`: exactly `game_rules_v1`.
 - `bidding_phase`: `pre_bidding` or `normal`.
@@ -336,3 +337,84 @@ raises 4 Hearts, no late Dash is offered, and Sans is supported. The strategic
 review is recorded in [COACHING_REVIEW.md](COACHING_REVIEW.md), including why
 4 Spades is reasonable rather than strong. Tests
 cover phase boundaries, bid order, Dash participation and feedback coverage.
+
+
+## Single-decision play contract (EC-046)
+
+`type: play` uses the same `scenario_version`, `rules_version`, `id`, `title`,
+`difficulty`, `primary_skill`, `skills`, `player_position`, `hand`, `evaluations`
+and optional `author_notes` conventions. IDs must be unique across bidding and
+play. The hand contains 1–13 remaining cards rather than exactly 13.
+
+See [the complete synthetic fixture](../test/fixtures/play_contract.json). It is
+an executable contract example, **not reviewed training content**, and is not
+bundled. New approved play content belongs in `content/scenarios/v1/play/` after
+review; this PR does not yet expose a play training catalog in the app.
+
+### Public situation
+
+Required `situation` fields:
+
+| Field | Contract |
+| --- | --- |
+| `leader` | Seat of the first current-trick card; the player seat when leading an empty trick |
+| `current_trick` | Ordered array of 0–3 `{player, card}` objects |
+| `trump` | A canonical trump code, including `no_trump` |
+| `trick_estimate` | This player's already assigned target, integer 0–13 |
+| `tricks_taken` | Object with north/east/south/west nonnegative integer counts |
+| `auction_bid` (optional) | Known winning `{tricks: 4–13, trump}`; omit if unknown |
+
+These fields map to the validated PlaySituation contract in
+[GAME_RULES.md](GAME_RULES.md#ec-045-public-play-situation). Taken counts must total
+`13 - hand.length`; the pending player has not played into this trick. Cards must
+be distinct across the hand and current trick, and current-trick seats distinct.
+The winning auction bid's trump must match the situation if supplied.
+
+The estimate is **not** an auction bid. Values below four, including zero, are
+representable without declaring Dash. No estimate-assignment rule is introduced.
+Play direction, hidden hands and historical feasibility are not inferred.
+
+### Choices and feedback
+
+There is no authored `allowed_decisions`: every card permitted by follow-suit
+is available. An evaluation contains:
+
+```json
+{
+  "decision": {"action": "play", "card": "3H"},
+  "rating": "reasonable",
+  "feedback": {
+    "title": "Short title",
+    "summary": "Reviewed coaching for this specific decision.",
+    "points": ["Optional supporting evidence"]
+  }
+}
+```
+
+This fragment illustrates shape, not an approved rating. All four decision
+ratings are supported. Each legal card may have at most one evaluation;
+non-held and follow-suit-illegal cards cannot receive evaluations. Empty or
+incomplete evaluations are valid drafts, but strict coverage fails. `evaluate`
+returns the exact authored entry, null for a legal unreviewed choice, and throws
+for an illegal choice. It does not simulate an outcome.
+
+`allowed_decisions`, `previous_actions`, `bidding_phase` and `dash_players` are
+forbidden on play files. Situation, current-trick entries, taken counts, optional
+auction bid and play decisions reject unknown keys. Extra root/evaluation/
+feedback annotations remain permitted but carry no runtime behavior.
+
+### Validation
+
+```sh
+dart run tool/validate_scenarios.dart --require-complete test/fixtures/play_contract.json
+flutter test test/scenarios/play_scenario_test.dart
+```
+
+Expected: the synthetic fixture passes strict checks. Default validation still
+scans the production content directory, currently containing ten bidding hands.
+Mixed bidding/play catalogs receive the same schema, domain, duplicate-ID and
+coverage checks. Syntax errors include field paths; relational snapshot errors
+are reported under `$.situation`. Bidding compatibility remains tested.
+
+Do not use extra fields to invent known voids, a continuation, trick winners, or
+outcomes. Those need documented extensions and reviewed content in later tasks.
