@@ -1,6 +1,7 @@
 import '../cards/cards.dart';
 import 'bidding.dart';
 import 'legal_cards.dart' as rules;
+import 'seat_rotation.dart';
 
 /// An already assigned exact-trick target, not an auction bid or Dash declaration.
 /// 0–13 is a physical bound; this does not define how estimates are assigned.
@@ -35,10 +36,17 @@ final class SeatPlay {
 final class ObservedTrick {
   factory ObservedTrick(Iterable<SeatPlay> plays) {
     final list = List<SeatPlay>.unmodifiable(plays);
-    if (list.length != PlayerSeat.values.length ||
-        list.map((play) => play.seat).toSet().length !=
-            PlayerSeat.values.length) {
+    if (list.length != PlayerSeat.values.length) {
       throw ArgumentError('An observed trick has all four seats, once each');
+    }
+    final order = rotationFrom(list.first.seat);
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].seat != order[i]) {
+        throw ArgumentError(
+          'An observed trick must follow the canonical seat rotation from '
+          'its leader (see game_rules_v1)',
+        );
+      }
     }
     return ObservedTrick._(list);
   }
@@ -92,19 +100,25 @@ final class PlaySituation {
         'Cannot observe more completed tricks than tricksTaken records',
       );
     }
-    if (plays.isEmpty ? leader != playerPosition : plays.first.seat != leader) {
-      throw ArgumentError(
-        'Leader must lead this decision or own the first card',
-      );
-    }
-    final seats = <PlayerSeat>{};
-    final cards = hand.cards.toSet();
-    for (final play in plays) {
-      if (play.seat == playerPosition || !seats.add(play.seat)) {
+    // Seat succession within the trick follows the canonical rotation from
+    // the leader (see game_rules_v1); this does not resolve a winner or
+    // compute a future trick's leader.
+    final order = rotationFrom(leader);
+    for (var i = 0; i < plays.length; i++) {
+      if (plays[i].seat != order[i]) {
         throw ArgumentError(
-          'A seat cannot play twice or before its own pending decision',
+          'Current trick must follow the canonical seat rotation from the leader',
         );
       }
+    }
+    if (playerPosition != order[plays.length]) {
+      throw ArgumentError(
+        'Player position must be the next seat to act after the current '
+        'trick, per the canonical rotation',
+      );
+    }
+    final cards = hand.cards.toSet();
+    for (final play in plays) {
       if (!cards.add(play.card)) {
         throw ArgumentError('Duplicate card in hand/current trick');
       }
