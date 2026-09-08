@@ -6,6 +6,7 @@ import '../../scenarios/bidding_scenario.dart';
 import '../../scenarios/load_bidding_scenarios.dart';
 import '../../shared/widgets/playing_card.dart';
 import 'bidding_labels.dart';
+import '../play_training/play_table_preview_screen.dart';
 
 class BiddingTrainingScreen extends StatefulWidget {
   const BiddingTrainingScreen({super.key, this.loader});
@@ -67,6 +68,19 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+            tooltip: 'Play table preview',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => const PlayTablePreviewScreen(),
+              ),
+            ),
+            icon: const Icon(Icons.table_restaurant_outlined),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: FutureBuilder<List<BiddingScenario>>(
           future: _loading,

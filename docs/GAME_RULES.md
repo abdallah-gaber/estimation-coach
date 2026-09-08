@@ -36,10 +36,11 @@ final canDiscard = isLegalPlay(hand, GameCard.parse('KD'), ledSuit: Suit.hearts)
 
 This is a card-selection rule, not a round engine. Callers must manage turn
 order, derive the led suit from the current trick, and prevent actions after a
-trick is complete. Trump winner resolution, bidding precedence, scoring and
-coaching evaluation are not implemented here. Bidding ambiguity remains tracked
-in EC-024. The visual preview still demonstrates an intentionally locked UI
-specimen; it has no current trick and does not invoke this rule yet.
+trick is complete. Trump winner resolution, scoring and play
+coaching evaluation are not implemented here. Bidding rules are implemented
+separately under game_rules_v1. The four-seat play-table preview now invokes this
+helper against its labelled UI fixture; selecting a card does not commit a play
+or resolve a trick. The older four-card specimen still uses a demonstration lock.
 
 Run the rule tests:
 

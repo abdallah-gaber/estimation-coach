@@ -154,12 +154,14 @@ See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation st
 This checkpoint has ten independent hands: four Dash/enter decisions and six
 normal-bidding situations. All 53 legal choices have deterministic authored feedback.
 Read the [coaching review](docs/COACHING_REVIEW.md) for rating rationale.
-There is no full auction, simulated outcome, saved progress, or mid-hand play yet.
+A separate four-seat table preview is available from the table icon in the top
+bar. There is no full auction, simulated outcome, saved progress, or coached
+mid-hand play yet.
 
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/bidding-scenario-pack
+git switch codex/play-table-preview
 flutter pub get
 flutter run -d chrome
 ```
@@ -190,6 +192,30 @@ generated but unvalidated; use `flutter devices` to see available targets.
 9. Resize to 320px and increase text size: cards and controls should wrap and
    remain reachable by scrolling. Use Tab/Enter to choose buttons and chips.
 10. Refresh: the session starts over. Progress is not persisted in this checkpoint.
+
+### Test the four-seat table preview
+
+1. Tap the table icon at the top right (tooltip/accessibility label:
+   **Play table preview**).
+2. Verify North above, West left, East right, and **You · South** below the
+   current trick. Your target is 4, taken is 3, and trump is Spades.
+3. The current trick shows West's 7 Hearts, North's Queen Hearts and East's
+   2 Hearts. West led Hearts; the highlighted South seat says Your turn.
+4. In your remaining hand, tap 3 Hearts, then 9 Hearts. Selection moves;
+   tap again to deselect or use **Clear selection**. Ace Spades and 2 Clubs
+   are locked because you hold Hearts.
+5. Back returns to the same bidding hand and any feedback already displayed.
+6. At 320px width and large text, scroll through the table and hand. Seat labels,
+   suit shapes, cards and selection controls should remain readable.
+
+This is a layout/selection specimen. It does not play the selected card, resolve
+a winner, or grade your choice. EC-044 introduces portable play scenarios before
+coached play replaces the fixture; EC-041 adds card commitment/movement.
+
+Egyptian Arabic language switching and local game terminology are tracked in
+EC-060. The language option is not implemented yet. The owner-confirmed
+[glossary](docs/EGYPTIAN_ARABIC.md) distinguishes الكول from each player's trick
+estimate (طالب كام؟).
 
 ### Automated checks
 
