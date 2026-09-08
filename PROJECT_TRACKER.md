@@ -360,10 +360,10 @@ coverage.
 
 Connect reviewed portable play scenarios to the table interaction after EC-041.
 
-Implemented on `codex/first-coached-play-session`: `PlayTrainingScreen`
-replaces the fixture-driven table specimen, loading a bundled, reviewed
-two-scenario pack (`content/scenarios/v1/play/`, four evaluated legal choices,
-both tagged `safe_vs_probable`) through `PlayScenario`/`loadPlayScenarios`.
+Implemented in PR #16: `PlayTrainingScreen` replaces the fixture-driven table
+specimen, loading a bundled, reviewed two-scenario pack
+(`content/scenarios/v1/play/`, four evaluated legal choices, both tagged
+`safe_vs_probable`) through `PlayScenario`/`loadPlayScenarios`.
 Reuses the EC-041 one-card commit/flight/reduced-motion/dispose behavior,
 parameterized per scenario. Shows rating/title/summary/points separately from
 an explicitly unsimulated outcome, with Try another choice, Next situation and

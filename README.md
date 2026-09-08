@@ -161,7 +161,6 @@ winner resolution or scoring yet.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/first-coached-play-session
 flutter pub get
 flutter run -d chrome
 ```

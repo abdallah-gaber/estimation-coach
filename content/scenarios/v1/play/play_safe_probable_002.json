@@ -40,7 +40,7 @@
       "rating": "weak",
       "feedback": {
         "title": "Skipping a guaranteed trick",
-        "summary": "Discarding lets the queen of Diamonds win instead, giving away a trick your target still needs, and the two of Spades still has to be played in the final trick either way.",
+        "summary": "Discarding lets the queen of Diamonds win instead, giving away this guaranteed trick and leaving the two of Spades as your only card for the unresolved final trick.",
         "points": [
           "The two of Spades cannot be saved for later; it is your only remaining card after this trick.",
           "Passing on a guaranteed win now leaves the target depending on an uncertain final trick.",

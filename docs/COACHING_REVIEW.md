@@ -149,8 +149,11 @@ follows directly from the rules for either legal choice.
 "no benefit" to holding trump back, since the final trick (the only one left
 after this) is not modeled — whether trump would still be needed or would
 still win it is genuinely unknown from this scenario alone. The feedback only
-states the fact that the two of Spades is the player's sole remaining card,
-so it will be played in that final trick regardless of this decision.
+states what follows from discarding specifically: the two of Spades then
+becomes the player's sole remaining card, so it is what gets played into that
+unresolved final trick. Playing the two of Spades now instead would leave the
+seven of Clubs as that remaining card; the "sole remaining card" fact depends
+on which card is chosen now, not on the decision being irrelevant.
 
 ### Runtime contract (play)
 
