@@ -6,7 +6,7 @@ import '../../scenarios/bidding_scenario.dart';
 import '../../scenarios/load_bidding_scenarios.dart';
 import '../../shared/widgets/playing_card.dart';
 import 'bidding_labels.dart';
-import '../play_training/play_table_preview_screen.dart';
+import '../play_training/play_training_screen.dart';
 
 class BiddingTrainingScreen extends StatefulWidget {
   const BiddingTrainingScreen({super.key, this.loader});
@@ -71,10 +71,10 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
       appBar: AppBar(
         actions: [
           IconButton(
-            tooltip: 'Play table preview',
+            tooltip: 'Play practice',
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => const PlayTablePreviewScreen(),
+                builder: (_) => const PlayTrainingScreen(),
               ),
             ),
             icon: const Icon(Icons.table_restaurant_outlined),

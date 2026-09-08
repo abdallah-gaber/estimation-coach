@@ -10,32 +10,31 @@ not, by itself, a complete MVP.
 | 1: Flutter bootstrap | Complete | Runnable app, reusable cards, required CI |
 | 2: Initial domain core | Complete | Cards, follow-suit and canonical bidding rules, bidding content validation |
 | 3: Bidding coach | Complete | Ten reviewed hands, 53 evaluated choices, concise deterministic coaching |
-| 4: Mid-hand training | In progress | Four-seat selection preview and validated public situation; portable play contract is complete (EC-046), but coached play is pending |
+| 4: Mid-hand training | In progress | One-card commit with authored coaching (EC-041/046/047); void-tracking and exact-bid packs (EC-042/043) remain |
 | 5: Personal coaching | Not started | Skill aggregation, persistent decisions and weak-area recommendations remain |
 | English/مصري | Planned | Glossary confirmed; language switching and translated content remain |
 | Training hub and release acceptance | Planned | Navigation/progress overview and final acceptance tests remain |
 
 ## Remaining delivery path
 
-1. Merge the completed portable play contract (EC-046), then connect reviewed
-   content to committed card selection and feedback (EC-041).
-2. Add reviewed void-tracking and exact-bid exercises (EC-042/043), including
-   meaningful consequences/continuation where needed. Document any missing rules
-   before implementing winner resolution or relying on turn order.
-3. Define skills, save decision history locally, and recommend practice from
+1. Add reviewed void-tracking and exact-bid exercises (EC-042/043), including
+   meaningful consequences/continuation where needed. Trick-winner resolution
+   is documented (`docs/GAME_RULES_V1.md#trick-winners`) but not yet implemented;
+   confirm any further rules needed before relying on turn order or scoring.
+2. Define skills, save decision history locally, and recommend practice from
    actual weaknesses (EC-050/051/052).
-4. Add the training hub with Continue, Bid, Play, Weak Areas and recent progress
+3. Add the training hub with Continue, Bid, Play, Weak Areas and recent progress
    (EC-053).
-5. Implement English/مصري switching, persistence, RTL and portable translations
+4. Implement English/مصري switching, persistence, RTL and portable translations
    using the confirmed glossary (EC-060). Split UI infrastructure and content
    translation into separate checkpoints if necessary.
-6. Complete user acceptance and fix issues on the intended device (EC-054).
+5. Complete user acceptance and fix issues on the intended device (EC-054).
 
-Planning estimate: **8–12 bounded implementation/review checkpoints including
-EC-046**, then any fixes uncovered during acceptance. This is a scope estimate,
-not a promised date or fixed number of PRs. Content review, unresolved rules,
-localization testing and user feedback may increase it. Calendar completion
-also depends on review/merge cadence and the intended release device.
+Planning estimate: **6–10 bounded implementation/review checkpoints**, then any
+fixes uncovered during acceptance. This is a scope estimate, not a promised
+date or fixed number of PRs. Content review, unresolved rules, localization
+testing and user feedback may increase it. Calendar completion also depends on
+review/merge cadence and the intended release device.
 
 The MVP is complete when the user can choose bidding or play practice, make
 visual decisions, receive reviewed deterministic coaching, resume saved progress,

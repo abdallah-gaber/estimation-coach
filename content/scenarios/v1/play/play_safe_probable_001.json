@@ -1,0 +1,53 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_safe_probable_001",
+  "title": "A free trick with the ace of Hearts",
+  "difficulty": "beginner",
+  "primary_skill": "safe_vs_probable",
+  "skills": ["safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["AH", "3H", "2C", "5D"],
+  "situation": {
+    "leader": "west",
+    "current_trick": [
+      {"player": "west", "card": "8H"},
+      {"player": "north", "card": "4H"},
+      {"player": "east", "card": "6H"}
+    ],
+    "trump": "clubs",
+    "trick_estimate": 5,
+    "tricks_taken": {"north": 2, "east": 2, "south": 2, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "clubs"}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "AH"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Take the free trick",
+        "summary": "As the last card in this trick, the ace of Hearts beats everything already played and secures a trick your target still needs.",
+        "points": [
+          "No card already played can beat an ace, and no one plays after you this trick.",
+          "The target needs three more tricks from the four remaining; this one is guaranteed if you take it.",
+          "Winning here costs nothing: the ace has no other job to do in this trick."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "3H"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Giving away a guaranteed trick",
+        "summary": "Playing the three lets the eight of Hearts win instead, handing over a trick your target still needs for no benefit.",
+        "points": [
+          "The trick is already decided by whichever card you choose; there is no later play left to protect.",
+          "The target still needs three of the remaining four tricks, so this trick should not be given away.",
+          "Holding the ace back does not help here: it will not face a stronger card this trick."
+        ]
+      }
+    }
+  ],
+  "author_notes": "First reviewed play scenario: recognizing a guaranteed trick when acting last. Winner resolution is not implemented; the app does not compute this automatically yet."
+}

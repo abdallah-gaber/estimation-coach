@@ -348,8 +348,8 @@ play. The hand contains 1–13 remaining cards rather than exactly 13.
 
 See [the complete synthetic fixture](../test/fixtures/play_contract.json). It is
 an executable contract example, **not reviewed training content**, and is not
-bundled. New approved play content belongs in `content/scenarios/v1/play/` after
-review; this PR does not yet expose a play training catalog in the app.
+bundled. Reviewed play content belongs in `content/scenarios/v1/play/`; two
+scenarios there (EC-047) are bundled and connected to the Play practice screen.
 
 ### Public situation
 

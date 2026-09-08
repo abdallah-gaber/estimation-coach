@@ -285,6 +285,27 @@ completed-trick counts stay unchanged until a future resolver exists. Reset
 restores the fixture. Reduced-motion settings skip flight; route disposal removes
 its overlay. This remains a labelled demo with no authored coaching or scoring.
 
+## D-017 — Replace the play-table specimen with a coached play session
+
+**Status:** Accepted
+
+EC-047 retires the fixture-driven table specimen (`PlayTablePreviewScreen`,
+`PlayTableFixture`) and replaces it with `PlayTrainingScreen`, which loads a
+bundled, reviewed `PlayScenario` pack (`content/scenarios/v1/play/`) the same
+way `BiddingTrainingScreen` loads bidding content: reject incomplete feedback
+before a session starts, commit a legal card, show the authored rating/summary/
+points separately from an explicitly unsimulated outcome, then retry, advance,
+or complete the session. The one-card commit/flight/reduced-motion/dispose
+behavior from EC-041 is preserved unchanged, now parameterized by each
+scenario's `PlaySituation` instead of a static fixture.
+
+The first pack is intentionally small: two scenarios (four evaluated legal
+choices) covering the `safe_vs_probable` and `card_tracking` MVP coaching
+concepts from AGENTS.md, both using the confirmed last-to-act trick-winner
+rule from `docs/GAME_RULES_V1.md#trick-winners` as their reasoning — without
+implementing a winner resolver. Void-tracking and exact-bid-protection content
+packs remain separate, deliberately out of scope (EC-042/043).
+
 ## Decision template
 
 Copy this section for future decisions.

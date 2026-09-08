@@ -1,0 +1,53 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_card_tracking_001",
+  "title": "The last spade wins an open trick",
+  "difficulty": "beginner",
+  "primary_skill": "card_tracking",
+  "skills": ["card_tracking", "safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["2S", "7C"],
+  "situation": {
+    "leader": "north",
+    "current_trick": [
+      {"player": "north", "card": "9D"},
+      {"player": "east", "card": "QD"},
+      {"player": "west", "card": "2D"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 3, "south": 3, "west": 2},
+    "auction_bid": {"tricks": 4, "trump": "spades"}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "2S"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Trump wins an open trick",
+        "summary": "You hold no Diamonds, and as the last card in this trick any trump beats every card already played, locking in a trick your target still needs.",
+        "points": [
+          "No trump has appeared yet this trick, and a trump always beats a non-trump card regardless of rank.",
+          "You act last, so no other card can be added to challenge it.",
+          "The target needs one more trick from the two remaining; this one is guaranteed."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "7C"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Skipping a guaranteed trick",
+        "summary": "Discarding lets the queen of Diamonds win instead, giving away a trick your target still needs, and the two of Spades still has to be played in the final trick either way.",
+        "points": [
+          "The two of Spades cannot be saved for later; it is your only remaining card after this trick.",
+          "Passing on a guaranteed win now leaves the target depending on an uncertain final trick.",
+          "There is no benefit to withholding trump here since it must be played next regardless."
+        ]
+      }
+    }
+  ],
+  "author_notes": "Second reviewed play scenario: recognizing a void suit and a guaranteed trump win when acting last. Winner resolution is not implemented; the app does not compute this automatically yet."
+}
