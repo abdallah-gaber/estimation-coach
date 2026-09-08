@@ -13,6 +13,7 @@ void main() {
     int estimate = 4,
     Trump trump = Trump.spades,
     Bid? bid,
+    List<ObservedTrick> observed = const [],
   }) => PlaySituation(
     playerPosition: player,
     hand: Hand(hand.map(GameCard.parse)),
@@ -35,6 +36,7 @@ void main() {
           PlayerSeat.west: 2,
         },
     auctionBid: bid,
+    observedTricks: observed,
   );
 
   test(
@@ -108,6 +110,48 @@ void main() {
     expect(() => state.tricksTaken.clear(), throwsUnsupportedError);
     expect(() => state.legalChoices.clear(), throwsUnsupportedError);
   });
+  ObservedTrick observedTrick({String east = '4C', String south = '9D'}) =>
+      ObservedTrick([
+        SeatPlay(PlayerSeat.west, GameCard.parse('8D')),
+        SeatPlay(PlayerSeat.north, GameCard.parse('JD')),
+        SeatPlay(PlayerSeat.east, GameCard.parse(east)),
+        SeatPlay(PlayerSeat.south, GameCard.parse(south)),
+      ]);
+  test('observed tricks default to empty and stay backward compatible', () {
+    expect(situation().observedTricks, isEmpty);
+  });
+  test('observed tricks are accepted, exposed in order and immutable', () {
+    final history = [observedTrick()];
+    final state = situation(observed: history);
+    expect(state.observedTricks, hasLength(1));
+    expect(state.observedTricks.single.plays.first.seat, PlayerSeat.west);
+    expect(() => state.observedTricks.clear(), throwsUnsupportedError);
+    expect(
+      () => state.observedTricks.single.plays.clear(),
+      throwsUnsupportedError,
+    );
+    history.clear();
+    expect(state.observedTricks, hasLength(1));
+  });
+  test('ObservedTrick rejects anything but all four seats once each', () {
+    expect(
+      () => ObservedTrick([
+        SeatPlay(PlayerSeat.west, GameCard.parse('8D')),
+        SeatPlay(PlayerSeat.north, GameCard.parse('JD')),
+        SeatPlay(PlayerSeat.east, GameCard.parse('4C')),
+      ]),
+      throwsArgumentError,
+    );
+    expect(
+      () => ObservedTrick([
+        SeatPlay(PlayerSeat.west, GameCard.parse('8D')),
+        SeatPlay(PlayerSeat.west, GameCard.parse('JD')),
+        SeatPlay(PlayerSeat.east, GameCard.parse('4C')),
+        SeatPlay(PlayerSeat.south, GameCard.parse('9D')),
+      ]),
+      throwsArgumentError,
+    );
+  });
   final invalid = <String, void Function()>{
     'empty hand': () => situation(hand: []),
     'missing seat count': () => situation(taken: {PlayerSeat.south: 9}),
@@ -157,6 +201,42 @@ void main() {
       ],
     ),
     'winning bid/trump mismatch': () => situation(bid: Bid(5, Trump.hearts)),
+    'observed card shared with hand': () =>
+        situation(observed: [observedTrick(east: '3H')]),
+    'observed card shared with current trick': () =>
+        situation(observed: [observedTrick(east: '7H')]),
+    'observed card repeated across observed tricks': () => situation(
+      observed: [
+        observedTrick(),
+        observedTrick(east: '6C', south: 'KD'),
+      ],
+    ),
+    'more observed tricks than completed': () => situation(
+      leader: PlayerSeat.south,
+      plays: [],
+      taken: {
+        PlayerSeat.north: 0,
+        PlayerSeat.east: 0,
+        PlayerSeat.south: 0,
+        PlayerSeat.west: 0,
+      },
+      hand: const [
+        '2H',
+        '3H',
+        '4H',
+        '5H',
+        '6H',
+        '7H',
+        '8H',
+        '9H',
+        '10H',
+        'JH',
+        'QH',
+        'KH',
+        'AH',
+      ],
+      observed: [observedTrick()],
+    ),
   };
   for (final entry in invalid.entries) {
     test(
