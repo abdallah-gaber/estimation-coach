@@ -356,10 +356,25 @@ coverage.
 ---
 
 ## EC-047 — First coached play session
-**Status:** READY
+**Status:** DONE
 
 Connect reviewed portable play scenarios to the table interaction after EC-041.
-Split out to keep the card-commit checkpoint within the remaining session budget.
+
+Implemented in PR #16: `PlayTrainingScreen` replaces the fixture-driven table
+specimen, loading a bundled, reviewed two-scenario pack
+(`content/scenarios/v1/play/`, four evaluated legal choices, both tagged
+`safe_vs_probable`) through `PlayScenario`/`loadPlayScenarios`.
+Reuses the EC-041 one-card commit/flight/reduced-motion/dispose behavior,
+parameterized per scenario. Shows rating/title/summary/points separately from
+an explicitly unsimulated outcome, with Try another choice, Next situation and
+Finish session/Practice again. 235 tests, formatting, analysis, strict content
+validation and web build pass; manually verified in-browser end to end.
+`play_safe_probable_002` (a guaranteed-trick recognition case: acting last
+while void, trump wins regardless of rank) is tagged `safe_vs_probable` rather
+than `card_tracking`, since it does not test tracking previously played cards.
+See [COACHING_REVIEW.md](docs/COACHING_REVIEW.md) for the content review.
+Winner resolution, scoring, void-tracking and exact-bid packs remain deferred
+to EC-042/043.
 
 ### Acceptance criteria
 - Load a small reviewed pack through PlayScenario and reject incomplete feedback.

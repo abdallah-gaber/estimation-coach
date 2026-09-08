@@ -36,11 +36,13 @@ final canDiscard = isLegalPlay(hand, GameCard.parse('KD'), ledSuit: Suit.hearts)
 
 This is a card-selection rule, not a round engine. Callers must manage turn
 order, derive the led suit from the current trick, and prevent actions after a
-trick is complete. Trump winner resolution, scoring and play
-coaching evaluation are not implemented here. Bidding rules are implemented
-separately under game_rules_v1. The four-seat play-table preview now invokes this
-helper against its labelled UI fixture; selecting a card does not commit a play
-or resolve a trick. The older four-card specimen still uses a demonstration lock.
+trick is complete. Trump winner resolution and scoring are not implemented
+here. Bidding rules are implemented separately under game_rules_v1.
+`PlaySituation.legalChoices` (see [EC-045](#ec-045-public-play-situation) below)
+wraps this helper for a pending play decision; the Play practice screen commits
+one legal card and shows authored coaching from a `PlayScenario`, but does not
+resolve a trick winner. The older four-card specimen still uses a demonstration
+lock.
 
 Run the rule tests:
 
@@ -54,8 +56,9 @@ single-card hands, immutable results, and all suit/rank combinations.
 ## EC-045: public play situation
 
 `lib/core/game_rules/play_situation.dart` adds an immutable snapshot immediately
-before one player chooses a card. It is a domain building block, not a supported
-JSON scenario or a round engine. EC-046 will define the portable schema/parser.
+before one player chooses a card. It is a domain building block, not a round
+engine. EC-046 defines the portable schema/parser (`PlayScenario`); EC-047
+connects a reviewed pack of these to the Play practice screen.
 
 - `playerPosition` identifies the pending decision; that seat has not played
   into `currentTrick` yet.

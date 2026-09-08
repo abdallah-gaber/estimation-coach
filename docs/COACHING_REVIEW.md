@@ -80,3 +80,88 @@ a hand cannot open was corrected: a zero-trick commitment is a separate judgment
 The application discovers these files without widget changes. Test coverage now
 loads the complete bundled catalog, evaluates every authored choice, and walks
 through all ten hands to session completion; earlier focused two-hand tests remain.
+
+## First play pack review (EC-047)
+
+Reviewed during implementation on 2026-09-08, then corrected during a
+multi-agent safety audit the same day. Both scenarios live under
+`content/scenarios/v1/play/` and are independent single-card decisions, not a
+continuing hand. The authoritative trick-winner rule is the owner-confirmed
+[game_rules_v1](GAME_RULES_V1.md#trick-winners): the player position in both
+scenarios is the last of the four seats to act in the current trick, so the
+outcome of that specific trick is fully decided by the visible cards once
+their card is chosen — no hidden hand or future play affects it.
+
+### `play_safe_probable_001` — A free trick with the ace of Hearts
+
+**Teaches:** recognizing a trick that is already won if you take it, versus
+giving it away for no visible reason. Hearts are led; the player holds the
+ace and a low Heart and must follow suit, so the only choice is which Heart
+to play.
+
+**Ratings:** playing the ace is `strong` — no card already on the table beats
+an ace, and since the player acts last nothing else can be added to the
+trick. Playing the three is `weak` — it lets the eight of Hearts win the same,
+already-decided trick instead, while the player's target still needs three of
+the remaining four tricks.
+
+**What makes this deterministic:** all four seats' contribution to the trick
+is either already visible (`current_trick`) or about to be fixed by the
+player's own choice (last to act); `trick_estimate` and `tricks_taken` are
+authored facts from the scenario file, not inferred.
+
+**Not claimed or simulated:** which card the player should keep for a
+*different, later* trick is not evaluated — only this trick's outcome. The
+feedback avoids saying the low card "costs nothing" or has "no benefit";
+holding the ace back does not change how *this already-decided* trick
+resolves, but the scenario does not simulate or rule out any hypothetical
+value the held-back card might have in a future trick, since no later trick
+is modeled. No opponent hidden cards, turn order beyond this trick, or
+scoring are simulated.
+
+### `play_safe_probable_002` — The last spade wins an open trick
+
+**Teaches:** recognizing that a trump card wins an unclaimed trick outright
+when acting last, regardless of the trump's rank — the same "already-decided,
+last-to-act" pattern as `play_safe_probable_001`, applied to a void suit
+instead of following suit. This scenario does **not** test tracking
+previously played cards, deducing an opponent's void suit from earlier play,
+or any other card-tracking skill — the player's own void is directly given by
+their listed hand, not something they must infer from history. It was
+originally tagged `card_tracking`; that label was corrected to
+`safe_vs_probable` before this pack shipped, since presenting it under
+`card_tracking` would have recorded misleading skill telemetry once EC-050
+adds skill tracking. (See [D-017](DECISIONS.md).)
+
+**Ratings:** the player holds no Diamonds (the led suit), so any card is
+legal; playing the two of Spades (trump) is `strong` — per game_rules_v1, a
+trump beats every non-trump card regardless of rank once no other trump is in
+the trick, and the player acts last so nothing else can be added. Discarding
+the seven of Clubs is `weak` — it lets the queen of Diamonds win the same
+trick instead, while the target still needs one of the remaining two tricks.
+
+**What makes this deterministic:** the situation states no trump has yet
+appeared in `current_trick`; game_rules_v1 states a played trump always beats
+a non-trump card. Combined with the player acting last, the trick's winner
+follows directly from the rules for either legal choice.
+
+**Not claimed or simulated:** the seven of Clubs point avoids asserting there is
+"no benefit" to holding trump back, since the final trick (the only one left
+after this) is not modeled — whether trump would still be needed or would
+still win it is genuinely unknown from this scenario alone. The feedback only
+states what follows from discarding specifically: the two of Spades then
+becomes the player's sole remaining card, so it is what gets played into that
+unresolved final trick. Playing the two of Spades now instead would leave the
+seven of Clubs as that remaining card; the "sole remaining card" fact depends
+on which card is chosen now, not on the decision being irrelevant.
+
+### Runtime contract (play)
+
+`PlayScenario.evaluate` mirrors the bidding evaluator: it returns the exact
+authored entry for a legal card, null for a legal card without authored
+feedback, and throws for an illegal card. `loadPlayScenarios` rejects an
+incomplete pack before a session starts, the same as bidding. Neither
+schema/domain validation nor these tests certify coaching quality — that is
+this review. Both scenarios are single-decision snapshots; no trick winner is
+computed by the app, no outcome is simulated, and taken-trick counts are not
+updated after a commit.

@@ -154,14 +154,13 @@ See [PROJECT_TRACKER.md](./PROJECT_TRACKER.md) for the current implementation st
 This checkpoint has ten independent hands: four Dash/enter decisions and six
 normal-bidding situations. All 53 legal choices have deterministic authored feedback.
 Read the [coaching review](docs/COACHING_REVIEW.md) for rating rationale.
-A separate four-seat table preview is available from the table icon in the top
-bar. There is no full auction, simulated outcome, saved progress, or coached
-mid-hand play yet.
+A reviewed play-practice session is available from the table icon in the top
+bar (see below). There is no full auction, simulated outcome, saved progress,
+winner resolution or scoring yet.
 
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/card-play-interaction
 flutter pub get
 flutter run -d chrome
 ```
@@ -193,47 +192,42 @@ generated but unvalidated; use `flutter devices` to see available targets.
    remain reachable by scrolling. Use Tab/Enter to choose buttons and chips.
 10. Refresh: the session starts over. Progress is not persisted in this checkpoint.
 
-### Test the four-seat table preview
+### Test Play practice
 
 1. Tap the table icon at the top right (tooltip/accessibility label:
-   **Play table preview**).
+   **Play practice**).
 2. Verify North above, West left, East right, and **You · South** below the
-   current trick. Your target is 4, taken is 3, and trump is Spades.
-3. The current trick shows West's 7 Hearts, North's Queen Hearts and East's
-   2 Hearts. West led Hearts; the highlighted South seat says Your turn.
-4. In your remaining hand, tap 3 Hearts, then 9 Hearts. Selection moves;
-   tap again to deselect or use **Clear selection**. Ace Spades and 2 Clubs
-   are locked because you hold Hearts.
-5. Select a Heart and tap **Play card**. It moves to the current trick and
-   disappears from the remaining hand. Further play is locked; **Reset hand**
-   restores the demo. Taken counts stay unchanged because no winner is resolved.
-6. Back returns to the same bidding hand and any feedback already displayed.
-7. At 320px width and large text, scroll through the table and hand. Seat labels,
+   current trick, with the leader's seat labelled **Led &lt;suit&gt;** and the
+   other two opponents labelled with their taken-trick count.
+3. **Situation 1 of 2** ("A free trick with the ace of Hearts"): Hearts were
+   led; the 2 of Clubs and 5 of Diamonds are locked because you hold Hearts.
+   Playing the ace is **Strong decision**; playing the three is **Weak
+   decision**.
+4. Choose **Next situation**: hand 2 ("The last spade wins an open trick")
+   loads. You are void in the led suit, so both 2 of Spades (trump) and 7 of
+   Clubs are legal. Play the 2 of Spades: expect **Strong decision** — it wins
+   the open trick outright since you act last. Try **Try another choice**,
+   then play 7 of Clubs instead: expect **Weak decision** for giving away a
+   needed trick.
+5. Selecting a card moves it visually into the current trick with a short
+   flight animation and locks further play; reduced-motion settings skip the
+   flight. Open **Why?** for the evidence, same as bidding feedback.
+   **Outcome: not simulated** — no winner is resolved or scored yet.
+6. Finish both situations, then **Practice again**: the first situation resets.
+7. Back returns to the same bidding hand and any feedback already displayed.
+8. At 320px width and large text, scroll through the table and hand. Seat labels,
    suit shapes, cards and selection controls should remain readable.
 
-This is a one-card interaction specimen. It commits the selected card without
-resolving a winner or grading the choice. EC-047 will connect the completed
-portable play contract to reviewed coaching. Reduced-motion settings skip the
-card flight.
+This is a small reviewed pack (2 situations, 4 evaluated choices) connecting the
+completed portable play contract (EC-046) to coached play (EC-047). Winner
+resolution, scoring, void-tracking and exact-bid-protection scenario packs
+remain out of scope; see the confirmed [trick-winner rules](docs/GAME_RULES_V1.md#trick-winners),
+not yet used by any resolver.
 
 Egyptian Arabic language switching and local game terminology are tracked in
 EC-060. The language option is not implemented yet. The owner-confirmed
 [glossary](docs/EGYPTIAN_ARABIC.md) distinguishes الكول from each player's trick
 estimate (طالب كام؟).
-
-### Current contract checkpoint
-
-EC-046 adds portable play JSON parsing and authored card evaluation. The visible
-app remains the bidding trainer and table preview. Verify the contract with:
-
-```sh
-dart run tool/validate_scenarios.dart --require-complete test/fixtures/play_contract.json
-flutter test test/scenarios/play_scenario_test.dart
-```
-
-The fixture is synthetic and not bundled coaching. Play UI integration and
-reviewed tactical scenarios are next. See the [authoring contract](docs/SCENARIO_AUTHORING.md#single-decision-play-contract-ec-046)
-and [MVP status / remaining path](docs/MVP_STATUS.md).
 
 ### Automated checks
 
@@ -245,10 +239,12 @@ dart run tool/validate_scenarios.dart --require-complete
 flutter build web
 ```
 
-Strict validation should pass all ten scenario files with no missing evaluations.
-Tests cover cards, game rules, parser/schema alignment, validator failure cases,
-authored evaluation, bundled loading, legal choice controls, feedback, session
-restart, load retry, and a 320px layout with double text scaling.
+Strict validation should pass all twelve scenario files (ten bidding, two play)
+with no missing evaluations. Tests cover cards, game rules, parser/schema
+alignment, validator failure cases, authored evaluation, bundled loading, legal
+choice controls, feedback, session restart, load retry, card-commit animation
+(including reduced motion and route disposal mid-flight), and a 320px layout
+with double text scaling for both the bidding and play trainers.
 The older card specimen remains independently tested.
 
 Canonical rules: [game_rules_v1](docs/GAME_RULES_V1.md).

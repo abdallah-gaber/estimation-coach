@@ -247,8 +247,8 @@ are not followed. Errors identify the file and field; scanning continues.
 ## Required bidding context
 
 Scenario v1 supports bidding and single-decision play with
-`rules_version: game_rules_v1`. Bidding is bundled in the app; play parsing and
-validation are available for authoring, with UI integration still pending. Every
+`rules_version: game_rules_v1`. Both are bundled in the app: bidding in Bid
+Practice, and a small reviewed play pack in Play Practice (EC-047). Every
 bidding file requires:
 
 - `rules_version`: exactly `game_rules_v1`.
@@ -346,10 +346,15 @@ cover phase boundaries, bid order, Dash participation and feedback coverage.
 and optional `author_notes` conventions. IDs must be unique across bidding and
 play. The hand contains 1–13 remaining cards rather than exactly 13.
 
-See [the complete synthetic fixture](../test/fixtures/play_contract.json). It is
-an executable contract example, **not reviewed training content**, and is not
-bundled. New approved play content belongs in `content/scenarios/v1/play/` after
-review; this PR does not yet expose a play training catalog in the app.
+See [the complete synthetic fixture](../test/fixtures/play_contract.json) for
+the schema/parser contract itself — it is an executable contract example,
+**not reviewed training content**, and is not bundled.
+
+For reviewed, bundled examples, read the two files under
+`content/scenarios/v1/play/` directly (`play_safe_probable_001.json`,
+`play_safe_probable_002.json`); see their review in
+[COACHING_REVIEW.md](COACHING_REVIEW.md#first-play-pack-review-ec-047). Avoid
+maintaining a second, divergent copy of their content in this guide.
 
 ### Public situation
 
@@ -410,11 +415,12 @@ dart run tool/validate_scenarios.dart --require-complete test/fixtures/play_cont
 flutter test test/scenarios/play_scenario_test.dart
 ```
 
-Expected: the synthetic fixture passes strict checks. Default validation still
-scans the production content directory, currently containing ten bidding hands.
-Mixed bidding/play catalogs receive the same schema, domain, duplicate-ID and
-coverage checks. Syntax errors include field paths; relational snapshot errors
-are reported under `$.situation`. Bidding compatibility remains tested.
+Expected: the synthetic fixture passes strict checks. Default validation scans
+the production content directory, currently containing ten bidding hands and
+two reviewed play situations. Mixed bidding/play catalogs receive the same
+schema, domain, duplicate-ID and coverage checks. Syntax errors include field
+paths; relational snapshot errors are reported under `$.situation`. Bidding
+compatibility remains tested.
 
 Do not use extra fields to invent known voids, a continuation, trick winners, or
 outcomes. Those need documented extensions and reviewed content in later tasks.
