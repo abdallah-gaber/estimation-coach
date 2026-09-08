@@ -193,6 +193,40 @@ widget while the app now opens the trainer. Content review is recorded in
 Card suits use small vector painters because browser font fallback failed during
 visual verification. Trump controls use explicit suit names.
 
+## D-012 — Separate the play-table specimen from authored training
+
+**Status:** Accepted
+
+EC-040 exposes a labelled table/selection preview from bidding via a separate
+route. Bidding state survives returning. Like the original card specimen, its
+small fixture lives outside widgets and contains no authored rating, coaching,
+or outcome. It is not loaded by the scenario catalog or presented as training.
+The existing follow-suit helper determines selectable cards. Selection does not
+play a card, resolve a trick, or assume a direction of play.
+
+EC-044 defines the portable play-scenario contract before the preview can become
+coached play. EC-041 retains card movement/commit interaction. This checkpoint
+uses existing StatefulWidget state and adds no dependencies or game rules.
+
+EC-060 tracks the requested English/مصري switch and Egyptian glossary. The core terms
+are owner-confirmed in `EGYPTIAN_ARABIC.md`; localization must preserve physical
+seats and rule codes.
+
+## D-013 — Distinguish auction bids from player estimates
+
+**Status:** Accepted (owner clarification, 2026-09-08)
+
+`auctionBid` and `trickEstimate` are separate concepts. Existing `Bid` represents
+an auction call with count/trump; it must not be repurposed as every player's
+post-auction target. In Egyptian UI, الكول usually means the winning auction
+bid; a player's estimate uses wording such as طالب كام؟ or قال كام لمة.
+The confirmed glossary is in `EGYPTIAN_ARABIC.md`.
+
+Keep neutral English model names and stable content codes. EC-044 must model
+the distinction before coached play is introduced, and EC-060 must preserve it
+in translations. This decision defines terminology and model responsibility,
+not previously unspecified estimation, auction, or scoring rules.
+
 ## Decision template
 
 Copy this section for future decisions.

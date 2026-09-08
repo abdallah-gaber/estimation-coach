@@ -312,9 +312,16 @@ Validation: 153 tests, analysis, strict content validation and web build pass.
 # Milestone 4 — Mid-hand Training
 
 ## EC-040 — Four-seat table UI
-**Status:** BACKLOG
+**Status:** DONE
 
-Create the minimal playable table.
+Create the minimal table surface.
+
+Completed on `codex/play-table-preview`: labelled four-seat layout specimen,
+current trick, target/taken/trump, and follow-suit selection. The preview is
+reachable from bidding and Back preserves the session. No card is committed,
+no winner is resolved, and no coaching is authored in this fixture.
+158 tests, analysis, strict content validation and web build pass; browser
+rendering/selection and 320px tests at 1x/2x text checked.
 
 ### Acceptance criteria
 - Four player positions are visually clear.
@@ -359,6 +366,52 @@ Create situations where the player must avoid unwanted tricks.
 - Target tricks are visible.
 - Scenario changes coaching after the target is reached.
 - At least 5 manually reviewed scenarios exist.
+
+---
+
+## EC-044 — Portable mid-hand scenario contract
+**Status:** READY
+
+Define the supported play-scenario schema and pure parser before replacing the
+UI fixture with authored training content. Review any missing play rules with
+the owner before implementing winner resolution or scenario continuation.
+
+### Acceptance criteria
+- Represent seats, remaining hand, current trick, leader, trump, target and tricks taken.
+- Keep auctionBid distinct from each player's trickEstimate; do not apply the
+  auction opening minimum to estimates. See docs/EGYPTIAN_ARABIC.md.
+- Represent authored evaluations for legal card choices outside widgets.
+- Validate duplicate cards, counts, follow-suit choices, and complete feedback.
+- Document the contract in SCENARIO_AUTHORING.md and preserve bidding compatibility.
+- Add parser/schema/evaluation tests before exposing coached play scenarios.
+
+---
+
+# Egyptian Arabic
+
+## EC-060 — English / مصري language switch and Egyptian game terminology
+**Status:** READY
+
+Add an explicit language switch between English and Egyptian Arabic (مصري),
+including everyday Egyptian phrasing and the owner's preferred game terms.
+
+### Acceptance criteria
+- Both languages can be selected in-app; the choice survives restart.
+- Egyptian Arabic screens use RTL layout; card identity, seat positions and play
+  order remain correct and do not change with display language.
+- Translate navigation, controls, accessibility labels and authored coaching,
+  including Why? evidence, with no runtime AI or translation service.
+- Maintain a reviewed glossary for suits, ranks, trick, estimate/bid, trump,
+  Dash, and Sans. Record owner confirmation; do not silently guess terms.
+- Keep scenario IDs, rule codes, ratings and legal decisions language-independent.
+- Keep translations in portable content and define missing-translation behavior.
+- Test switching during training, saved preference, RTL, mixed numbers/card
+  notation, small screens and large text. Include Arabic glyph rendering checks.
+
+Requested 2026-09-08. The feature is planned; it is not enabled in the table preview.
+Core glossary confirmed by the owner on 2026-09-08 in
+`docs/EGYPTIAN_ARABIC.md`, including the auctionBid/trickEstimate distinction.
+Rank names and other unlisted vocabulary will be reviewed during implementation.
 
 ---
 
