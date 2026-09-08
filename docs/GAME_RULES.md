@@ -139,3 +139,42 @@ inferring one, repeated evidence deduplicating, one seat becoming void in
 multiple suits, an empty trick being ignored, a void revealed within the
 current unfinished trick, and backward compatibility with scenarios that
 carry no observed history at all.
+
+## Post-auction trick estimates (EC-043 preparation)
+
+Two small pure modules implement the owner-confirmed estimate rules from
+[game_rules_v1](GAME_RULES_V1.md#post-auction-trick-estimates). Neither
+models the estimate phase's seat order, tracks a round, resolves a trick
+winner, or computes a score — both classify already-known values.
+
+`lib/core/game_rules/estimate_totals.dart` covers the estimate-*set* rules:
+
+- `estimateTotal`/`isValidEstimateTotal` sum a complete `Map<PlayerSeat,
+  TrickEstimate>` and check it does not equal 13.
+- `classifyEstimateTotal` returns `EstimateTotalBalance.over` (total ≥ 14) or
+  `.under` (≤ 12); it throws if the total is exactly 13 rather than silently
+  picking a side.
+- `isValidNonCallerEstimate` checks a non-Caller's estimate does not exceed
+  the Caller's.
+- `isWithCaller` derives "With" from equality with the Caller's estimate —
+  scenario content should never carry a redundant authored `with` flag.
+
+```sh
+flutter test test/core/game_rules/estimate_totals_test.dart
+```
+
+`lib/core/game_rules/exact_bid_outcome.dart` covers the exact-target rule:
+`classifyExactBid` compares a known trick count against a `TrickEstimate` and
+returns `ExactBidOutcome.onTarget` / `.tookMore` / `.tookFewer` — deliberately
+named apart from `EstimateTotalBalance` to keep "the room's total vs 13" and
+"one player's tricks vs their own estimate" from being confused as the same
+comparison; they are unrelated except for both having a higher/lower/equal
+shape.
+
+```sh
+flutter test test/core/game_rules/exact_bid_outcome_test.dart
+```
+
+7 and 5 tests respectively cover the boundaries above, including that the
+total-13 case throws rather than resolving to an arbitrary side, and that an
+out-of-range trick count is rejected.
