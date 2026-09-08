@@ -1,0 +1,122 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_008",
+  "type": "bidding",
+  "title": "Raise Sans with your strongest suit",
+  "difficulty": "intermediate",
+  "primary_skill": "trump_selection",
+  "skills": [
+    "trump_selection",
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "7S",
+    "2S",
+    "AH",
+    "5H",
+    "KD",
+    "6D",
+    "4D",
+    "AC",
+    "KC",
+    "QC",
+    "JC",
+    "8C",
+    "3C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [
+    {
+      "player": "north",
+      "action": "bid",
+      "tricks": 4,
+      "trump": "no_trump"
+    }
+  ],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 5,
+      "max": 6
+    },
+    "trumps": [
+      "clubs",
+      "spades"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "clubs"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "Count beats suit rank",
+        "summary": "Five Clubs legally beats four Sans and makes your six-card, top-heavy Club suit trump.",
+        "points": [
+          "Control: Ace-King-Queen-Jack of Clubs head six trumps.",
+          "Probable: the Heart Ace and promoted Clubs can support the target; the Diamond King is conditional.",
+          "Rule: five tricks beats four regardless of trump rank; no equal-count raise can beat Sans."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "clubs"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Six asks for some extra work",
+        "summary": "Six Clubs is plausible with top trump control, but the Diamond King and lower Clubs still need favorable play.",
+        "points": [
+          "Control: Ace-King-Queen-Jack of Clubs head six trumps.",
+          "Probable: the Heart Ace and promoted Clubs can support the target; the Diamond King is conditional.",
+          "Rule: five tricks beats four regardless of trump rank; no equal-count raise can beat Sans."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "A high-ranked suit is not a strong holding",
+        "summary": "Five Spades is legal, but 7-2 gives little trump control. The ranking does not improve the cards.",
+        "points": [
+          "Control: 7-2 of Spades has no high trump.",
+          "Risk: your strong Clubs become side cards that opponents may ruff.",
+          "Rule: a legal higher bid can still be a weak strategic choice."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "A larger target magnifies the weakness",
+        "summary": "Six Spades asks for more tricks while choosing your short, low suit as trump.",
+        "points": [
+          "Control: 7-2 of Spades has no high trump.",
+          "Risk: your strong Clubs become side cards that opponents may ruff.",
+          "Rule: a legal higher bid can still be a weak strategic choice."
+        ]
+      }
+    }
+  ]
+}

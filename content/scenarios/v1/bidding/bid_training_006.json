@@ -1,0 +1,149 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_006",
+  "type": "bidding",
+  "title": "Long Hearts with top control",
+  "difficulty": "intermediate",
+  "primary_skill": "trump_selection",
+  "skills": [
+    "trump_selection",
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "AS",
+    "3S",
+    "AH",
+    "KH",
+    "QH",
+    "JH",
+    "8H",
+    "5H",
+    "AD",
+    "4D",
+    "7C",
+    "4C",
+    "2C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 6
+    },
+    "trumps": [
+      "hearts",
+      "no_trump"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "hearts"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Four may be too cautious",
+        "summary": "Four top Hearts plus two side Aces create overtrick pressure. A low target is not automatically safer.",
+        "points": [
+          "Control: Ace-King-Queen-Jack of Hearts lead a six-card trump holding.",
+          "Probable: the Spade and Diamond Aces offer side tricks if opponents follow suit.",
+          "Risk: long opposing trump or side-suit ruffs can change the total; too low a bid also creates overtrick pressure."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "hearts"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "A controlled Heart plan",
+        "summary": "Five Hearts balances a strong trump sequence with useful side controls, while allowing for imperfect side winners.",
+        "points": [
+          "Control: Ace-King-Queen-Jack of Hearts lead a six-card trump holding.",
+          "Probable: the Spade and Diamond Aces offer side tricks if opponents follow suit.",
+          "Risk: long opposing trump or side-suit ruffs can change the total; too low a bid also creates overtrick pressure."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "hearts"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Six has support and conditions",
+        "summary": "Six Hearts is plausible from trump control and side Aces, but side suits and trump distribution still matter.",
+        "points": [
+          "Control: Ace-King-Queen-Jack of Hearts lead a six-card trump holding.",
+          "Probable: the Spade and Diamond Aces offer side tricks if opponents follow suit.",
+          "Risk: long opposing trump or side-suit ruffs can change the total; too low a bid also creates overtrick pressure."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "no_trump"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "A cautious Sans plan",
+        "summary": "Four Sans has top-card support, but losing trump protection makes your long-suit continuation less secure.",
+        "points": [
+          "Control: the top four Hearts and two side Aces remain useful without trump.",
+          "Risk: 7-4-2 of Clubs offers no high-card stopper against a Club attack.",
+          "Access: establishing winners does not ensure you regain the lead to cash them."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "no_trump"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Sans depends on regaining the lead",
+        "summary": "Five Sans needs enough access to your Hearts while opponents can attack Clubs.",
+        "points": [
+          "Control: the top four Hearts and two side Aces remain useful without trump.",
+          "Risk: 7-4-2 of Clubs offers no high-card stopper against a Club attack.",
+          "Access: establishing winners does not ensure you regain the lead to cash them."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "no_trump"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Do not count the whole suit at once",
+        "summary": "Six Sans stretches a promising Heart sequence into an exact total without knowing how the lead develops.",
+        "points": [
+          "Control: the top four Hearts and two side Aces remain useful without trump.",
+          "Risk: 7-4-2 of Clubs offers no high-card stopper against a Club attack.",
+          "Access: establishing winners does not ensure you regain the lead to cash them."
+        ]
+      }
+    }
+  ]
+}

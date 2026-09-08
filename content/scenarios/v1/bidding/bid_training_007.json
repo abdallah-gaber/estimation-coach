@@ -1,0 +1,149 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_007",
+  "type": "bidding",
+  "title": "Diamond strength and conditional side honors",
+  "difficulty": "intermediate",
+  "primary_skill": "trump_selection",
+  "skills": [
+    "trump_selection",
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "KS",
+    "4S",
+    "AH",
+    "7H",
+    "AD",
+    "KD",
+    "QD",
+    "9D",
+    "6D",
+    "10C",
+    "8C",
+    "5C",
+    "2C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 6
+    },
+    "trumps": [
+      "diamonds",
+      "no_trump"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "diamonds"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "A measured Diamond target",
+        "summary": "Four Diamonds uses top trump control without counting every side honor as a winner.",
+        "points": [
+          "Control: Ace-King-Queen of Diamonds head a five-card trump suit.",
+          "Probable: Heart Ace can win a side trick; additional Diamonds may be promoted.",
+          "Risk: the Spade King is conditional, and side winners can be ruffed."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "diamonds"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "Length supports five",
+        "summary": "Five Diamonds has support from three top trumps, length, and the Heart Ace. The Spade King remains conditional.",
+        "points": [
+          "Control: Ace-King-Queen of Diamonds head a five-card trump suit.",
+          "Probable: Heart Ace can win a side trick; additional Diamonds may be promoted.",
+          "Risk: the Spade King is conditional, and side winners can be ruffed."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "diamonds"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Six needs the extras",
+        "summary": "Six Diamonds relies more heavily on promoted trumps, useful ruffs, or the Spade King surviving.",
+        "points": [
+          "Control: Ace-King-Queen of Diamonds head a five-card trump suit.",
+          "Probable: Heart Ace can win a side trick; additional Diamonds may be promoted.",
+          "Risk: the Spade King is conditional, and side winners can be ruffed."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "no_trump"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Four Sans has controls",
+        "summary": "Three top Diamonds and the Heart Ace give a credible foundation, though Clubs can surrender the lead.",
+        "points": [
+          "Control: three top Diamonds and the Heart Ace are useful high cards.",
+          "Conditional: King-4 of Spades is not an automatic extra winner.",
+          "Risk: Clubs have no top control; opponents may cash winners while you lack the lead."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "no_trump"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "The King is not a fifth certainty",
+        "summary": "Five Sans needs more than the clear top controls. The Spade King may lose to the Ace.",
+        "points": [
+          "Control: three top Diamonds and the Heart Ace are useful high cards.",
+          "Conditional: King-4 of Spades is not an automatic extra winner.",
+          "Risk: Clubs have no top control; opponents may cash winners while you lack the lead."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "no_trump"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "Too many conditional winners",
+        "summary": "Six Sans assumes several extra winners without trump protection or a secure Club holding.",
+        "points": [
+          "Control: three top Diamonds and the Heart Ace are useful high cards.",
+          "Conditional: King-4 of Spades is not an automatic extra winner.",
+          "Risk: Clubs have no top control; opponents may cash winners while you lack the lead."
+        ]
+      }
+    }
+  ]
+}

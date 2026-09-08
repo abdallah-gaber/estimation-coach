@@ -1,0 +1,69 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_004",
+  "type": "bidding",
+  "title": "One high singleton among low cards",
+  "difficulty": "intermediate",
+  "primary_skill": "dash_decisions",
+  "skills": [
+    "dash_decisions",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "KS",
+    "8H",
+    "5H",
+    "3H",
+    "2H",
+    "7D",
+    "5D",
+    "3D",
+    "2D",
+    "8C",
+    "6C",
+    "4C",
+    "2C"
+  ],
+  "bidding_phase": "pre_bidding",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": true,
+    "enter": true
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "dash"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "The singleton can trap you",
+        "summary": "The lone Spade King can become a forced winner. Mostly low cards do not make exactly zero safe.",
+        "points": [
+          "Risk: when Spades are led, the King is your only card in that suit.",
+          "Conditional: the King can lose to the Ace, but you cannot assume the Ace takes it.",
+          "Trump is unknown; the other low cards do not remove this forced-play risk."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "enter"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Avoid locking in zero",
+        "summary": "Entering avoids a fragile zero commitment without pretending the King supports an opening bid.",
+        "points": [
+          "The singleton King is conditional, not a guaranteed winner or loser.",
+          "Your many low cards make a large trick target unsupported.",
+          "Enter keeps participation open; no number or trump is chosen yet."
+        ]
+      }
+    }
+  ]
+}

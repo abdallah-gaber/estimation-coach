@@ -1,0 +1,149 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_010",
+  "type": "bidding",
+  "title": "Two high Spades or five strong Hearts?",
+  "difficulty": "intermediate",
+  "primary_skill": "trump_selection",
+  "skills": [
+    "trump_selection",
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "KS",
+    "QS",
+    "AH",
+    "KH",
+    "QH",
+    "8H",
+    "4H",
+    "AD",
+    "7D",
+    "8C",
+    "6C",
+    "4C",
+    "2C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 6
+    },
+    "trumps": [
+      "hearts",
+      "spades"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "hearts"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Start with the controlled suit",
+        "summary": "Four Hearts builds on three top trumps and the Diamond Ace without relying on both Spade honors.",
+        "points": [
+          "Control: Ace-King-Queen of Hearts head a five-card trump holding.",
+          "Probable: Diamond Ace and promoted Hearts can support the plan.",
+          "Risk: King-Queen of Spades still face the Ace; neither is automatically a side winner."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "hearts"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "Heart length adds flexibility",
+        "summary": "Five Hearts is a supported plan using top trump control, length, and a side Ace. It still depends on play.",
+        "points": [
+          "Control: Ace-King-Queen of Hearts head a five-card trump holding.",
+          "Probable: Diamond Ace and promoted Hearts can support the plan.",
+          "Risk: King-Queen of Spades still face the Ace; neither is automatically a side winner."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "hearts"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Six needs conditional extras",
+        "summary": "Six Hearts relies on promoted low trumps, useful ruffs, or Spade honors surviving.",
+        "points": [
+          "Control: Ace-King-Queen of Hearts head a five-card trump holding.",
+          "Probable: Diamond Ace and promoted Hearts can support the plan.",
+          "Risk: King-Queen of Spades still face the Ace; neither is automatically a side winner."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "spades"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Two honors do not give length",
+        "summary": "Four Spades has side strength, but K-Q alone must face the Ace and leaves little trump control afterward.",
+        "points": [
+          "Control: King-Queen are your only Spades, and the Ace is missing.",
+          "Risk: the strong Hearts become side cards opponents may ruff.",
+          "Comparison: trump choice needs length and control, not just two attractive honors."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "High ranks cannot replace trump length",
+        "summary": "Five Spades depends on short, non-top trump and Hearts surviving as side winners.",
+        "points": [
+          "Control: King-Queen are your only Spades, and the Ace is missing.",
+          "Risk: the strong Hearts become side cards opponents may ruff.",
+          "Comparison: trump choice needs length and control, not just two attractive honors."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "Too much pressure on two trumps",
+        "summary": "Six Spades stretches the target while exposing a strong Heart suit to opposing ruffs.",
+        "points": [
+          "Control: King-Queen are your only Spades, and the Ace is missing.",
+          "Risk: the strong Hearts become side cards opponents may ruff.",
+          "Comparison: trump choice needs length and control, not just two attractive honors."
+        ]
+      }
+    }
+  ]
+}

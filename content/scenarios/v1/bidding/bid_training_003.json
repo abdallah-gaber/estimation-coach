@@ -1,0 +1,69 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_003",
+  "type": "bidding",
+  "title": "Low cards across four suits",
+  "difficulty": "intermediate",
+  "primary_skill": "dash_decisions",
+  "skills": [
+    "dash_decisions",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "7S",
+    "4S",
+    "2S",
+    "6H",
+    "3H",
+    "2H",
+    "8D",
+    "5D",
+    "2D",
+    "7C",
+    "5C",
+    "3C",
+    "2C"
+  ],
+  "bidding_phase": "pre_bidding",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": true,
+    "enter": true
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "dash"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "A credible zero plan",
+        "summary": "Low cards in every suit give you ways to follow without winning. Dash is plausible, but zero is never assured.",
+        "points": [
+          "Control: there are no Aces, Kings, or Queens in this hand.",
+          "Escape: low cards across all four suits reduce early forced wins.",
+          "Risk: a suit can become trump, and surviving low cards can become winners late."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "enter"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Keep the decision open",
+        "summary": "Entering preserves flexibility while trump is unknown. It does not commit this low hand to a four-trick bid.",
+        "points": [
+          "The opening minimum applies to a normal bid, not to the choice to enter.",
+          "Do not invent four winners from low cards just because you entered.",
+          "Dash is also defensible here; the choice concerns a zero commitment before trump is known."
+        ]
+      }
+    }
+  ]
+}

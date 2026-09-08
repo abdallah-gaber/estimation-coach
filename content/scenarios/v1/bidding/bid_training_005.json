@@ -1,0 +1,69 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_005",
+  "type": "bidding",
+  "title": "A long suit with no high honors",
+  "difficulty": "intermediate",
+  "primary_skill": "dash_decisions",
+  "skills": [
+    "dash_decisions",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "8S",
+    "3S",
+    "7H",
+    "2H",
+    "6D",
+    "2D",
+    "9C",
+    "8C",
+    "7C",
+    "6C",
+    "5C",
+    "3C",
+    "2C"
+  ],
+  "bidding_phase": "pre_bidding",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "Reviewed during EC-033 implementation; see docs/COACHING_REVIEW.md. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": true,
+    "enter": true
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "dash"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Length can create unwanted winners",
+        "summary": "Seven Clubs make zero more fragile than the lack of high honors suggests, especially if Clubs become trump.",
+        "points": [
+          "Length: seven Clubs can survive after higher Clubs have been played.",
+          "Risk: if Clubs become trump, even low Clubs may take tricks.",
+          "Trump is unknown; neither late winners nor safe losers are guaranteed."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "enter"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Respect the long suit",
+        "summary": "Entering keeps options open with seven Clubs. Length offers potential, but it is not seven safe tricks.",
+        "points": [
+          "Control: you hold none of the top four Clubs.",
+          "Probable: some long-suit cards may be promoted after higher cards are used.",
+          "Risk: a different trump or losing the lead can disrupt that plan."
+        ]
+      }
+    }
+  ]
+}
