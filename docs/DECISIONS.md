@@ -269,6 +269,22 @@ annotations, winner resolution, outcomes and multi-step continuation are not
 silently encoded in unknown fields. EC-042/043 can extend the contract when
 needed after documented rule/content review.
 
+## D-016 — Commit one card in the preview before coached integration
+
+**Status:** Accepted
+
+With the owner reporting 18% session credit remaining, bound EC-041 to legal
+selection/commitment, a short hand-to-table flight, reset and regression tests.
+Split reviewed scenario loading and feedback into EC-047 rather than beginning
+an incomplete coached session. Winner rules were separately confirmed by the
+owner and recorded in GAME_RULES_V1.md, but winner resolution is not implemented.
+
+The preview commits at most one card. During flight and after commitment, further
+play is locked. The card leaves the hand and appears once in the current trick;
+completed-trick counts stay unchanged until a future resolver exists. Reset
+restores the fixture. Reduced-motion settings skip flight; route disposal removes
+its overlay. This remains a labelled demo with no authored coaching or scoring.
+
 ## Decision template
 
 Copy this section for future decisions.
