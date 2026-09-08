@@ -16,7 +16,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'bidding_training_test.dart' show pack, tap;
 
 List<PlayScenario> playPack() => [
-  for (final id in ['play_safe_probable_001', 'play_safe_probable_002'])
+  for (final id in [
+    'play_safe_probable_001',
+    'play_safe_probable_002',
+    'play_void_tracking_001',
+    'play_void_tracking_002',
+    'play_void_tracking_003',
+  ])
     PlayScenario.fromJson(
       jsonDecode(File('content/scenarios/v1/play/$id.json').readAsStringSync()),
     ),
@@ -31,13 +37,13 @@ void main() {
 
   test('bundled play catalog is complete and immutable', () async {
     final scenarios = await loadPlayScenarios();
-    expect(scenarios, hasLength(2));
+    expect(scenarios, hasLength(5));
     expect(scenarios.map((s) => s.id), playPack().map((s) => s.id));
     expect(() => scenarios.clear(), throwsUnsupportedError);
   });
 
   test(
-    'all four legal choices return exact authored feedback across ratings',
+    'all ten legal choices return exact authored feedback across ratings',
     () {
       final ratings = <DecisionRating>{};
       var count = 0;
@@ -49,8 +55,12 @@ void main() {
           count++;
         }
       }
-      expect(count, 4);
-      expect(ratings, {DecisionRating.strong, DecisionRating.weak});
+      expect(count, 10);
+      expect(ratings, {
+        DecisionRating.strong,
+        DecisionRating.weak,
+        DecisionRating.risky,
+      });
     },
   );
 
@@ -78,7 +88,7 @@ void main() {
     },
   );
 
-  testWidgets('both situations can be reviewed and session completed', (
+  testWidgets('all five situations can be reviewed and session completed', (
     tester,
   ) async {
     final scenarios = playPack();
@@ -245,4 +255,53 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets(
+    'observed play is shown and void-derived coaching drives the decision',
+    (tester) async {
+      final scenario = playPack().firstWhere(
+        (s) => s.id == 'play_void_tracking_001',
+      );
+      await tester.pumpWidget(
+        MaterialApp(home: PlayTrainingScreen(loader: () async => [scenario])),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Observed play'), findsOneWidget);
+      for (final code in ['7D', '10D', 'AD', '6C']) {
+        expect(card(code), findsOneWidget);
+      }
+      await tester.ensureVisible(card('KD'));
+      await tester.tap(card('KD'));
+      await tester.pumpAndSettle();
+      await tap(tester, 'Play card');
+      expect(find.text('Risky'), findsOneWidget);
+      expect(
+        find.text('Risking your best card on a trick you don\'t control'),
+        findsOneWidget,
+      );
+      await tap(tester, 'Try another choice');
+      await tester.ensureVisible(card('3D'));
+      await tester.tap(card('3D'));
+      await tester.pumpAndSettle();
+      await tap(tester, 'Play card');
+      expect(find.text('Strong decision'), findsOneWidget);
+      expect(
+        find.text('Save the king; the ace is already gone'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('observed play does not appear for scenarios without history', (
+    tester,
+  ) async {
+    final scenario = playPack().firstWhere(
+      (s) => s.id == 'play_safe_probable_001',
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: PlayTrainingScreen(loader: () async => [scenario])),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Observed play'), findsNothing);
+  });
 }
