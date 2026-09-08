@@ -1,0 +1,60 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_void_tracking_003",
+  "title": "The same trap in a different suit",
+  "difficulty": "beginner",
+  "primary_skill": "void_tracking",
+  "skills": ["void_tracking", "safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["KC", "4C"],
+  "situation": {
+    "leader": "north",
+    "current_trick": [
+      {"player": "north", "card": "7C"},
+      {"player": "west", "card": "10C"}
+    ],
+    "trump": "hearts",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 2, "south": 3, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "hearts"},
+    "observed_tricks": [
+      [
+        {"player": "west", "card": "9C"},
+        {"player": "south", "card": "6C"},
+        {"player": "north", "card": "AC"},
+        {"player": "east", "card": "2D"}
+      ]
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "4C"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Save the king; the ace is already gone",
+        "summary": "East has already shown void in Clubs and is free to trump this trick with any heart no matter which Club you play; with the ace of Clubs already out, your king is the highest Club left and worth keeping for a trick it can actually win.",
+        "points": [
+          "The earlier trick shows East playing a diamond when Clubs were led, so East holds no more Clubs this hand and is free to trump this one.",
+          "The ace of Clubs is already out, so the king is the highest Club left — a real winner if it survives to a trick East cannot trump away.",
+          "The target still needs one more trick from the two remaining; keeping the king gives the final trick a genuine winner instead of spending it here for nothing."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "KC"},
+      "rating": "risky",
+      "feedback": {
+        "title": "Risking your best card on a trick you don't control",
+        "summary": "East's confirmed void means East decides whether this trick is trumped, regardless of which Club you play, so leading with the king risks your best remaining card for no extra chance of winning it.",
+        "points": [
+          "The earlier trick already showed East void in Clubs — East can trump this trick with any heart no matter which Club you offer.",
+          "If East trumps, the king is spent for nothing, and only the weak four is left for the final trick the target still needs.",
+          "The four loses this trick just as surely as a trumped king would, but keeps the king in hand as a genuine option for later."
+        ]
+      }
+    }
+  ],
+  "author_notes": "Third void-tracking scenario (EC-042). A second, independent example of the same 'preserve your master card against a known void' pattern from play_void_tracking_001, with a different seat, suit and trump to reinforce pattern recognition rather than a single memorized case."
+}

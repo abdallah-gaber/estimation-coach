@@ -1,0 +1,60 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_void_tracking_002",
+  "title": "No trump can save this trick",
+  "difficulty": "beginner",
+  "primary_skill": "void_tracking",
+  "skills": ["void_tracking", "safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["KH", "2H"],
+  "situation": {
+    "leader": "north",
+    "current_trick": [
+      {"player": "north", "card": "6H"},
+      {"player": "east", "card": "9H"}
+    ],
+    "trump": "no_trump",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 3, "south": 2, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "no_trump"},
+    "observed_tricks": [
+      [
+        {"player": "north", "card": "8H"},
+        {"player": "east", "card": "QH"},
+        {"player": "south", "card": "4H"},
+        {"player": "west", "card": "3C"}
+      ]
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "KH"},
+      "rating": "strong",
+      "feedback": {
+        "title": "A guaranteed trick in Sans",
+        "summary": "West has already shown void in Hearts, and in Sans only Hearts can win this trick — North and East have already played below the king, and West cannot add a Heart to challenge it.",
+        "points": [
+          "The earlier trick shows West playing a club when Hearts were led, so West holds no more Hearts this hand.",
+          "In Sans, a card that cannot follow the led suit can never win the trick — West's response cannot beat any Heart you play.",
+          "No higher Heart remains to be added to this trick: North and East have already played, and West cannot follow suit."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "2H"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Giving away a trick you can already win",
+        "summary": "Playing the two lets the nine of Hearts win instead, giving away a trick the target still needs even though West's known void guarantees the king would take it.",
+        "points": [
+          "The earlier trick already showed West void in Hearts, so nothing remaining in this trick can beat the king.",
+          "In Sans, West's forced off-suit card cannot win this trick regardless of what West plays.",
+          "The target still needs both remaining tricks; there is no reason to concede one that is already yours to take."
+        ]
+      }
+    }
+  ],
+  "author_notes": "Second void-tracking scenario (EC-042). Sans removes the usual trump risk entirely: once West is confirmed void in the led suit, no card West holds can win this trick, making the king a fully certain winner rather than merely a probable one."
+}
