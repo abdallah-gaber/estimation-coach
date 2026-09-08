@@ -227,6 +227,24 @@ the distinction before coached play is introduced, and EC-060 must preserve it
 in translations. This decision defines terminology and model responsibility,
 not previously unspecified estimation, auction, or scoring rules.
 
+## D-014 — Validate a pending play decision before defining its JSON contract
+
+**Status:** Accepted
+
+Split EC-044 into a pure model checkpoint (EC-045) and the portable contract
+(EC-046). `PlaySituation` is immutable public context immediately before a
+player plays, and `TrickEstimate` is separate from the optional known winning
+`auctionBid`. Zero is a target value, not an inferred Dash declaration.
+
+Validate physical card/count consistency and derive follow-suit choices using
+the existing rule. Do not infer turn direction, opponent hidden cards, estimate
+assignment rules, trick winners or outcomes. A nonempty remaining hand and at
+most three current-trick cards deliberately exclude completed decisions.
+
+The model does not change widgets or claim that play JSON is supported yet.
+Keep the bidding catalog and the explicit table specimen intact until EC-046.
+The project checkpoint-budget policy is recorded in AGENTS.md section 16.
+
 ## Decision template
 
 Copy this section for future decisions.

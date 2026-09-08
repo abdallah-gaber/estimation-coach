@@ -50,3 +50,41 @@ flutter test test/core/game_rules/legal_cards_test.dart
 
 Tests cover leading, following with low cards, voids, absent cards, empty and
 single-card hands, immutable results, and all suit/rank combinations.
+
+## EC-045: public play situation
+
+`lib/core/game_rules/play_situation.dart` adds an immutable snapshot immediately
+before one player chooses a card. It is a domain building block, not a supported
+JSON scenario or a round engine. EC-046 will define the portable schema/parser.
+
+- `playerPosition` identifies the pending decision; that seat has not played
+  into `currentTrick` yet.
+- `hand` holds 1–13 remaining cards. `currentTrick` holds 0–3 ordered `SeatPlay`
+  entries, each with a distinct opponent seat and card.
+- `leader` must own the first visible card, or be the pending player if the
+  trick is empty. The supplied order is preserved without inventing clockwise
+  or counterclockwise play.
+- `tricksTaken` records completed tricks for all four seats. Counts are
+  nonnegative; their sum equals `13 - hand.length` because the pending player
+  has not played into the current trick. Current-trick cards cannot also be held.
+- `trump` is fixed public context for this normal-round snapshot. Optional
+  `auctionBid` is the known winning auction bid, whose trump must match it.
+- `trickEstimate` is the pending player's separately assigned target. Its 0–13
+  bounds express physical trick counts, not a new rule for assigning estimates.
+  Zero does not imply that Dash was declared; the type carries no Dash history.
+  Estimates below four and tricks taken above the estimate are representable.
+- `legalChoices` reuses the established follow-suit helper. Leading or being
+  void allows every held card; Sans does not change follow-suit behavior.
+
+The model checks internal public-snapshot consistency, not whether hidden hands
+or a full historical round could produce it. It does not validate opponents'
+follow-suit compliance without their hands, resolve a winner, progress turns,
+assign estimates, infer the winning bidder's identity, or grade decisions.
+Completed tricks/hands are outside this pending-decision model.
+
+```sh
+flutter test test/core/game_rules/play_situation_test.dart
+```
+
+The focused 20 tests cover boundaries, low estimates, overtricks, all trump
+categories, all leading seats, voids, defensive copies, and invalid snapshots.
