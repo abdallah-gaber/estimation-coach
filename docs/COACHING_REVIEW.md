@@ -185,29 +185,31 @@ void is accounted for. Diamonds are led; the player holds the king and a low
 Diamond and must follow suit. The naive instinct ("play your best card") says
 king; the void-aware read says three.
 
-**Ratings:** playing the three is `strong` — West is already shown void in
-Diamonds (an earlier trick: Diamonds led, West played a club) and is free to
+**Ratings:** playing the three is `strong` — East is already shown void in
+Diamonds (an earlier trick: Diamonds led, East played a club) and is free to
 trump this trick regardless of which Diamond is offered, so playing the king
 would expose it to that known void for no gain; the ace of Diamonds is
 already out, so the king is the highest Diamond left and keeps genuine
 winning potential once it is not exposed here. Playing the king is `risky` —
-not `weak`, because there is a genuine (if unlikely) chance West declines to
+not `weak`, because there is a genuine (if unlikely) chance East declines to
 trump and the king wins outright; the avoidable risk is exposing the best
 remaining card to a known void on a trick you do not control, when an
 equally-losing, cost-free alternative (the three) is available. Neither
 rating claims the retained king is *guaranteed* to win a future trick — only
 that keeping it avoids a known, avoidable exposure.
 
-**What makes this deterministic:** the observed trick shows West playing a
+**What makes this deterministic:** the observed trick shows East playing a
 club when Diamonds were led — sound proof of void by the follow-suit rule,
 not a guess. The ace being already played is a plain fact from the same
-observed trick. Whether West *chooses* to trump is not claimed as certain —
-only that West is *free* to. Whether the preserved king actually wins some
-later trick is not claimed either; no future trick is modeled.
+observed trick. Whether East *chooses* to trump is not claimed as certain —
+only that East is *free* to. Whether the preserved king actually wins some
+later trick is not claimed either; no future trick is modeled. East is the
+seat that plays after South here (owner-confirmed rotation, leader North:
+North → West → South → East).
 
 **Confirmed non-decorative:** `test/scenarios/play_scenario_test.dart`
 asserts that removing `observed_tricks` from this file leaves nothing in the
-situation that reveals West's void, i.e. the authored rating's stated
+situation that reveals East's void, i.e. the authored rating's stated
 rationale genuinely depends on the shown history. This is not an algorithmic
 proof that the rating is the objectively optimal decision — ratings remain
 authored judgment, the same as every other scenario in this project.
@@ -216,10 +218,10 @@ authored judgment, the same as every other scenario in this project.
 
 **Teaches:** in Sans, a known void is not merely risky for the void player —
 it is a *guarantee* for everyone else, since game_rules_v1 states only the
-led suit can win in Sans. West is shown void in Hearts; the player holds the
-king and a low Heart, already ahead of North's and East's cards.
+led suit can win in Sans. East is shown void in Hearts; the player holds the
+king and a low Heart, already ahead of North's and West's cards.
 
-**Ratings:** the king is `strong` — West cannot add a Heart (confirmed void),
+**Ratings:** the king is `strong` — East cannot add a Heart (confirmed void),
 and in Sans a card that cannot follow suit can never win, so no card left in
 this trick can beat the king. The two is `weak` — the king guarantees this
 specific trick in Sans, and the target's exact estimate still requires both
@@ -234,10 +236,11 @@ behavior needs to be predicted, unlike the trump-round scenarios.
 ### `play_void_tracking_003` — The same trap in a different suit
 
 **Teaches:** a second, independent instance of `play_void_tracking_001`'s
-"preserve your master card against a known void" pattern — different seat
-(East), suit (Clubs) and trump (Hearts) — reinforcing pattern recognition
-rather than one memorized case. Ratings and reasoning mirror `_001` exactly,
-substituting East/Clubs for West/Diamonds.
+"preserve your master card against a known void" pattern — same seat (East,
+the seat that plays after South whenever North leads), different suit
+(Clubs) and trump (Hearts) — reinforcing pattern recognition rather than one
+memorized case. Ratings and reasoning mirror `_001` exactly, substituting
+Clubs for Diamonds.
 
 ### Runtime contract (void tracking)
 
@@ -250,6 +253,8 @@ safely; the in-progress current trick can reveal a void just as validly as an
 earlier one; and loading the pre-existing `safe_vs_probable` scenarios (no
 `observed_tricks`) still resolves to no known voids anywhere. `observed_tricks`
 is an author-curated, visible *subset* of prior play — not a claim that it is
-the most recent trick or the complete round history — and no attempt is made
-to validate leader succession between tricks, since that would require a
-trick-winner resolver this project does not have.
+the most recent trick or the complete round history. Seat succession
+*within* one trick is validated against the owner-confirmed rotation (see
+[game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation)), but no
+attempt is made to validate leader succession *between* tricks, since that
+would require a trick-winner resolver this project does not have.

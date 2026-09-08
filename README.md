@@ -212,9 +212,9 @@ generated but unvalidated; use `flutter devices` to see available targets.
 5. Situations 3–5 add an **Observed play** section above the current trick: a
    compact, muted earlier trick, not labelled as "the last trick" since it is
    only the evidence relevant to this decision. In situation 3 ("Save the king
-   from a known void"), that trick shows West failing to follow Diamonds —
+   from a known void"), that trick shows East failing to follow Diamonds —
    playing the 3 (saving the now-unbeatable king) is **Strong decision**;
-   playing the king is **Risky** because West's void means West decides
+   playing the king is **Risky** because East's void means East decides
    whether it gets trumped. The pack does not compute this itself — voids are
    never authored, only derived from the shown history.
 6. Selecting a card moves it visually into the current trick with a short

@@ -367,23 +367,31 @@ Required `situation` fields:
 | Field | Contract |
 | --- | --- |
 | `leader` | Seat of the first current-trick card; the player seat when leading an empty trick |
-| `current_trick` | Ordered array of 0–3 `{player, card}` objects |
+| `current_trick` | Ordered array of 0–3 `{player, card}` objects, following the seats below |
 | `trump` | A canonical trump code, including `no_trump` |
 | `trick_estimate` | This player's already assigned target, integer 0–13 |
 | `tricks_taken` | Object with north/east/south/west nonnegative integer counts |
 | `auction_bid` (optional) | Known winning `{tricks: 4–13, trump}`; omit if unknown |
-| `observed_tricks` (optional) | Array of prior tricks, each exactly four `{player, card}` objects |
+| `observed_tricks` (optional) | Array of prior tricks, each exactly four `{player, card}` objects, following the seats below |
 
 These fields map to the validated PlaySituation contract in
 [GAME_RULES.md](GAME_RULES.md#ec-045-public-play-situation). Taken counts must total
 `13 - hand.length`; the pending player has not played into this trick. Cards must
-be distinct across the hand, current trick and every observed trick, and
-current-trick/observed-trick seats distinct. The winning auction bid's trump
-must match the situation if supplied.
+be distinct across the hand, current trick and every observed trick.
+
+`current_trick` and each `observed_tricks` entry must follow the
+owner-confirmed counter-clockwise seat rotation from
+[game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation) —
+North → West → South → East → North — starting from that trick's own leader
+(`current_trick`'s leader is the `leader` field; each observed trick's leader
+is its own first entry). For `current_trick`, `player_position` must be
+exactly the next seat in that rotation after the last play. This is seat
+succession within one trick only: it does not resolve a winner, and one
+observed trick's leader is never checked against a previous trick's winner.
 
 The estimate is **not** an auction bid. Values below four, including zero, are
-representable without declaring Dash. No estimate-assignment rule is introduced.
-Play direction, hidden hands and historical feasibility are not inferred.
+representable without declaring Dash. No estimate-assignment rule is
+introduced. Hidden hands and historical feasibility are not inferred.
 
 #### Observed tricks and void tracking (EC-042)
 
@@ -403,11 +411,13 @@ that seat is shown playing off that led suit — the app will derive the same
 fact your coaching text relies on, keeping content and reasoning from
 silently drifting apart.
 
-Do not use `observed_tricks` to encode a trick winner, turn order, or a
-continuation across tricks — none of that is validated or resolved. Each
-observed trick's four plays are trusted as authored; the model does not check
-that one trick's leader plausibly follows from a previous trick's winner
-(that would require a winner resolver, which does not exist).
+Each observed trick's four seats must follow the same confirmed rotation as
+`current_trick` (validated structurally — see above), but do not use
+`observed_tricks` to encode a trick winner or a continuation across tricks:
+the model does not check that one trick's leader plausibly follows from a
+previous trick's winner, since that would require a winner resolver, which
+does not exist. A full round/deal turn order beyond one trick's seat
+succession remains undefined.
 
 ### Choices and feedback
 

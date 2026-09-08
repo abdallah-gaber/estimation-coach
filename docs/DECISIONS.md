@@ -351,6 +351,44 @@ section above the current trick; it never displays a live computed void
 badge, since that would hand the player the answer instead of letting them
 read the same history the coaching evidence points back to afterward.
 
+## D-019 — Confirm and enforce the canonical seat rotation; correct EC-042 content
+
+**Status:** Accepted (owner confirmation, 2026-09-08)
+
+The owner confirmed normal-round play is counter-clockwise:
+`North → West → South → East → North`, defining seat succession *within one
+trick* only — not a trick winner, not a full deal/round turn order, and not
+which seat leads the next trick. Documented in
+[game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation).
+
+`lib/core/game_rules/seat_rotation.dart` (`rotationFrom`) is the single pure
+implementation, used by both `PlaySituation` (for `currentTrick`: every play
+must be an ordered prefix of the rotation from `leader`, and `playerPosition`
+must be exactly the next seat) and `ObservedTrick`'s own constructor (all
+four seats, in rotation order from its own first entry). Neither parsers nor
+widgets duplicate this ordering logic. This validates seat succession only —
+not trick-winner resolution or next-trick-leader computation, both still out
+of scope.
+
+D-018's three void-tracking scenarios were authored before this confirmation
+using an unconfirmed, as it turned out impossible, seat sequence (their
+current tricks had South 3rd to act with a *West*-led trick, which the
+confirmed rotation cannot produce — North-led is the only leader that puts
+South 3rd, and its 4th seat is East, not West). All three scenarios' seat
+assignments were corrected: the seat that plays after South is **East**, not
+West as originally authored. The two EC-047 originals
+(`play_safe_probable_001`/`_002`, where South is last to act) and the
+synthetic contract fixture were also re-verified; South is only ever last
+when East leads, so both were corrected from West/North leaders to East.
+
+Each corrected scenario's strategic rating was re-reviewed, not just
+mechanically reseated, since changing who acts after South can change what
+is deterministically knowable. In every case the lesson itself was
+unaffected — only the seat identity changed — because none of the three
+authored ratings depended on anything specific to *which* seat besides "the
+one seat that plays after South," which is now East instead of West. No
+rating changed as a result of this correction.
+
 ## Decision template
 
 Copy this section for future decisions.

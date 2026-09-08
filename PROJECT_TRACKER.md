@@ -406,14 +406,18 @@ compact, de-emphasized "Observed play" section above the current trick. See
 and [D-018](docs/DECISIONS.md) for the full design rationale. Winner
 resolution, scoring and EC-043 remain deferred.
 
-**Known pending correction:** the four-seat sequence within each authored
-`current_trick`/`observed_tricks` is not yet checked against a documented
-turn-order rule, because `docs/GAME_RULES_V1.md`'s Scope section explicitly
-leaves turn order undefined. Once the owner confirms the canonical rotation,
-seat sequences must be re-verified against it (correcting content if needed),
-domain/scenario validation should reject an impossible seat sequence, and the
-three scenarios' strategic ratings must be re-reviewed, since changing who
-acts after South can change what is deterministically knowable.
+The owner confirmed the canonical counter-clockwise play direction
+(North → West → South → East → North) on 2026-09-08. `lib/core/game_rules/
+seat_rotation.dart` (`rotationFrom`) is the single source of seat succession,
+used by `PlaySituation`'s `currentTrick` validation and `ObservedTrick`'s own
+constructor. Every existing play scenario (including the two EC-047
+originals and the synthetic contract fixture) was re-verified and, where
+needed, corrected against this rotation. All three void-tracking scenarios'
+seat assignments changed: South is 3rd to act only when North leads, so the
+seat that plays after South is **East**, not West as originally authored —
+their strategic ratings were re-reviewed and are unaffected in substance
+(the coaching lesson still holds), only the seat identity changed. See
+[D-019](docs/DECISIONS.md) for the correction record.
 
 ### Acceptance criteria
 - Scenario can record known void information.

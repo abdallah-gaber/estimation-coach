@@ -65,8 +65,12 @@ connects a reviewed pack of these to the Play practice screen.
 - `hand` holds 1–13 remaining cards. `currentTrick` holds 0–3 ordered `SeatPlay`
   entries, each with a distinct opponent seat and card.
 - `leader` must own the first visible card, or be the pending player if the
-  trick is empty. The supplied order is preserved without inventing clockwise
-  or counterclockwise play.
+  trick is empty. `currentTrick` must be an ordered prefix of the
+  owner-confirmed counter-clockwise rotation from `leader` (see
+  [game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation) and
+  `lib/core/game_rules/seat_rotation.dart`), and `playerPosition` must be
+  exactly the next seat to act — this is seat succession within one trick
+  only, not a trick-winner resolver or a computed next-trick leader.
 - `tricksTaken` records completed tricks for all four seats. Counts are
   nonnegative; their sum equals `13 - hand.length` because the pending player
   has not played into the current trick. Current-trick cards cannot also be held.
@@ -79,11 +83,13 @@ connects a reviewed pack of these to the Play practice screen.
 - `legalChoices` reuses the established follow-suit helper. Leading or being
   void allows every held card; Sans does not change follow-suit behavior.
 - `observedTricks` (EC-042) is an optional list of `ObservedTrick` — each
-  exactly four `SeatPlay`s, one per seat, first is that trick's own leader.
-  It is a curated, visible *subset* of prior tricks relevant to the current
-  decision, never a claim of recency or completeness; its cards must not
-  duplicate the hand, current trick, or each other, and its length cannot
-  exceed the total completed tricks implied by `tricksTaken`.
+  exactly four `SeatPlay`s, one per seat, in the same owner-confirmed
+  rotation order starting from that trick's own leader (enforced by
+  `ObservedTrick`'s own constructor). It is a curated, visible *subset* of
+  prior tricks relevant to the current decision, never a claim of recency or
+  completeness; its cards must not duplicate the hand, current trick, or each
+  other, and its length cannot exceed the total completed tricks implied by
+  `tricksTaken`.
 
 The model checks internal public-snapshot consistency, not whether hidden hands
 or a full historical round could produce it. It does not validate opponents'
@@ -98,9 +104,10 @@ require a winner resolver this project does not have.
 flutter test test/core/game_rules/play_situation_test.dart
 ```
 
-The 28 tests cover boundaries, low estimates, overtricks, all trump
-categories, all leading seats, voids, defensive copies, observed-trick
-validation, and invalid snapshots.
+The 32 tests cover boundaries, low estimates, overtricks, all trump
+categories, all leading seats, voids, defensive copies, rotation validation
+for every leader and rejected seat sequences, observed-trick validation, and
+invalid snapshots.
 
 ## EC-042: void tracking
 
@@ -112,13 +119,22 @@ rule](#ec-021-following-suit) proves that seat held none of it at that
 moment. No new game rule is introduced; this is a direct consequence of the
 rule already implemented for EC-021. An empty trick (leading) is skipped
 safely and contributes nothing. The function is pure and does not depend on
-`PlayScenario`, the parser, or any widget.
+`PlayScenario`, the parser, or any widget — it does not itself enforce seat
+rotation (that is `PlaySituation`/`ObservedTrick`'s job), so it stays testable
+against arbitrary seat lists.
+
+Seat succession itself is `lib/core/game_rules/seat_rotation.dart`
+(`rotationFrom`), the owner-confirmed counter-clockwise rotation from
+[game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation). It is a
+single pure lookup, used by both `PlaySituation` (for `currentTrick`) and
+`ObservedTrick` (for its own four seats), so no parser or widget duplicates
+seat-ordering logic.
 
 ```sh
 flutter test test/core/game_rules/void_tracking_test.dart
 ```
 
-The 7 tests cover: following suit inferring no void, an off-suit play
+The 8 tests cover: following suit inferring no void, an off-suit play
 inferring one, repeated evidence deduplicating, one seat becoming void in
 multiple suits, an empty trick being ignored, a void revealed within the
 current unfinished trick, and backward compatibility with scenarios that
