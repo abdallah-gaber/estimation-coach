@@ -161,7 +161,7 @@ mid-hand play yet.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/play-table-preview
+git switch codex/play-situation-model
 flutter pub get
 flutter run -d chrome
 ```
@@ -216,6 +216,20 @@ Egyptian Arabic language switching and local game terminology are tracked in
 EC-060. The language option is not implemented yet. The owner-confirmed
 [glossary](docs/EGYPTIAN_ARABIC.md) distinguishes الكول from each player's trick
 estimate (طالب كام؟).
+
+### Current domain checkpoint
+
+EC-045 adds a validated public play-situation model with separate auction bid
+and player estimate. The visible app is unchanged. Run the 20 focused checks:
+
+```sh
+flutter test test/core/game_rules/play_situation_test.dart
+```
+
+Expected: all pass, including estimates 0–3, overtricks, leading/following/void
+choices, and rejection of duplicate cards or inconsistent counts. The portable
+play JSON contract remains the next task, EC-046. See
+[model contract and limits](docs/GAME_RULES.md#ec-045-public-play-situation).
 
 ### Automated checks
 

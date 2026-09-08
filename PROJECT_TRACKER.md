@@ -370,7 +370,11 @@ Create situations where the player must avoid unwanted tricks.
 ---
 
 ## EC-044 — Portable mid-hand scenario contract
-**Status:** READY
+**Status:** IN PROGRESS
+
+Split into EC-045 (public model) and EC-046 (portable schema/parser/feedback).
+Budget policy: choose a checkpoint small enough to implement, validate, document
+and push in one available context; keep unfinished follow-ups explicit.
 
 Define the supported play-scenario schema and pure parser before replacing the
 UI fixture with authored training content. Review any missing play rules with
@@ -384,6 +388,39 @@ the owner before implementing winner resolution or scenario continuation.
 - Validate duplicate cards, counts, follow-suit choices, and complete feedback.
 - Document the contract in SCENARIO_AUTHORING.md and preserve bidding compatibility.
 - Add parser/schema/evaluation tests before exposing coached play scenarios.
+
+---
+
+## EC-045 — Pure play-situation model
+**Status:** DONE
+
+First bounded EC-044 checkpoint: a validated, immutable public snapshot for one
+player's next card decision, independent of Flutter and authored feedback.
+
+Implemented `PlaySituation`, `SeatPlay` and `TrickEstimate` with 20 focused
+regressions. All 178 tests, analysis and strict bidding-content validation pass.
+The UI is unchanged; EC-044 remains in progress pending EC-046.
+
+### Acceptance criteria
+- Keep optional winning auctionBid separate from the player's trickEstimate.
+- Represent seats, remaining hand, current trick/leader, trump and taken counts.
+- Reject duplicate cards/seats, impossible counts and inconsistent snapshots.
+- Derive legal choices using the existing follow-suit rule.
+- Test leading, following, voids, low estimates, overtricks and immutability.
+- Document model limits; leave UI and portable bidding content working.
+
+## EC-046 — Play JSON schema and parser
+**Status:** READY
+
+Next bounded EC-044 checkpoint, after EC-045. Propose and document the portable
+play fields separately before integrating coached play.
+
+### Acceptance criteria
+- Add supported play-scenario schema/parser with field-path errors.
+- Reuse PlaySituation validation and preserve existing bidding compatibility.
+- Keep coaching portable; validate evaluation membership and full legal coverage.
+- Extend standalone validation with passing/failing play fixtures and tests.
+- Document any unresolved rule dependencies rather than inventing behavior.
 
 ---
 

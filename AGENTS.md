@@ -613,3 +613,14 @@ Do not hardcode authored scenario content inside Dart widgets or feature control
 The application may parse, validate, cache, filter, and render scenario files, but the authored content remains portable data.
 
 A future standalone scenario editor or external AI workflow must produce the same versioned files.
+
+---
+
+## 16. Checkpoint budget
+
+Before starting a task, conservatively estimate whether implementation, review,
+tests, documentation and handoff fit the available context/token budget. If not,
+split it into independently verifiable tracker tasks and complete only a fitting
+checkpoint. Keep remaining work explicit; do not mark the umbrella task done.
+If an exact remaining-token counter is unavailable, state that limitation and
+use a conservative scope estimate rather than claiming an exact balance.
