@@ -655,6 +655,14 @@ The application may parse, validate, cache, filter, and render scenario files, b
 
 A future standalone scenario editor or external AI workflow must produce the same versioned files.
 
+### Content-only invariant
+
+A new scenario of an already-supported type must not require application-code
+changes. A rule change should affect its owning rule module and invalidate
+dependent content through validation, not require scattered manual updates. A
+new capability may extend the contract/UI once; subsequent scenarios using it
+should be content-only.
+
 ---
 
 ## 16. Checkpoint budget

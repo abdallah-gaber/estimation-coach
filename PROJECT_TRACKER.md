@@ -431,6 +431,14 @@ their strategic ratings were re-reviewed and are unaffected in substance
 
 Create situations where the player must avoid unwanted tricks.
 
+A rule-domain audit (`docs/GAME_RULES_V1.md#rule-domain-status-audit-2026-09-08`)
+reviewed what this depends on: trick winners are confirmed but have no
+resolver; estimate ordering/constraints across players, total-estimate rules,
+"With", "Over/Under" and exact-bid scoring semantics are all **unresolved** —
+not found anywhere in this repository. These must be confirmed by the owner
+and recorded in `docs/GAME_RULES_V1.md` before this task can start; do not
+infer or invent them from an external/undocumented source.
+
 ### Acceptance criteria
 - Target tricks are visible.
 - Scenario changes coaching after the target is reached.

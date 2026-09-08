@@ -127,3 +127,78 @@ choice is a legal raise. Bounds 4–7 over the five trump categories produce 17
 legal choices (4 Spades, 4 Sans, and all five trumps for 5–7), now all evaluated.
 The [coaching review](COACHING_REVIEW.md) rates 4 Spades reasonable and records
 its conditional assumptions. Rule-valid data is not proof of a strong decision.
+
+## Rule domain status audit (2026-09-08)
+
+A repository-wide review requested ahead of EC-043 (exact-bid protection).
+Purpose: give a future contributor — human or AI — a single place to see
+what's actually confirmed and implemented, what's confirmed but waiting on
+implementation, and what remains genuinely open, organized by independent
+rule domain rather than as one undifferentiated list. This audit does not
+implement anything; it only classifies existing statements already made
+elsewhere in this document, [GAME_RULES.md](GAME_RULES.md),
+[docs/DECISIONS.md](DECISIONS.md) and
+[docs/EGYPTIAN_ARABIC.md](EGYPTIAN_ARABIC.md).
+
+**Source-gap disclosure:** this audit was requested against "confirmed owner
+rules and the documented Jawaker/Pocket rules." No file, comment, or prior
+decision record in this repository mentions "Jawaker" or "Pocket," and an
+agent session has no access to a prior conversation where such rules might
+have been described — [AGENTS.md](../AGENTS.md) §10 requires that essential
+rule knowledge live in this repository, not in chat history. Terms named
+below that map to no confirmed rule (estimate ordering/constraints across
+players, total-estimate rules, "With", "Over/Under", exact-bid scoring
+semantics) are marked **unresolved** rather than guessed at. Before EC-043
+implementation depends on any of them, the owner must confirm them in
+writing in this document, the same way every other section here was
+confirmed.
+
+### Confirmed and currently implemented
+
+| Rule domain | Confirmed in | Implemented in |
+| --- | --- | --- |
+| Normal-bid minimum, trump ranking, raise comparison | [Normal bidding](#normal-bidding) | `lib/core/game_rules/bidding.dart` (`Bid`, `Trump`) |
+| Dash: exactly 0, pre-bidding only, excludes normal bidding | [Dash phase](#dash-phase) | `bidding.dart` (`BiddingState.declareDash`) |
+| Follow-suit legality | [GAME_RULES.md](GAME_RULES.md#ec-021-following-suit) | `lib/core/game_rules/legal_cards.dart` |
+| Seat succession within one trick (counter-clockwise rotation) | [Play direction](#play-direction--seat-rotation) | `lib/core/game_rules/seat_rotation.dart` |
+| `auctionBid` distinct from each player's `trickEstimate` | [EGYPTIAN_ARABIC.md](EGYPTIAN_ARABIC.md#auction-bid-and-trick-estimate-are-distinct), D-013 | `Bid` vs `TrickEstimate` in `play_situation.dart` |
+| `TrickEstimate`'s 0–13 physical bound | [GAME_RULES.md](GAME_RULES.md#ec-045-public-play-situation) | `TrickEstimate` in `play_situation.dart` — the bound only, explicitly **not** a claim about how a real estimate gets assigned |
+| Void suits derived from observed follow-suit violations | D-018 | `lib/core/game_rules/void_tracking.dart` (a consequence of follow-suit, not a new rule) |
+
+### Confirmed but not implemented
+
+| Rule domain | Confirmed in | What's missing |
+| --- | --- | --- |
+| Trick winners (highest of led suit; highest trump if any played; A high…2 low; Sans only led suit can win) | [Trick winners](#trick-winners) | No resolver anywhere in the app; used only as authored reasoning in EC-047/EC-042 coaching text |
+
+Everything else already implemented (normal bidding, Dash, follow-suit, seat
+rotation, the estimate/bid distinction) has no confirmed-but-unimplemented
+gap — implementation matches confirmation.
+
+### Unresolved / variant-specific (not confirmed anywhere in this repository)
+
+These need owner confirmation, recorded here, before any implementation —
+including EC-043 — depends on them:
+
+| Rule domain | What's being asked | Where the gap is stated |
+| --- | --- | --- |
+| Estimate ordering/constraints across players (e.g. can two players share an estimate; must the auction winner's estimate equal their bid; is any player's choice restricted by others' already-declared estimates) | Referenced by this audit's request | Not addressed anywhere; `TrickEstimate` only bounds one player's value, in isolation |
+| Total-estimate rules (whether the sum of all four estimates is constrained relative to 13 — e.g. a "cannot total 13" rule) | Referenced by this audit's request | Not addressed anywhere |
+| "With" | Referenced by this audit's request as a Jawaker/Pocket term | Term does not appear anywhere in this repository |
+| "Over/Under" | Referenced by this audit's request as a Jawaker/Pocket term | The *coaching theme* "avoiding unwanted overtricks" is named in [AGENTS.md](../AGENTS.md) §3.1(D) as an MVP concept, but no formal rule defines what counts as over/under or any scoring consequence; the specific "Over/Under" mechanic is undocumented |
+| Exact-bid scoring semantics / formulas | Referenced by this audit's request | Explicitly out of scope per [Scope](#scope): "This confirmation does not define scoring formulas" |
+| Full deal/round turn order, auction termination, pass-vs-Dash treatment | — | Explicitly out of scope per [Scope](#scope) |
+| Special late-game / fixed-trump rounds | — | Explicitly excluded from MVP per [Scope](#scope), not merely unimplemented |
+
+### Implementation guidance for whoever picks up EC-043
+
+Once the rules above are confirmed, keep them in independent, small, pure
+modules — mirroring how `bidding.dart` (auction rules), `seat_rotation.dart`
+(seat succession) and `void_tracking.dart` (derived void facts) already stay
+separate and independently testable. For example: an estimate-totals check
+belongs in its own module, distinct from any future trick-winner resolver or
+scoring module. Do not fold these into one large combined rules type — each
+confirmed rule domain should stay its own file, testable on its own, so a
+future rule change invalidates dependent content through validation rather
+than requiring scattered manual updates (see AGENTS.md's content-only
+invariant).
