@@ -80,19 +80,27 @@ final class PlayScenario {
       'trick_estimate',
       'tricks_taken',
       'auction_bid',
+      'observed_tricks',
     ], r'$.situation');
-    final plays = <SeatPlay>[];
-    final rawPlays = _array(raw['current_trick'], r'$.situation.current_trick');
-    for (var i = 0; i < rawPlays.length; i++) {
-      final path = '\$.situation.current_trick[$i]';
-      final play = _object(rawPlays[i], path);
-      _keys(play, ['player', 'card'], path);
-      plays.add(
-        SeatPlay(
-          _enum(play['player'], PlayerSeat.values, '$path.player'),
-          _card(play['card'], '$path.card'),
-        ),
+    final plays = _seatPlays(
+      raw['current_trick'],
+      r'$.situation.current_trick',
+    );
+    final history = <ObservedTrick>[];
+    if (raw.containsKey('observed_tricks')) {
+      final rawHistory = _array(
+        raw['observed_tricks'],
+        r'$.situation.observed_tricks',
       );
+      for (var i = 0; i < rawHistory.length; i++) {
+        final path = '\$.situation.observed_tricks[$i]';
+        final trickPlays = _seatPlays(rawHistory[i], path);
+        try {
+          history.add(ObservedTrick(trickPlays));
+        } on ArgumentError catch (error) {
+          _fail(path, '${error.message}');
+        }
+      }
     }
     final rawTaken = _object(raw['tricks_taken'], r'$.situation.tricks_taken');
     _keys(
@@ -134,6 +142,7 @@ final class PlayScenario {
         ),
         tricksTaken: taken,
         auctionBid: bid,
+        observedTricks: history,
       );
     } on ArgumentError catch (error) {
       _fail(r'$.situation', '${error.message}');
@@ -193,6 +202,23 @@ final class PlayEvaluation {
   final GameCard card;
   final DecisionRating rating;
   final ScenarioFeedback feedback;
+}
+
+List<SeatPlay> _seatPlays(Object? value, String path) {
+  final raw = _array(value, path);
+  final plays = <SeatPlay>[];
+  for (var i = 0; i < raw.length; i++) {
+    final entryPath = '$path[$i]';
+    final play = _object(raw[i], entryPath);
+    _keys(play, ['player', 'card'], entryPath);
+    plays.add(
+      SeatPlay(
+        _enum(play['player'], PlayerSeat.values, '$entryPath.player'),
+        _card(play['card'], '$entryPath.card'),
+      ),
+    );
+  }
+  return plays;
 }
 
 Never _fail(String path, String message) =>

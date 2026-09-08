@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:estimation_coach/core/cards/cards.dart';
+import 'package:estimation_coach/core/game_rules/void_tracking.dart';
 import 'package:estimation_coach/scenarios/bidding_scenario.dart';
 import 'package:estimation_coach/scenarios/play_scenario.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -67,6 +68,27 @@ void main() {
     expect(() => s.evaluate(GameCard.parse('AS')), throwsArgumentError);
     expect(() => s.evaluate(GameCard.parse('AH')), throwsArgumentError);
   });
+  test('observed_tricks is optional and parses into ObservedTrick history', () {
+    final d = playFixture();
+    expect(PlayScenario.fromJson(d).situation.observedTricks, isEmpty);
+    d['situation']['observed_tricks'] = [
+      [
+        {'player': 'west', 'card': '8D'},
+        {'player': 'north', 'card': 'JD'},
+        {'player': 'east', 'card': '4D'},
+        {'player': 'south', 'card': '9D'},
+      ],
+    ];
+    accepted(d);
+    final history = PlayScenario.fromJson(d).situation.observedTricks;
+    expect(history, hasLength(1));
+    expect(history.single.plays.map((p) => p.card.notation), [
+      '8D',
+      'JD',
+      '4D',
+      '9D',
+    ]);
+  });
   test('all four ratings use authored feedback', () {
     for (final rating in DecisionRating.values) {
       final d = playFixture();
@@ -121,6 +143,13 @@ void main() {
         d['situation']['current_trick'][0]['card'] = '1H',
     'missing current player': (d) =>
         d['situation']['current_trick'][0].remove('player'),
+    'short observed trick': (d) => d['situation']['observed_tricks'] = [
+      [
+        {'player': 'west', 'card': '8D'},
+        {'player': 'north', 'card': 'JD'},
+        {'player': 'east', 'card': '4D'},
+      ],
+    ],
     'unknown action': (d) => d['evaluations'][0]['decision']['action'] = 'bid',
     'unknown rating': (d) => d['evaluations'][0]['rating'] = 'correct',
     'missing feedback': (d) => d['evaluations'][0].remove('feedback'),
@@ -164,6 +193,57 @@ void main() {
     'trump mismatch': (d) => d['situation']['auction_bid']['trump'] = 'hearts',
     'illegal evaluation': (d) => d['evaluations'][0]['decision']['card'] = 'AS',
     'duplicate evaluation': (d) => d['evaluations'].add(d['evaluations'][0]),
+    'observed trick duplicate seat': (d) =>
+        d['situation']['observed_tricks'] = [
+          [
+            {'player': 'west', 'card': '8D'},
+            {'player': 'west', 'card': 'JD'},
+            {'player': 'east', 'card': '4D'},
+            {'player': 'south', 'card': '9D'},
+          ],
+        ],
+    'observed card shared with hand': (d) =>
+        d['situation']['observed_tricks'] = [
+          [
+            {'player': 'west', 'card': '8D'},
+            {'player': 'north', 'card': 'JD'},
+            {'player': 'east', 'card': '4D'},
+            {'player': 'south', 'card': '3H'},
+          ],
+        ],
+    'more observed tricks than completed': (d) {
+      d['situation']['tricks_taken'] = {
+        'north': 0,
+        'east': 0,
+        'south': 0,
+        'west': 0,
+      };
+      d['hand'] = [
+        '3H',
+        '9H',
+        'AS',
+        '2C',
+        '4H',
+        '5H',
+        '6H',
+        '8H',
+        '10H',
+        'JH',
+        'QH',
+        'KH',
+        'AH',
+      ];
+      d['situation']['leader'] = 'south';
+      d['situation']['current_trick'] = [];
+      d['situation']['observed_tricks'] = [
+        [
+          {'player': 'west', 'card': '8D'},
+          {'player': 'north', 'card': 'JD'},
+          {'player': 'east', 'card': '4D'},
+          {'player': 'south', 'card': '9D'},
+        ],
+      ];
+    },
   };
   for (final entry in relations.entries) {
     test('domain rejects ${entry.key} after valid shape', () {
@@ -173,4 +253,77 @@ void main() {
       expect(() => PlayScenario.fromJson(d), throwsFormatException);
     });
   }
+
+  test(
+    'bundled void-tracking scenarios derive the seat/suit their coaching relies on',
+    () {
+      final expectedVoids = {
+        'play_void_tracking_001': (PlayerSeat.west, Suit.diamonds),
+        'play_void_tracking_002': (PlayerSeat.west, Suit.hearts),
+        'play_void_tracking_003': (PlayerSeat.east, Suit.clubs),
+      };
+      for (final entry in expectedVoids.entries) {
+        final data = jsonDecode(
+          File(
+            'content/scenarios/v1/play/${entry.key}.json',
+          ).readAsStringSync(),
+        );
+        final scenario = PlayScenario.fromJson(data);
+        final (seat, suit) = entry.value;
+        expect(
+          knownVoidSuits(
+            seat: seat,
+            observedTricks: scenario.situation.observedTricks,
+            currentTrick: scenario.situation.currentTrick,
+          ),
+          {suit},
+          reason: '${entry.key} coaching depends on this derived void',
+        );
+      }
+    },
+  );
+
+  test(
+    'play_void_tracking_001 requires the observed void to justify its rating',
+    () {
+      final data = jsonDecode(
+        File(
+          'content/scenarios/v1/play/play_void_tracking_001.json',
+        ).readAsStringSync(),
+      );
+      final scenario = PlayScenario.fromJson(data);
+      final withoutHistory = PlayScenario.fromJson(
+        (jsonDecode(jsonEncode(data)) as Map<String, dynamic>)
+          ..['situation'].remove('observed_tricks'),
+      );
+      expect(
+        knownVoidSuits(
+          seat: PlayerSeat.west,
+          observedTricks: scenario.situation.observedTricks,
+          currentTrick: scenario.situation.currentTrick,
+        ),
+        {Suit.diamonds},
+      );
+      expect(
+        knownVoidSuits(
+          seat: PlayerSeat.west,
+          observedTricks: withoutHistory.situation.observedTricks,
+          currentTrick: withoutHistory.situation.currentTrick,
+        ),
+        isEmpty,
+        reason:
+            'without the observed trick, nothing in this situation reveals '
+            "West's void — the rating genuinely depends on the shown history, "
+            'not on decorative evidence',
+      );
+      expect(
+        scenario.evaluate(GameCard.parse('3D'))!.rating,
+        DecisionRating.strong,
+      );
+      expect(
+        scenario.evaluate(GameCard.parse('KD'))!.rating,
+        DecisionRating.risky,
+      );
+    },
+  );
 }
