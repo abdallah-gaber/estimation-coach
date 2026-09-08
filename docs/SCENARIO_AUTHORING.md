@@ -346,10 +346,15 @@ cover phase boundaries, bid order, Dash participation and feedback coverage.
 and optional `author_notes` conventions. IDs must be unique across bidding and
 play. The hand contains 1–13 remaining cards rather than exactly 13.
 
-See [the complete synthetic fixture](../test/fixtures/play_contract.json). It is
-an executable contract example, **not reviewed training content**, and is not
-bundled. Reviewed play content belongs in `content/scenarios/v1/play/`; two
-scenarios there (EC-047) are bundled and connected to the Play practice screen.
+See [the complete synthetic fixture](../test/fixtures/play_contract.json) for
+the schema/parser contract itself — it is an executable contract example,
+**not reviewed training content**, and is not bundled.
+
+For reviewed, bundled examples, read the two files under
+`content/scenarios/v1/play/` directly (`play_safe_probable_001.json`,
+`play_safe_probable_002.json`); see their review in
+[COACHING_REVIEW.md](COACHING_REVIEW.md#first-play-pack-review-ec-047). Avoid
+maintaining a second, divergent copy of their content in this guide.
 
 ### Public situation
 
