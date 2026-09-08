@@ -452,7 +452,14 @@ No feature development happens directly on `main`.
 
 ### Branch policy
 
-Every meaningful change starts from updated `main`.
+Every meaningful change starts from updated `main`. Create the branch
+**before** making any file changes — never start editing on `main` (or on an
+already-merged branch) and move the work onto a new branch afterward.
+
+Branch names use a conventional `<type>/<short-description>` prefix:
+`feat`, `fix`, `docs`, `chore`, `refactor`, or `test`. Do not prefix branches
+with an agent name (`codex/…`) or any other tool identifier — the prefix
+describes the kind of change, not who or what made it.
 
 Naming examples:
 
@@ -485,6 +492,15 @@ merge to main
 ```
 
 Never commit feature work directly to `main`.
+
+### PR access
+
+Agents open PRs with the GitHub CLI (`gh pr create`), not by only pushing a
+branch and handing the human a compare link. If `gh` is missing or not
+authenticated in the working environment, set it up once (install it, then
+run `gh auth login`) rather than treating every session as unable to create
+PRs; ask the human to complete the interactive/browser part of `gh auth
+login` themselves so credentials never pass through the agent.
 
 ### PR rules
 
