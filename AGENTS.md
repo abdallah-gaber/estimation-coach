@@ -420,6 +420,8 @@ Therefore:
 - inspect the existing code before proposing replacement architecture;
 - make the smallest coherent change;
 - keep documentation synchronized;
+- update `PROJECT_TRACKER.md` and `docs/DECISIONS.md` in place rather than
+  start a competing status/decision file;
 - leave the repository in a buildable/testable state.
 
 ### Agents must not
@@ -428,9 +430,16 @@ Therefore:
 - depend on hidden conversation history;
 - assume previous agent context;
 - place essential knowledge only inside prompts/chats;
-- rewrite unrelated files;
+- rewrite unrelated files or perform cleanup unrelated to the current change;
 - silently change product scope;
-- silently change game rules.
+- silently change or invent game rules — flag an undocumented or ambiguous
+  rule instead of guessing it;
+- present scenario coaching judgments as proven merely because schema/domain
+  validation or tests pass — that validates structure and rule legality, not
+  coaching quality (see `docs/COACHING_REVIEW.md`);
+- commit agent-specific configuration (e.g. `.claude/`, `.cursor/`, `.codex/`)
+  unless it is deliberately adopted as a project-wide tool and documented as
+  such.
 
 Anything another contributor needs later must live in the repository.
 
@@ -452,7 +461,17 @@ No feature development happens directly on `main`.
 
 ### Branch policy
 
-Every meaningful change starts from updated `main`.
+Every meaningful change starts from updated `main`. Create the branch
+**before** making any file changes — never start editing on `main` (or on an
+already-merged branch) and move the work onto a new branch afterward.
+
+Branch names use a conventional `<type>/<short-description>` prefix. `feat`,
+`fix`, `docs`, `chore`, `refactor` and `test` cover application/process
+changes; `content` covers content-only scenario additions (see
+`docs/SCENARIO_AUTHORING.md`), since scenario content is deliberately
+independent from application code. Do not prefix branches with an agent or
+tool name (`codex/…`, `claude/…`, `chatgpt/…`, or similar) — the prefix
+describes the kind of change, not which agent or tool made it.
 
 Naming examples:
 
@@ -464,6 +483,7 @@ feat/play-table-ui
 fix/trump-evaluation
 docs/scenario-format
 chore/flutter-bootstrap
+content/bidding-dash-pack-01
 ```
 
 ### Workflow
@@ -485,6 +505,27 @@ merge to main
 ```
 
 Never commit feature work directly to `main`.
+
+### PR access
+
+Do not assume a specific tool is available for opening pull requests —
+different agents run in different environments. Use whatever the current
+environment already provides:
+
+- If the environment offers a GitHub integration/API (a connector, a
+  pre-authenticated CLI, etc.), use it to open the PR directly.
+- If the GitHub CLI (`gh`) happens to already be installed and authenticated,
+  it may be used the same way.
+- Never request, handle, copy, or store the human's credentials or tokens.
+  Do not install or authenticate a tool merely because one particular agent
+  prefers it — that is a personal workflow choice, not a repository
+  requirement.
+- If PR creation is unavailable in the current environment, push the branch
+  (when possible) and hand off explicitly: branch name, base branch, the
+  proposed PR title/body, current validation status (tests/build/lint), and
+  the exact remaining manual step (e.g. "open a PR from this branch").
+
+No specific tool, including `gh`, is a repository requirement.
 
 ### PR rules
 
