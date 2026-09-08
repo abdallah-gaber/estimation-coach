@@ -62,14 +62,84 @@ void main() {
     await tap(tester, 'Enter bidding');
     await tester.tap(find.byTooltip('Play table preview'));
     await tester.pumpAndSettle();
-    expect(
-      find.text('Layout and card selection demo · No coaching yet'),
-      findsOneWidget,
-    );
+    expect(find.text('Card play demo · No coaching yet'), findsOneWidget);
     await tester.pageBack();
     await tester.pumpAndSettle();
     expect(find.text('Strong decision'), findsOneWidget);
     expect(find.text('Your choice · Enter bidding'), findsOneWidget);
+  });
+
+  testWidgets(
+    'commit moves one card to the table, locks the hand, and resets',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(home: PlayTablePreviewScreen()),
+      );
+      expect(
+        tester
+            .widget<FilledButton>(
+              find.widgetWithText(FilledButton, 'Play card'),
+            )
+            .onPressed,
+        isNull,
+      );
+      await tester.ensureVisible(card('9H'));
+      await tester.tap(card('9H'));
+      await tester.pumpAndSettle();
+      await tap(tester, 'Play card');
+      expect(find.text('Played: Nine of Hearts'), findsOneWidget);
+      expect(find.text('Card played'), findsOneWidget);
+      expect(tester.widget<PlayingCard>(card('9H')).readOnly, isTrue);
+      expect(tester.widget<PlayingCard>(card('3H')).onTap, isNull);
+      expect(find.byType(PlayingCard), findsNWidgets(7));
+      expect(find.text('Taken: 3'), findsOneWidget);
+      await tap(tester, 'Reset hand');
+      expect(find.text('Your turn'), findsOneWidget);
+      expect(tester.widget<PlayingCard>(card('9H')).readOnly, isFalse);
+      expect(tester.widget<PlayingCard>(card('9H')).onTap, isNotNull);
+    },
+  );
+
+  testWidgets('reduced motion commits without an animation overlay', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(context).copyWith(disableAnimations: true),
+          child: child!,
+        ),
+        home: const PlayTablePreviewScreen(),
+      ),
+    );
+    await tester.ensureVisible(card('3H'));
+    await tester.tap(card('3H'));
+    await tester.pump();
+    await tap(tester, 'Play card');
+    expect(find.text('Played: Three of Hearts'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('leaving during a card flight cleans up the overlay', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(home: BiddingTrainingScreen(loader: () async => pack())),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Play table preview'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(card('9H'));
+    await tester.tap(card('9H'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Play card'));
+    await tester.tap(find.text('Play card'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('Dash or enter?'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   for (final scale in [1.0, 2.0]) {
@@ -94,7 +164,9 @@ void main() {
       await tester.ensureVisible(card('9H'));
       await tester.tap(card('9H'));
       await tester.pumpAndSettle();
-      await tap(tester, 'Clear selection');
+      await tap(tester, 'Play card');
+      expect(find.text('Played: Nine of Hearts'), findsOneWidget);
+      await tap(tester, 'Reset hand');
       expect(tester.takeException(), isNull);
     });
   }

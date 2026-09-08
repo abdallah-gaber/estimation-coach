@@ -334,15 +334,39 @@ rendering/selection and 320px tests at 1x/2x text checked.
 ---
 
 ## EC-041 — Card play interaction
-**Status:** BACKLOG
+**Status:** DONE
 
 Allow the player to choose and play a legal card.
+
+Implemented on `codex/card-play-interaction`: single legal-card commitment from
+the hand to the current trick, reusing existing follow-suit legality. A short
+hand-to-table flight animates the commit and is skipped under reduced-motion
+settings; further play locks during flight and after commitment. Reset hand
+restores the fixture, and the overlay is cleaned up if the route is left mid-
+animation. Winner resolution, scoring and coaching remain deferred to EC-047;
+233 tests, formatting, analysis and web build pass, including 320px/large-text
+coverage.
 
 ### Acceptance criteria
 - Legal cards are tappable.
 - Illegal cards are visually disabled.
 - Selected card receives clear feedback.
 - Card moves to the current trick with a simple animation.
+
+---
+
+## EC-047 — First coached play session
+**Status:** READY
+
+Connect reviewed portable play scenarios to the table interaction after EC-041.
+Split out to keep the card-commit checkpoint within the remaining session budget.
+
+### Acceptance criteria
+- Load a small reviewed pack through PlayScenario and reject incomplete feedback.
+- Commit legal cards and show authored decision quality separately from outcome.
+- Support retry, next scenario and session completion with navigation tests.
+- Confirm and document trick-winner rules before coaching depends on them.
+- Keep training content out of widgets and preserve bidding progress.
 
 ---
 

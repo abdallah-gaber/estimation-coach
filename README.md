@@ -161,7 +161,7 @@ mid-hand play yet.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/play-scenario-contract
+git switch codex/card-play-interaction
 flutter pub get
 flutter run -d chrome
 ```
@@ -204,13 +204,17 @@ generated but unvalidated; use `flutter devices` to see available targets.
 4. In your remaining hand, tap 3 Hearts, then 9 Hearts. Selection moves;
    tap again to deselect or use **Clear selection**. Ace Spades and 2 Clubs
    are locked because you hold Hearts.
-5. Back returns to the same bidding hand and any feedback already displayed.
-6. At 320px width and large text, scroll through the table and hand. Seat labels,
+5. Select a Heart and tap **Play card**. It moves to the current trick and
+   disappears from the remaining hand. Further play is locked; **Reset hand**
+   restores the demo. Taken counts stay unchanged because no winner is resolved.
+6. Back returns to the same bidding hand and any feedback already displayed.
+7. At 320px width and large text, scroll through the table and hand. Seat labels,
    suit shapes, cards and selection controls should remain readable.
 
-This is a layout/selection specimen. It does not play the selected card, resolve
-a winner, or grade your choice. EC-044 introduces portable play scenarios before
-coached play replaces the fixture; EC-041 adds card commitment/movement.
+This is a one-card interaction specimen. It commits the selected card without
+resolving a winner or grading the choice. EC-047 will connect the completed
+portable play contract to reviewed coaching. Reduced-motion settings skip the
+card flight.
 
 Egyptian Arabic language switching and local game terminology are tracked in
 EC-060. The language option is not implemented yet. The owner-confirmed

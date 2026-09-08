@@ -45,6 +45,18 @@ participate in normal bidding for tricks/trump. Dash must not be presented as an
 alternative to raising an existing normal bid. Normal bids and a pre-bidding Dash
 decision belong to distinct phases of the training flow.
 
+## Trick winners
+
+Owner-confirmed on 2026-09-08:
+
+- Highest card of the led suit wins unless at least one trump is played.
+- If trump is played, the highest trump wins.
+- Rank order is A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2.
+- In Sans (صنز), only cards of the led suit can win.
+
+These rules are confirmed for upcoming coached play. The current card-interaction
+preview does not yet resolve a winner or update taken counts.
+
 ## Scope
 
 Only normal bidding rounds are in the first MVP. Special late-game rounds and
