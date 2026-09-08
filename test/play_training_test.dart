@@ -16,7 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'bidding_training_test.dart' show pack, tap;
 
 List<PlayScenario> playPack() => [
-  for (final id in ['play_card_tracking_001', 'play_safe_probable_001'])
+  for (final id in ['play_safe_probable_001', 'play_safe_probable_002'])
     PlayScenario.fromJson(
       jsonDecode(File('content/scenarios/v1/play/$id.json').readAsStringSync()),
     ),
@@ -167,13 +167,16 @@ void main() {
   testWidgets('reduced motion commits without an animation overlay', (
     tester,
   ) async {
+    final trumpScenario = playPack().firstWhere(
+      (s) => s.id == 'play_safe_probable_002',
+    );
     await tester.pumpWidget(
       MaterialApp(
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(disableAnimations: true),
           child: child!,
         ),
-        home: PlayTrainingScreen(loader: () async => playPack()),
+        home: PlayTrainingScreen(loader: () async => [trumpScenario]),
       ),
     );
     await tester.pumpAndSettle();
@@ -198,8 +201,8 @@ void main() {
       await loadPlayScenarios();
     });
     await tester.pumpAndSettle();
-    await tester.ensureVisible(card('2S'));
-    await tester.tap(card('2S'));
+    await tester.ensureVisible(card('AH'));
+    await tester.tap(card('AH'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Play card'));
     await tester.tap(find.text('Play card'));
@@ -217,6 +220,9 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
+      final trumpScenario = playPack().firstWhere(
+        (s) => s.id == 'play_safe_probable_002',
+      );
       await tester.pumpWidget(
         MaterialApp(
           builder: (context, child) => MediaQuery(
@@ -225,7 +231,7 @@ void main() {
             ).copyWith(textScaler: TextScaler.linear(scale)),
             child: child!,
           ),
-          home: PlayTrainingScreen(loader: () async => playPack()),
+          home: PlayTrainingScreen(loader: () async => [trumpScenario]),
         ),
       );
       await tester.pumpAndSettle();

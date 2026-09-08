@@ -161,7 +161,7 @@ winner resolution or scoring yet.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/card-play-interaction
+git switch codex/first-coached-play-session
 flutter pub get
 flutter run -d chrome
 ```
@@ -200,15 +200,16 @@ generated but unvalidated; use `flutter devices` to see available targets.
 2. Verify North above, West left, East right, and **You · South** below the
    current trick, with the leader's seat labelled **Led &lt;suit&gt;** and the
    other two opponents labelled with their taken-trick count.
-3. **Situation 1 of 2** ("The last spade wins an open trick"): you are void
-   in the led suit, so both 2 of Spades (trump) and 7 of Clubs are legal.
-   Play the 2 of Spades: expect **Strong decision** — it wins the open trick
-   outright since you act last. Try **Try another choice**, then play 7 of
-   Clubs instead: expect **Weak decision** for giving away a needed trick.
-4. Choose **Next situation**: hand 2 ("A free trick with the ace of Hearts")
-   loads. Hearts were led; the 2 of Clubs and 5 of Diamonds are locked because
-   you hold Hearts. Playing the ace is **Strong decision**; playing the three
-   is **Weak decision**.
+3. **Situation 1 of 2** ("A free trick with the ace of Hearts"): Hearts were
+   led; the 2 of Clubs and 5 of Diamonds are locked because you hold Hearts.
+   Playing the ace is **Strong decision**; playing the three is **Weak
+   decision**.
+4. Choose **Next situation**: hand 2 ("The last spade wins an open trick")
+   loads. You are void in the led suit, so both 2 of Spades (trump) and 7 of
+   Clubs are legal. Play the 2 of Spades: expect **Strong decision** — it wins
+   the open trick outright since you act last. Try **Try another choice**,
+   then play 7 of Clubs instead: expect **Weak decision** for giving away a
+   needed trick.
 5. Selecting a card moves it visually into the current trick with a short
    flight animation and locks further play; reduced-motion settings skip the
    flight. Open **Why?** for the evidence, same as bidding feedback.

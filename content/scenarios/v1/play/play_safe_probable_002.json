@@ -2,11 +2,11 @@
   "scenario_version": 1,
   "rules_version": "game_rules_v1",
   "type": "play",
-  "id": "play_card_tracking_001",
+  "id": "play_safe_probable_002",
   "title": "The last spade wins an open trick",
   "difficulty": "beginner",
-  "primary_skill": "card_tracking",
-  "skills": ["card_tracking", "safe_vs_probable"],
+  "primary_skill": "safe_vs_probable",
+  "skills": ["safe_vs_probable"],
   "player_position": "south",
   "hand": ["2S", "7C"],
   "situation": {
@@ -44,7 +44,7 @@
         "points": [
           "The two of Spades cannot be saved for later; it is your only remaining card after this trick.",
           "Passing on a guaranteed win now leaves the target depending on an uncertain final trick.",
-          "There is no benefit to withholding trump here since it must be played next regardless."
+          "Whether trump would still win the final trick is not known from here; this trades a certain trick now for an unresolved one later."
         ]
       }
     }

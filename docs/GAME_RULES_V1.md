@@ -54,8 +54,9 @@ Owner-confirmed on 2026-09-08:
 - Rank order is A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2.
 - In Sans (صنز), only cards of the led suit can win.
 
-These rules are confirmed for upcoming coached play. The current card-interaction
-preview does not yet resolve a winner or update taken counts.
+These rules are used as authored reasoning in Play practice's coaching (EC-047),
+but no resolver implements them: the app does not compute a trick winner or
+update taken counts from a play.
 
 ## Scope
 

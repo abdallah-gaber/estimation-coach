@@ -247,8 +247,8 @@ are not followed. Errors identify the file and field; scanning continues.
 ## Required bidding context
 
 Scenario v1 supports bidding and single-decision play with
-`rules_version: game_rules_v1`. Bidding is bundled in the app; play parsing and
-validation are available for authoring, with UI integration still pending. Every
+`rules_version: game_rules_v1`. Both are bundled in the app: bidding in Bid
+Practice, and a small reviewed play pack in Play Practice (EC-047). Every
 bidding file requires:
 
 - `rules_version`: exactly `game_rules_v1`.
@@ -410,11 +410,12 @@ dart run tool/validate_scenarios.dart --require-complete test/fixtures/play_cont
 flutter test test/scenarios/play_scenario_test.dart
 ```
 
-Expected: the synthetic fixture passes strict checks. Default validation still
-scans the production content directory, currently containing ten bidding hands.
-Mixed bidding/play catalogs receive the same schema, domain, duplicate-ID and
-coverage checks. Syntax errors include field paths; relational snapshot errors
-are reported under `$.situation`. Bidding compatibility remains tested.
+Expected: the synthetic fixture passes strict checks. Default validation scans
+the production content directory, currently containing ten bidding hands and
+two reviewed play situations. Mixed bidding/play catalogs receive the same
+schema, domain, duplicate-ID and coverage checks. Syntax errors include field
+paths; relational snapshot errors are reported under `$.situation`. Bidding
+compatibility remains tested.
 
 Do not use extra fields to invent known voids, a continuation, trick winners, or
 outcomes. Those need documented extensions and reviewed content in later tasks.

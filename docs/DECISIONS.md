@@ -300,11 +300,16 @@ behavior from EC-041 is preserved unchanged, now parameterized by each
 scenario's `PlaySituation` instead of a static fixture.
 
 The first pack is intentionally small: two scenarios (four evaluated legal
-choices) covering the `safe_vs_probable` and `card_tracking` MVP coaching
-concepts from AGENTS.md, both using the confirmed last-to-act trick-winner
-rule from `docs/GAME_RULES_V1.md#trick-winners` as their reasoning — without
-implementing a winner resolver. Void-tracking and exact-bid-protection content
-packs remain separate, deliberately out of scope (EC-042/043).
+choices), both tagged `safe_vs_probable` and both using the confirmed
+last-to-act trick-winner rule from `docs/GAME_RULES_V1.md#trick-winners` as
+their reasoning — without implementing a winner resolver. `play_safe_probable_002`
+was drafted and briefly tagged `card_tracking`, but that scenario only asks
+the player, acting last, to recognize that a guaranteed trump win beats
+discarding; it does not test tracking previously played cards or deduced void
+information (that is EC-042's subject), so `card_tracking` would have been a
+misleading skill label. It was retagged before this checkpoint's coaching
+review (see `docs/COACHING_REVIEW.md`). Void-tracking and exact-bid-protection
+content packs remain separate, deliberately out of scope (EC-042/043).
 
 ## Decision template
 

@@ -31,7 +31,7 @@
         "points": [
           "No card already played can beat an ace, and no one plays after you this trick.",
           "The target needs three more tricks from the four remaining; this one is guaranteed if you take it.",
-          "Winning here costs nothing: the ace has no other job to do in this trick."
+          "Taking it now converts an already-decided trick into progress toward the target, rather than leaving that progress to a later, unresolved trick."
         ]
       }
     },
@@ -40,11 +40,11 @@
       "rating": "weak",
       "feedback": {
         "title": "Giving away a guaranteed trick",
-        "summary": "Playing the three lets the eight of Hearts win instead, handing over a trick your target still needs for no benefit.",
+        "summary": "Playing the three lets the eight of Hearts win instead, and the target still needs three of the remaining four tricks.",
         "points": [
-          "The trick is already decided by whichever card you choose; there is no later play left to protect.",
+          "The trick is already decided by whichever card you choose; this specific trick will not come back for the ace to win later.",
           "The target still needs three of the remaining four tricks, so this trick should not be given away.",
-          "Holding the ace back does not help here: it will not face a stronger card this trick."
+          "Whichever Heart you keep is played in a later trick regardless; keeping the ace back does not change how this trick is decided right now."
         ]
       }
     }
