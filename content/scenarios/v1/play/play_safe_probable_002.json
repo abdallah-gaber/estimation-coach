@@ -10,10 +10,10 @@
   "player_position": "south",
   "hand": ["2S", "7C"],
   "situation": {
-    "leader": "north",
+    "leader": "east",
     "current_trick": [
-      {"player": "north", "card": "9D"},
-      {"player": "east", "card": "QD"},
+      {"player": "east", "card": "9D"},
+      {"player": "north", "card": "QD"},
       {"player": "west", "card": "2D"}
     ],
     "trump": "spades",

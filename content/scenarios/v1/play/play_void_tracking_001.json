@@ -1,0 +1,60 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_void_tracking_001",
+  "title": "Save the king from a known void",
+  "difficulty": "beginner",
+  "primary_skill": "void_tracking",
+  "skills": ["void_tracking", "safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["KD", "3D"],
+  "situation": {
+    "leader": "north",
+    "current_trick": [
+      {"player": "north", "card": "5D"},
+      {"player": "west", "card": "9D"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 3, "south": 3, "west": 2},
+    "auction_bid": {"tricks": 4, "trump": "spades"},
+    "observed_tricks": [
+      [
+        {"player": "south", "card": "7D"},
+        {"player": "east", "card": "6C"},
+        {"player": "north", "card": "10D"},
+        {"player": "west", "card": "AD"}
+      ]
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "3D"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Save the king; the ace is already gone",
+        "summary": "East has already shown void in Diamonds and is free to trump this trick no matter which Diamond you play; playing the low card avoids exposing your king to that known void, keeping its winning potential for later instead of spending it here.",
+        "points": [
+          "The earlier trick shows East playing a club when Diamonds were led, so East holds no more Diamonds this hand and is free to trump this one.",
+          "The ace of Diamonds is already out, so the king is the highest Diamond left — it keeps genuine winning potential once it is not exposed to East's known void.",
+          "The target still needs one more trick from the two remaining; this avoids spending the king on a trick East controls, without giving up on it."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "KD"},
+      "rating": "risky",
+      "feedback": {
+        "title": "Risking your best card on a trick you don't control",
+        "summary": "East's confirmed void means East decides whether this trick is trumped, regardless of which Diamond you play, so leading with the king exposes your best remaining card to that known void for a trick you don't control.",
+        "points": [
+          "The earlier trick already showed East void in Diamonds — East can trump this trick with any spade no matter which Diamond you offer.",
+          "If East trumps, the king is spent for nothing, and only the weak three is left for the final trick the target still needs.",
+          "The three loses this trick just as surely as a trumped king would, but keeps the king in hand as a genuine option for later."
+        ]
+      }
+    }
+  ],
+  "author_notes": "First void-tracking scenario (EC-042). The void is derived from the observed trick (East failed to follow Diamonds), never authored as a flat fact. This is the flagship case: the correct choice flips from the naive 'always lead your best card' instinct once the void is accounted for. Seat order corrected to the owner-confirmed North -> West -> South -> East rotation; East (not West) is the seat that plays after South and can still trump."
+}

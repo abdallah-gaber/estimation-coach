@@ -10,16 +10,16 @@ not, by itself, a complete MVP.
 | 1: Flutter bootstrap | Complete | Runnable app, reusable cards, required CI |
 | 2: Initial domain core | Complete | Cards, follow-suit and canonical bidding rules, bidding content validation |
 | 3: Bidding coach | Complete | Ten reviewed hands, 53 evaluated choices, concise deterministic coaching |
-| 4: Mid-hand training | In progress | One-card commit with authored coaching (EC-041/046/047); void-tracking and exact-bid packs (EC-042/043) remain |
+| 4: Mid-hand training | In progress | One-card commit, safe/probable and derived void-tracking coaching (EC-041/046/047/042); exact-bid pack (EC-043) remains |
 | 5: Personal coaching | Not started | Skill aggregation, persistent decisions and weak-area recommendations remain |
 | English/مصري | Planned | Glossary confirmed; language switching and translated content remain |
 | Training hub and release acceptance | Planned | Navigation/progress overview and final acceptance tests remain |
 
 ## Remaining delivery path
 
-1. Add reviewed void-tracking and exact-bid exercises (EC-042/043), including
-   meaningful consequences/continuation where needed. Trick-winner resolution
-   is documented (`docs/GAME_RULES_V1.md#trick-winners`) but not yet implemented;
+1. Add reviewed exact-bid-protection exercises (EC-043), including meaningful
+   consequences/continuation where needed. Trick-winner resolution is
+   documented (`docs/GAME_RULES_V1.md#trick-winners`) but not yet implemented;
    confirm any further rules needed before relying on turn order or scoring.
 2. Define skills, save decision history locally, and recommend practice from
    actual weaknesses (EC-050/051/052).
@@ -30,7 +30,7 @@ not, by itself, a complete MVP.
    translation into separate checkpoints if necessary.
 5. Complete user acceptance and fix issues on the intended device (EC-054).
 
-Planning estimate: **6–10 bounded implementation/review checkpoints**, then any
+Planning estimate: **5–9 bounded implementation/review checkpoints**, then any
 fixes uncovered during acceptance. This is a scope estimate, not a promised
 date or fixed number of PRs. Content review, unresolved rules, localization
 testing and user feedback may increase it. Calendar completion also depends on

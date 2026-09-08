@@ -386,9 +386,38 @@ to EC-042/043.
 ---
 
 ## EC-042 — Void tracking scenarios
-**Status:** BACKLOG
+**Status:** DONE
 
 Create scenarios that coach observation of void suits.
+
+Implemented on `feat/void-tracking-scenarios`: `PlaySituation` gains optional
+`observedTricks` (curated prior tricks, never a claim of full history), and
+`lib/core/game_rules/void_tracking.dart` derives known-void suits purely from
+observed off-suit play using the confirmed EC-021 follow-suit rule — no
+`known_voids` field or other authored void metadata exists anywhere. Schema,
+parser and validator extended accordingly. Three reviewed scenarios
+(`play_void_tracking_001`–`003`) ship in `content/scenarios/v1/play/`; one is
+authored so its rating changes once the void is accounted for, and a
+regression test confirms the stated rationale genuinely depends on the
+observed evidence (not an algorithmic proof of optimality — ratings remain
+authored judgment). `PlayTrainingScreen` shows a
+compact, de-emphasized "Observed play" section above the current trick. See
+[COACHING_REVIEW.md](docs/COACHING_REVIEW.md#void-tracking-pack-review-ec-042)
+and [D-018](docs/DECISIONS.md) for the full design rationale. Winner
+resolution, scoring and EC-043 remain deferred.
+
+The owner confirmed the canonical counter-clockwise play direction
+(North → West → South → East → North) on 2026-09-08. `lib/core/game_rules/
+seat_rotation.dart` (`rotationFrom`) is the single source of seat succession,
+used by `PlaySituation`'s `currentTrick` validation and `ObservedTrick`'s own
+constructor. Every existing play scenario (including the two EC-047
+originals and the synthetic contract fixture) was re-verified and, where
+needed, corrected against this rotation. All three void-tracking scenarios'
+seat assignments changed: South is 3rd to act only when North leads, so the
+seat that plays after South is **East**, not West as originally authored —
+their strategic ratings were re-reviewed and are unaffected in substance
+(the coaching lesson still holds), only the seat identity changed. See
+[D-019](docs/DECISIONS.md) for the correction record.
 
 ### Acceptance criteria
 - Scenario can record known void information.

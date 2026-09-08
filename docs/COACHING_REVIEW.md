@@ -162,6 +162,99 @@ authored entry for a legal card, null for a legal card without authored
 feedback, and throws for an illegal card. `loadPlayScenarios` rejects an
 incomplete pack before a session starts, the same as bidding. Neither
 schema/domain validation nor these tests certify coaching quality — that is
-this review. Both scenarios are single-decision snapshots; no trick winner is
-computed by the app, no outcome is simulated, and taken-trick counts are not
-updated after a commit.
+this review. Every play scenario is a single-decision snapshot; no trick
+winner is computed by the app, no outcome is simulated, and taken-trick
+counts are not updated after a commit.
+
+## Void-tracking pack review (EC-042)
+
+Reviewed during implementation on 2026-09-08. All three scenarios live under
+`content/scenarios/v1/play/` and add `observed_tricks`: prior tricks visible
+to the player, from which void suits are *derived* (`lib/core/game_rules/
+void_tracking.dart`), never authored as a flat fact. The derivation rests on
+the already-confirmed [follow-suit rule](GAME_RULES.md#ec-021-following-suit):
+a seat that could follow the led suit must, so an observed off-suit play
+proves that seat held none of it. No new game rule is introduced by this
+pack; `docs/GAME_RULES_V1.md#trick-winners` remains unimplemented and unused
+here, same as the earlier pack.
+
+### `play_void_tracking_001` — Save the king from a known void
+
+**Teaches:** the flagship lesson — the correct choice *changes* once a known
+void is accounted for. Diamonds are led; the player holds the king and a low
+Diamond and must follow suit. The naive instinct ("play your best card") says
+king; the void-aware read says three.
+
+**Ratings:** playing the three is `strong` — East is already shown void in
+Diamonds (an earlier trick: Diamonds led, East played a club) and is free to
+trump this trick regardless of which Diamond is offered, so playing the king
+would expose it to that known void for no gain; the ace of Diamonds is
+already out, so the king is the highest Diamond left and keeps genuine
+winning potential once it is not exposed here. Playing the king is `risky` —
+not `weak`, because there is a genuine (if unlikely) chance East declines to
+trump and the king wins outright; the avoidable risk is exposing the best
+remaining card to a known void on a trick you do not control, when an
+equally-losing, cost-free alternative (the three) is available. Neither
+rating claims the retained king is *guaranteed* to win a future trick — only
+that keeping it avoids a known, avoidable exposure.
+
+**What makes this deterministic:** the observed trick shows East playing a
+club when Diamonds were led — sound proof of void by the follow-suit rule,
+not a guess. The ace being already played is a plain fact from the same
+observed trick. Whether East *chooses* to trump is not claimed as certain —
+only that East is *free* to. Whether the preserved king actually wins some
+later trick is not claimed either; no future trick is modeled. East is the
+seat that plays after South here (owner-confirmed rotation, leader North:
+North → West → South → East).
+
+**Confirmed non-decorative:** `test/scenarios/play_scenario_test.dart`
+asserts that removing `observed_tricks` from this file leaves nothing in the
+situation that reveals East's void, i.e. the authored rating's stated
+rationale genuinely depends on the shown history. This is not an algorithmic
+proof that the rating is the objectively optimal decision — ratings remain
+authored judgment, the same as every other scenario in this project.
+
+### `play_void_tracking_002` — No trump can save this trick
+
+**Teaches:** in Sans, a known void is not merely risky for the void player —
+it is a *guarantee* for everyone else, since game_rules_v1 states only the
+led suit can win in Sans. East is shown void in Hearts; the player holds the
+king and a low Heart, already ahead of North's and West's cards.
+
+**Ratings:** the king is `strong` — East cannot add a Heart (confirmed void),
+and in Sans a card that cannot follow suit can never win, so no card left in
+this trick can beat the king. The two is `weak` — the king guarantees this
+specific trick in Sans, and the target's exact estimate still requires both
+of the two remaining tricks, so conceding a trick that is already certain
+moves it into the harder, uncertain remainder for no offsetting benefit
+identified in this situation.
+
+**What makes this deterministic:** the observed trick's void evidence plus
+the Sans-only-led-suit-wins rule combine to a closed case — no opponent
+behavior needs to be predicted, unlike the trump-round scenarios.
+
+### `play_void_tracking_003` — The same trap in a different suit
+
+**Teaches:** a second, independent instance of `play_void_tracking_001`'s
+"preserve your master card against a known void" pattern — same seat (East,
+the seat that plays after South whenever North leads), different suit
+(Clubs) and trump (Hearts) — reinforcing pattern recognition rather than one
+memorized case. Ratings and reasoning mirror `_001` exactly, substituting
+Clubs for Diamonds.
+
+### Runtime contract (void tracking)
+
+`knownVoidSuits` (`lib/core/game_rules/void_tracking.dart`) is pure and
+independently tested from the parser/UI (`test/core/game_rules/
+void_tracking_test.dart`): following suit never infers a void; an off-suit
+play always does; repeated evidence for the same suit deduplicates; a player
+can be void in several suits at once; an empty trick (leading) is skipped
+safely; the in-progress current trick can reveal a void just as validly as an
+earlier one; and loading the pre-existing `safe_vs_probable` scenarios (no
+`observed_tricks`) still resolves to no known voids anywhere. `observed_tricks`
+is an author-curated, visible *subset* of prior play — not a claim that it is
+the most recent trick or the complete round history. Seat succession
+*within* one trick is validated against the owner-confirmed rotation (see
+[game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation)), but no
+attempt is made to validate leader succession *between* tricks, since that
+would require a trick-winner resolver this project does not have.

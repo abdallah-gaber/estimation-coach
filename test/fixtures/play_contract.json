@@ -10,11 +10,11 @@
   "player_position": "south",
   "hand": ["3H", "9H", "AS", "2C"],
   "situation": {
-    "leader": "west",
+    "leader": "east",
     "current_trick": [
-      {"player": "west", "card": "7H"},
+      {"player": "east", "card": "7H"},
       {"player": "north", "card": "QH"},
-      {"player": "east", "card": "2H"}
+      {"player": "west", "card": "2H"}
     ],
     "trump": "spades",
     "trick_estimate": 1,

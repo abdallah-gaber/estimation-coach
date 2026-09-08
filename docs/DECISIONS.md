@@ -311,6 +311,84 @@ misleading skill label. It was retagged before this checkpoint's coaching
 review (see `docs/COACHING_REVIEW.md`). Void-tracking and exact-bid-protection
 content packs remain separate, deliberately out of scope (EC-042/043).
 
+## D-018 — Derive void tracking from observed play, never author it as a fact
+
+**Status:** Accepted
+
+EC-042 adds `observedTricks` to `PlaySituation`: an optional list of
+`ObservedTrick`, each exactly four `SeatPlay`s (one per seat, first is that
+trick's own leader). It represents prior tricks the player can see for the
+current decision — an author-curated, visible *subset* of history, not a
+claim of recency (it is never labelled "the last trick") or of the round's
+complete history. Its cards must not duplicate the hand, current trick, or
+each other, and its length cannot exceed the completed-trick total implied
+by `tricksTaken`; no cross-trick leader-succession check is performed, since
+that would require a trick-winner resolver this project does not have.
+
+Known-void suits are always *derived*, never authored: `knownVoidSuits`
+(`lib/core/game_rules/void_tracking.dart`) scans a seat's plays across
+`observedTricks` and the unfinished `currentTrick` uniformly (an empty trick,
+e.g. when leading, is skipped safely) and infers a void from any off-suit
+play, using the already-confirmed EC-021 follow-suit rule as proof — a seat
+that could follow suit must, so failing to do so proves it held none. No
+`known_voids` field, or any other flat void metadata, exists anywhere in the
+schema or content; nothing infers a void from the *absence* of shown history.
+This keeps content and derivable fact from silently drifting apart, and
+avoids inventing a new rule where the existing one already proves the point.
+
+The first pack (EC-042) has three scenarios, all tagged `void_tracking`. At
+least one (`play_void_tracking_001`) is authored so its rating *changes* once
+the observed void is accounted for. A regression test confirms this is not
+decorative: stripping `observed_tricks` leaves nothing else in the situation
+that reveals the void, so the authored rating's stated rationale genuinely
+depends on the shown evidence. This is not an algorithmic proof that the
+rating is the objectively optimal decision — ratings remain authored
+judgment here, same as everywhere else in this project. A second scenario
+uses Sans to show a void becomes a full guarantee rather than a mere risk
+signal, and a third reinforces the first pattern with different cards. The
+UI shows observed tricks as a compact, visually de-emphasized "Observed play"
+section above the current trick; it never displays a live computed void
+badge, since that would hand the player the answer instead of letting them
+read the same history the coaching evidence points back to afterward.
+
+## D-019 — Confirm and enforce the canonical seat rotation; correct EC-042 content
+
+**Status:** Accepted (owner confirmation, 2026-09-08)
+
+The owner confirmed normal-round play is counter-clockwise:
+`North → West → South → East → North`, defining seat succession *within one
+trick* only — not a trick winner, not a full deal/round turn order, and not
+which seat leads the next trick. Documented in
+[game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation).
+
+`lib/core/game_rules/seat_rotation.dart` (`rotationFrom`) is the single pure
+implementation, used by both `PlaySituation` (for `currentTrick`: every play
+must be an ordered prefix of the rotation from `leader`, and `playerPosition`
+must be exactly the next seat) and `ObservedTrick`'s own constructor (all
+four seats, in rotation order from its own first entry). Neither parsers nor
+widgets duplicate this ordering logic. This validates seat succession only —
+not trick-winner resolution or next-trick-leader computation, both still out
+of scope.
+
+D-018's three void-tracking scenarios were authored before this confirmation
+using an unconfirmed, as it turned out impossible, seat sequence (their
+current tricks had South 3rd to act with a *West*-led trick, which the
+confirmed rotation cannot produce — North-led is the only leader that puts
+South 3rd, and its 4th seat is East, not West). All three scenarios' seat
+assignments were corrected: the seat that plays after South is **East**, not
+West as originally authored. The two EC-047 originals
+(`play_safe_probable_001`/`_002`, where South is last to act) and the
+synthetic contract fixture were also re-verified; South is only ever last
+when East leads, so both were corrected from West/North leaders to East.
+
+Each corrected scenario's strategic rating was re-reviewed, not just
+mechanically reseated, since changing who acts after South can change what
+is deterministically knowable. In every case the lesson itself was
+unaffected — only the seat identity changed — because none of the three
+authored ratings depended on anything specific to *which* seat besides "the
+one seat that plays after South," which is now East instead of West. No
+rating changed as a result of this correction.
+
 ## Decision template
 
 Copy this section for future decisions.

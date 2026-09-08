@@ -266,6 +266,47 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
                   ),
                 ],
               ),
+              if (situation.observedTricks.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Observed play',
+                  style: text.labelLarge?.copyWith(color: Colors.white70),
+                ),
+                const SizedBox(height: 8),
+                for (final trick in situation.observedTricks)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final play in trick.plays)
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Opacity(
+                                opacity: 0.7,
+                                child: PlayingCard(
+                                  card: play.card,
+                                  compact: true,
+                                  readOnly: true,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                seatLabel(play.seat),
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+              ],
               const SizedBox(height: 16),
               Text(
                 'Current trick',

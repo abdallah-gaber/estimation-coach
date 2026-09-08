@@ -1,6 +1,7 @@
 import '../cards/cards.dart';
 import 'bidding.dart';
 import 'legal_cards.dart' as rules;
+import 'seat_rotation.dart';
 
 /// An already assigned exact-trick target, not an auction bid or Dash declaration.
 /// 0–13 is a physical bound; this does not define how estimates are assigned.
@@ -20,11 +21,40 @@ final class TrickEstimate {
   int get hashCode => tricks.hashCode;
 }
 
-/// One visible card belonging to a seat in the unfinished current trick.
+/// One visible card belonging to a seat in a trick.
 final class SeatPlay {
   const SeatPlay(this.seat, this.card);
   final PlayerSeat seat;
   final GameCard card;
+}
+
+/// One prior trick the player can see, offered as visible evidence for this
+/// decision — not a claim that it is the most recent trick, or that it is
+/// the complete history of the round. An author may show only the tricks
+/// relevant to the lesson; nothing infers who is void from an *absence* of
+/// shown history, only from an actual observed off-suit play.
+final class ObservedTrick {
+  factory ObservedTrick(Iterable<SeatPlay> plays) {
+    final list = List<SeatPlay>.unmodifiable(plays);
+    if (list.length != PlayerSeat.values.length) {
+      throw ArgumentError('An observed trick has all four seats, once each');
+    }
+    final order = rotationFrom(list.first.seat);
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].seat != order[i]) {
+        throw ArgumentError(
+          'An observed trick must follow the canonical seat rotation from '
+          'its leader (see game_rules_v1)',
+        );
+      }
+    }
+    return ObservedTrick._(list);
+  }
+
+  const ObservedTrick._(this.plays);
+
+  /// Supplied order, beginning with that trick's own leader.
+  final List<SeatPlay> plays;
 }
 
 /// Public information immediately before [playerPosition] chooses a card.
@@ -39,9 +69,11 @@ final class PlaySituation {
     required TrickEstimate trickEstimate,
     required Map<PlayerSeat, int> tricksTaken,
     Bid? auctionBid,
+    Iterable<ObservedTrick> observedTricks = const [],
   }) {
     final plays = List<SeatPlay>.unmodifiable(currentTrick);
     final taken = Map<PlayerSeat, int>.unmodifiable(tricksTaken);
+    final history = List<ObservedTrick>.unmodifiable(observedTricks);
     if (hand.isEmpty) {
       throw ArgumentError('A pending card decision requires a nonempty hand');
     }
@@ -59,24 +91,43 @@ final class PlaySituation {
     }
     // This player has not played into the current trick, so its remaining hand
     // contains exactly one card per unfinished trick in the 13-trick hand.
-    if (taken.values.fold(0, (sum, count) => sum + count) != 13 - hand.length) {
+    final totalCompleted = taken.values.fold(0, (sum, count) => sum + count);
+    if (totalCompleted != 13 - hand.length) {
       throw ArgumentError('Taken counts disagree with the remaining hand');
     }
-    if (plays.isEmpty ? leader != playerPosition : plays.first.seat != leader) {
+    if (history.length > totalCompleted) {
       throw ArgumentError(
-        'Leader must lead this decision or own the first card',
+        'Cannot observe more completed tricks than tricksTaken records',
       );
     }
-    final seats = <PlayerSeat>{};
-    final cards = hand.cards.toSet();
-    for (final play in plays) {
-      if (play.seat == playerPosition || !seats.add(play.seat)) {
+    // Seat succession within the trick follows the canonical rotation from
+    // the leader (see game_rules_v1); this does not resolve a winner or
+    // compute a future trick's leader.
+    final order = rotationFrom(leader);
+    for (var i = 0; i < plays.length; i++) {
+      if (plays[i].seat != order[i]) {
         throw ArgumentError(
-          'A seat cannot play twice or before its own pending decision',
+          'Current trick must follow the canonical seat rotation from the leader',
         );
       }
+    }
+    if (playerPosition != order[plays.length]) {
+      throw ArgumentError(
+        'Player position must be the next seat to act after the current '
+        'trick, per the canonical rotation',
+      );
+    }
+    final cards = hand.cards.toSet();
+    for (final play in plays) {
       if (!cards.add(play.card)) {
         throw ArgumentError('Duplicate card in hand/current trick');
+      }
+    }
+    for (final trick in history) {
+      for (final play in trick.plays) {
+        if (!cards.add(play.card)) {
+          throw ArgumentError('Duplicate card in hand/current/observed play');
+        }
       }
     }
     if (auctionBid != null && auctionBid.trump != trump) {
@@ -93,6 +144,7 @@ final class PlaySituation {
       trickEstimate,
       taken,
       auctionBid,
+      history,
     );
   }
 
@@ -105,6 +157,7 @@ final class PlaySituation {
     this.trickEstimate,
     this.tricksTaken,
     this.auctionBid,
+    this.observedTricks,
   );
 
   final PlayerSeat playerPosition;
@@ -119,6 +172,10 @@ final class PlaySituation {
 
   /// Optional known winning auction bid; never used as this player's estimate.
   final Bid? auctionBid;
+
+  /// Prior tricks visible to the player for this decision. See [ObservedTrick]
+  /// for what this does and does not claim about the round's full history.
+  final List<ObservedTrick> observedTricks;
 
   Suit? get ledSuit =>
       currentTrick.isEmpty ? null : currentTrick.first.card.suit;

@@ -1,18 +1,23 @@
 import 'package:estimation_coach/core/cards/cards.dart';
 import 'package:estimation_coach/core/game_rules/bidding.dart';
 import 'package:estimation_coach/core/game_rules/play_situation.dart';
+import 'package:estimation_coach/core/game_rules/seat_rotation.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  // Default current trick follows the owner-confirmed rotation from East:
+  // East -> North -> West -> South, so South (the default pending player)
+  // is genuinely the last of the four seats to act.
   PlaySituation situation({
     List<String> hand = const ['3H', '9H', 'AS', '2C'],
     PlayerSeat player = PlayerSeat.south,
-    PlayerSeat leader = PlayerSeat.west,
+    PlayerSeat leader = PlayerSeat.east,
     List<SeatPlay>? plays,
     Map<PlayerSeat, int>? taken,
     int estimate = 4,
     Trump trump = Trump.spades,
     Bid? bid,
+    List<ObservedTrick> observed = const [],
   }) => PlaySituation(
     playerPosition: player,
     hand: Hand(hand.map(GameCard.parse)),
@@ -20,9 +25,9 @@ void main() {
     currentTrick:
         plays ??
         [
-          SeatPlay(PlayerSeat.west, GameCard.parse('7H')),
+          SeatPlay(PlayerSeat.east, GameCard.parse('7H')),
           SeatPlay(PlayerSeat.north, GameCard.parse('QH')),
-          SeatPlay(PlayerSeat.east, GameCard.parse('2H')),
+          SeatPlay(PlayerSeat.west, GameCard.parse('2H')),
         ],
     trump: trump,
     trickEstimate: TrickEstimate(estimate),
@@ -35,6 +40,7 @@ void main() {
           PlayerSeat.west: 2,
         },
     auctionBid: bid,
+    observedTricks: observed,
   );
 
   test(
@@ -90,10 +96,34 @@ void main() {
     );
     expect(last.legalChoices, hasLength(1));
   });
-  test('one/two visible plays are accepted without requiring a full trick', () {
-    for (final n in [1, 2]) {
-      final plays = situation().currentTrick.take(n).toList();
-      expect(situation(plays: plays).currentTrick, hasLength(n));
+  test('every rotation prefix is accepted with the matching next player', () {
+    final order = rotationFrom(PlayerSeat.east);
+    final fullPlays = situation().currentTrick;
+    for (var n = 0; n <= 3; n++) {
+      final state = situation(
+        plays: fullPlays.take(n).toList(),
+        player: order[n],
+      );
+      expect(state.currentTrick, hasLength(n));
+      expect(state.currentTrick.map((p) => p.seat), order.take(n));
+    }
+  });
+  test('every one of the four leaders produces a valid rotation', () {
+    for (final leader in PlayerSeat.values) {
+      final order = rotationFrom(leader);
+      expect(order.toSet(), PlayerSeat.values.toSet());
+      final threePlays = [
+        SeatPlay(order[0], GameCard.parse('7H')),
+        SeatPlay(order[1], GameCard.parse('QH')),
+        SeatPlay(order[2], GameCard.parse('2H')),
+      ];
+      final state = situation(
+        leader: leader,
+        plays: threePlays,
+        player: order[3],
+      );
+      expect(state.currentTrick.map((p) => p.seat), order.take(3));
+      expect(state.leader, leader);
     }
   });
   test('defensive copies and exposed collections are immutable', () {
@@ -107,6 +137,71 @@ void main() {
     expect(() => state.currentTrick.clear(), throwsUnsupportedError);
     expect(() => state.tricksTaken.clear(), throwsUnsupportedError);
     expect(() => state.legalChoices.clear(), throwsUnsupportedError);
+  });
+  // West leads; canonical rotation from West is West -> South -> East -> North.
+  ObservedTrick observedTrick({String east = '4C', String north = '9D'}) =>
+      ObservedTrick([
+        SeatPlay(PlayerSeat.west, GameCard.parse('8D')),
+        SeatPlay(PlayerSeat.south, GameCard.parse('JD')),
+        SeatPlay(PlayerSeat.east, GameCard.parse(east)),
+        SeatPlay(PlayerSeat.north, GameCard.parse(north)),
+      ]);
+  test('observed tricks default to empty and stay backward compatible', () {
+    expect(situation().observedTricks, isEmpty);
+  });
+  test('observed tricks are accepted, exposed in order and immutable', () {
+    final history = [observedTrick()];
+    final state = situation(observed: history);
+    expect(state.observedTricks, hasLength(1));
+    expect(state.observedTricks.single.plays.first.seat, PlayerSeat.west);
+    expect(() => state.observedTricks.clear(), throwsUnsupportedError);
+    expect(
+      () => state.observedTricks.single.plays.clear(),
+      throwsUnsupportedError,
+    );
+    history.clear();
+    expect(state.observedTricks, hasLength(1));
+  });
+  test('ObservedTrick accepts every leader in canonical rotation order', () {
+    for (final leader in PlayerSeat.values) {
+      final order = rotationFrom(leader);
+      final cards = ['8D', 'JD', '4C', '9D'];
+      final trick = ObservedTrick([
+        for (final (i, seat) in order.indexed)
+          SeatPlay(seat, GameCard.parse(cards[i])),
+      ]);
+      expect(trick.plays.map((p) => p.seat), order);
+    }
+  });
+  test('ObservedTrick rejects too few seats', () {
+    expect(
+      () => ObservedTrick([
+        SeatPlay(PlayerSeat.west, GameCard.parse('8D')),
+        SeatPlay(PlayerSeat.south, GameCard.parse('JD')),
+        SeatPlay(PlayerSeat.east, GameCard.parse('4C')),
+      ]),
+      throwsArgumentError,
+    );
+  });
+  test('ObservedTrick rejects a seat sequence that violates the rotation', () {
+    expect(
+      () => ObservedTrick([
+        SeatPlay(PlayerSeat.west, GameCard.parse('8D')),
+        SeatPlay(PlayerSeat.north, GameCard.parse('JD')), // should be south
+        SeatPlay(PlayerSeat.east, GameCard.parse('4C')),
+        SeatPlay(PlayerSeat.south, GameCard.parse('9D')),
+      ]),
+      throwsArgumentError,
+    );
+    expect(
+      () => ObservedTrick([
+        SeatPlay(PlayerSeat.west, GameCard.parse('8D')),
+        SeatPlay(PlayerSeat.west, GameCard.parse('JD')), // duplicate seat
+        SeatPlay(PlayerSeat.east, GameCard.parse('4C')),
+        SeatPlay(PlayerSeat.south, GameCard.parse('9D')),
+      ]),
+      throwsArgumentError,
+    );
   });
   final invalid = <String, void Function()>{
     'empty hand': () => situation(hand: []),
@@ -130,23 +225,30 @@ void main() {
     'inconsistent hand/counts': () => situation(hand: ['3H']),
     'mismatched leader': () => situation(leader: PlayerSeat.north),
     'empty trick with another leader': () => situation(plays: []),
+    'seat sequence skips a seat in the rotation': () => situation(
+      plays: [
+        SeatPlay(PlayerSeat.east, GameCard.parse('7H')),
+        SeatPlay(PlayerSeat.west, GameCard.parse('QH')), // should be north
+      ],
+    ),
     'player already played': () => situation(
       plays: [
-        SeatPlay(PlayerSeat.west, GameCard.parse('7H')),
-        SeatPlay(PlayerSeat.south, GameCard.parse('QH')),
+        SeatPlay(PlayerSeat.east, GameCard.parse('7H')),
+        SeatPlay(PlayerSeat.north, GameCard.parse('QH')),
       ],
+      player: PlayerSeat.north,
     ),
     'duplicate seat': () => situation(
       plays: [
-        SeatPlay(PlayerSeat.west, GameCard.parse('7H')),
-        SeatPlay(PlayerSeat.west, GameCard.parse('QH')),
+        SeatPlay(PlayerSeat.east, GameCard.parse('7H')),
+        SeatPlay(PlayerSeat.east, GameCard.parse('QH')),
       ],
     ),
     'card shared with hand': () =>
-        situation(plays: [SeatPlay(PlayerSeat.west, GameCard.parse('3H'))]),
+        situation(plays: [SeatPlay(PlayerSeat.east, GameCard.parse('3H'))]),
     'duplicate public card': () => situation(
       plays: [
-        SeatPlay(PlayerSeat.west, GameCard.parse('7H')),
+        SeatPlay(PlayerSeat.east, GameCard.parse('7H')),
         SeatPlay(PlayerSeat.north, GameCard.parse('7H')),
       ],
     ),
@@ -157,6 +259,42 @@ void main() {
       ],
     ),
     'winning bid/trump mismatch': () => situation(bid: Bid(5, Trump.hearts)),
+    'observed card shared with hand': () =>
+        situation(observed: [observedTrick(east: '3H')]),
+    'observed card shared with current trick': () =>
+        situation(observed: [observedTrick(east: '7H')]),
+    'observed card repeated across observed tricks': () => situation(
+      observed: [
+        observedTrick(),
+        observedTrick(east: '6C', north: 'KD'),
+      ],
+    ),
+    'more observed tricks than completed': () => situation(
+      leader: PlayerSeat.south,
+      plays: [],
+      taken: {
+        PlayerSeat.north: 0,
+        PlayerSeat.east: 0,
+        PlayerSeat.south: 0,
+        PlayerSeat.west: 0,
+      },
+      hand: const [
+        '2H',
+        '3H',
+        '4H',
+        '5H',
+        '6H',
+        '7H',
+        '8H',
+        '9H',
+        '10H',
+        'JH',
+        'QH',
+        'KH',
+        'AH',
+      ],
+      observed: [observedTrick()],
+    ),
   };
   for (final entry in invalid.entries) {
     test(

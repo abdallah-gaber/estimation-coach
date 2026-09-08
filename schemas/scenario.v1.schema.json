@@ -418,6 +418,17 @@
         },
         "auction_bid": {
           "$ref": "#/$defs/auctionBid"
+        },
+        "observed_tricks": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "$ref": "#/$defs/seatPlay"
+            }
+          }
         }
       },
       "additionalProperties": false

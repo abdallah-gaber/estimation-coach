@@ -58,14 +58,53 @@ These rules are used as authored reasoning in Play practice's coaching (EC-047),
 but no resolver implements them: the app does not compute a trick winner or
 update taken counts from a play.
 
+## Play direction / seat rotation
+
+Owner-confirmed on 2026-09-08: play is **counter-clockwise**. With the table
+laid out North top, West left, East right, South bottom, the fixed rotation is:
+
+```text
+North → West → South → East → North
+```
+
+Equivalent rotations by leader:
+
+| Leader | Play order |
+| --- | --- |
+| North | North → West → South → East |
+| West | West → South → East → North |
+| South | South → East → North → West |
+| East | East → North → West → South |
+
+This defines **seat succession within one trick only** — who plays next after
+whom, starting from that trick's leader. It does not define:
+
+- who wins a trick (see [Trick winners](#trick-winners) above, still
+  unimplemented by any resolver);
+- which seat leads the *next* trick (that depends on who wins this one, which
+  is not resolved);
+- a full round/deal turn order, scoring, or auction termination — those remain
+  undefined (see [Scope](#scope)).
+
+Implemented in `lib/core/game_rules/seat_rotation.dart` (`rotationFrom`) and
+enforced by `PlaySituation`'s `currentTrick`/`observedTricks` validation (see
+[GAME_RULES.md](GAME_RULES.md#ec-045-public-play-situation)): every authored
+`current_trick` must be an ordered prefix of this rotation from its leader,
+the pending player must be exactly the next seat to act, and every
+`observed_tricks` entry must show all four seats in this exact order from its
+own leader. This is validated content/domain structure, not trick-winner
+resolution or next-leader computation — those remain explicitly out of scope.
+
 ## Scope
 
 Only normal bidding rounds are in the first MVP. Special late-game rounds and
 fixed-trump rounds remain outside scope until explicitly added.
 
-This confirmation does not define scoring formulas, deal/turn order, auction
-termination, or the treatment of a player who passes rather than declares Dash.
-Those details must be documented before an implementation depends on them.
+This confirmation does not define scoring formulas, a full deal/round turn
+order beyond one trick's seat succession (see
+[Play direction](#play-direction--seat-rotation) above), auction termination,
+or the treatment of a player who passes rather than declares Dash. Those
+details must be documented before an implementation depends on them.
 Following-suit behavior already implemented is documented in [GAME_RULES.md](GAME_RULES.md).
 
 ## Implementation status (EC-026)

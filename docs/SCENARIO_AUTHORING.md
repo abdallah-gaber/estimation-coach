@@ -350,10 +350,14 @@ See [the complete synthetic fixture](../test/fixtures/play_contract.json) for
 the schema/parser contract itself — it is an executable contract example,
 **not reviewed training content**, and is not bundled.
 
-For reviewed, bundled examples, read the two files under
-`content/scenarios/v1/play/` directly (`play_safe_probable_001.json`,
-`play_safe_probable_002.json`); see their review in
-[COACHING_REVIEW.md](COACHING_REVIEW.md#first-play-pack-review-ec-047). Avoid
+For reviewed, bundled examples, read the files under
+`content/scenarios/v1/play/` directly — `play_safe_probable_001.json` and
+`play_safe_probable_002.json` for a single-decision situation, or
+`play_void_tracking_001.json` through `_003.json` for `observed_tricks`; see
+their review in
+[COACHING_REVIEW.md](COACHING_REVIEW.md#first-play-pack-review-ec-047) and
+[COACHING_REVIEW.md](COACHING_REVIEW.md#void-tracking-pack-review-ec-042).
+Avoid
 maintaining a second, divergent copy of their content in this guide.
 
 ### Public situation
@@ -363,21 +367,57 @@ Required `situation` fields:
 | Field | Contract |
 | --- | --- |
 | `leader` | Seat of the first current-trick card; the player seat when leading an empty trick |
-| `current_trick` | Ordered array of 0–3 `{player, card}` objects |
+| `current_trick` | Ordered array of 0–3 `{player, card}` objects, following the seats below |
 | `trump` | A canonical trump code, including `no_trump` |
 | `trick_estimate` | This player's already assigned target, integer 0–13 |
 | `tricks_taken` | Object with north/east/south/west nonnegative integer counts |
 | `auction_bid` (optional) | Known winning `{tricks: 4–13, trump}`; omit if unknown |
+| `observed_tricks` (optional) | Array of prior tricks, each exactly four `{player, card}` objects, following the seats below |
 
 These fields map to the validated PlaySituation contract in
 [GAME_RULES.md](GAME_RULES.md#ec-045-public-play-situation). Taken counts must total
 `13 - hand.length`; the pending player has not played into this trick. Cards must
-be distinct across the hand and current trick, and current-trick seats distinct.
-The winning auction bid's trump must match the situation if supplied.
+be distinct across the hand, current trick and every observed trick.
+
+`current_trick` and each `observed_tricks` entry must follow the
+owner-confirmed counter-clockwise seat rotation from
+[game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation) —
+North → West → South → East → North — starting from that trick's own leader
+(`current_trick`'s leader is the `leader` field; each observed trick's leader
+is its own first entry). For `current_trick`, `player_position` must be
+exactly the next seat in that rotation after the last play. This is seat
+succession within one trick only: it does not resolve a winner, and one
+observed trick's leader is never checked against a previous trick's winner.
 
 The estimate is **not** an auction bid. Values below four, including zero, are
-representable without declaring Dash. No estimate-assignment rule is introduced.
-Play direction, hidden hands and historical feasibility are not inferred.
+representable without declaring Dash. No estimate-assignment rule is
+introduced. Hidden hands and historical feasibility are not inferred.
+
+#### Observed tricks and void tracking (EC-042)
+
+`observed_tricks` shows the player prior, completed tricks as visible
+evidence for the *current* decision — **not** a claim that a shown trick is
+the most recent one, or that it is the round's complete history. Author only
+the tricks relevant to the lesson; `observed_tricks.length` must not exceed
+`tricks_taken`'s total, but may be smaller.
+
+Do not add a `known_voids` field or any other flat void flag. Void suits must
+always be *derived*, never authored: `lib/core/game_rules/void_tracking.dart`
+scans every observed trick (and the in-progress `current_trick`) for a seat
+playing off the led suit, which the confirmed [follow-suit
+rule](GAME_RULES.md#ec-021-following-suit) proves as a void. If a lesson
+needs a specific seat known void in a specific suit, include a trick where
+that seat is shown playing off that led suit — the app will derive the same
+fact your coaching text relies on, keeping content and reasoning from
+silently drifting apart.
+
+Each observed trick's four seats must follow the same confirmed rotation as
+`current_trick` (validated structurally — see above), but do not use
+`observed_tricks` to encode a trick winner or a continuation across tricks:
+the model does not check that one trick's leader plausibly follows from a
+previous trick's winner, since that would require a winner resolver, which
+does not exist. A full round/deal turn order beyond one trick's seat
+succession remains undefined.
 
 ### Choices and feedback
 
@@ -417,7 +457,7 @@ flutter test test/scenarios/play_scenario_test.dart
 
 Expected: the synthetic fixture passes strict checks. Default validation scans
 the production content directory, currently containing ten bidding hands and
-two reviewed play situations. Mixed bidding/play catalogs receive the same
+five reviewed play situations. Mixed bidding/play catalogs receive the same
 schema, domain, duplicate-ID and coverage checks. Syntax errors include field
 paths; relational snapshot errors are reported under `$.situation`. Bidding
 compatibility remains tested.
