@@ -245,6 +245,30 @@ The model does not change widgets or claim that play JSON is supported yet.
 Keep the bidding catalog and the explicit table specimen intact until EC-046.
 The project checkpoint-budget policy is recorded in AGENTS.md section 16.
 
+## D-015 — Add a single-decision portable play contract
+
+**Status:** Accepted
+
+Extend the existing v1 schema's reserved `play` branch with an explicit
+`situation` object and card-keyed authored evaluations. Reuse PlaySituation,
+Difficulty, DecisionRating and ScenarioFeedback; expose feedback parsing for
+both scenario types without introducing a repository/interface abstraction.
+
+Every legal card is a choice, derived from the hand and lead. Play authors cannot
+supply a reduced allowed_decisions list. Missing feedback is counted and returns
+null; illegal cards are rejected. The CLI dispatches by type and checks IDs
+across both types, retaining default warnings and strict coverage failures.
+
+This tightens the previously unsupported reserved play shape. Existing bidding
+files and Flutter asset loading are unchanged. The complete play fixture lives
+under test/fixtures, is explicitly synthetic, and is not approved coaching or
+bundled training. Real play content and UI integration follow in EC-041.
+
+The first contract models one pending decision. Hidden hands, void-history
+annotations, winner resolution, outcomes and multi-step continuation are not
+silently encoded in unknown fields. EC-042/043 can extend the contract when
+needed after documented rule/content review.
+
 ## Decision template
 
 Copy this section for future decisions.

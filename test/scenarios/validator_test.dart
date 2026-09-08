@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../tool/validate_scenarios.dart';
 import 'bidding_scenario_test.dart' show fixture;
+import 'play_scenario_test.dart' show playFixture;
 
 void main() {
   late Directory root;
@@ -109,6 +110,53 @@ void main() {
       expect(run(), 1);
       expect(errors.toString(), contains('schema'));
       expect(errors.toString(), contains(r'$.allowed_decisions.bids'));
+    },
+  );
+
+  test(
+    'strict validator accepts a mixed catalog and catches cross-type IDs',
+    () {
+      final bid = fixture();
+      bid['allowed_decisions'] = {
+        'dash': false,
+        'bids': {'min': 4, 'max': 4},
+        'trumps': ['spades'],
+      };
+      write('bid', bid);
+      write('play', playFixture());
+      expect(run(['--require-complete']), 0);
+      expect(output.toString(), contains('Checked 2 file(s); 0 failure(s)'));
+      final duplicate = playFixture()..['id'] = bid['id'];
+      write('duplicate', duplicate);
+      expect(run(['--require-complete']), 1);
+      expect(errors.toString(), contains('duplicate scenario id'));
+    },
+  );
+  test(
+    'incomplete play feedback warns by default and fails strict coverage',
+    () {
+      final play = playFixture();
+      play['evaluations'].removeLast();
+      write('play', play);
+      expect(run(), 0);
+      expect(output.toString(), contains('1 of 2'));
+      expect(run(['--require-complete']), 1);
+    },
+  );
+  test(
+    'play structural and domain errors are reported while other files continue',
+    () {
+      final shape = playFixture();
+      shape['situation']['trick_estimate'] = -1;
+      write('shape', shape);
+      final relation = playFixture();
+      relation['situation']['tricks_taken']['south'] = 0;
+      write('relation', relation);
+      write('valid', playFixture());
+      expect(run(), 1);
+      expect(errors.toString(), contains('schema'));
+      expect(errors.toString(), contains(r'$.situation'));
+      expect(output.toString(), contains('Checked 3 file(s); 2 failure(s)'));
     },
   );
 

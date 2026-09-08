@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:json_schema/json_schema.dart';
 
 import 'package:estimation_coach/scenarios/bidding_scenario.dart';
+import 'package:estimation_coach/scenarios/play_scenario.dart';
 
 void main(List<String> arguments) {
   exitCode = validateScenarios(arguments);
@@ -92,20 +93,32 @@ int validateScenarios(
         failureCount++;
         continue;
       }
-      final scenario = BiddingScenario.fromJson(data);
-      final existing = ids[scenario.id];
+      final String id;
+      final int missing;
+      final int choiceCount;
+      if (data['type'] == 'play') {
+        final scenario = PlayScenario.fromJson(data);
+        id = scenario.id;
+        missing = scenario.missingEvaluationCount;
+        choiceCount = scenario.legalChoices.length;
+      } else {
+        final scenario = BiddingScenario.fromJson(data);
+        id = scenario.id;
+        missing = scenario.missingEvaluationCount;
+        choiceCount = scenario.allowedDecisions.count;
+      }
+      final existing = ids[id];
       if (existing != null) {
         err.writeln(
-          'ERROR $path: duplicate scenario id ${scenario.id} (also in $existing)',
+          'ERROR $path: duplicate scenario id $id (also in $existing)',
         );
         failureCount++;
         continue;
       }
-      ids[scenario.id] = path;
-      final missing = scenario.missingEvaluationCount;
+      ids[id] = path;
       if (missing > 0) {
         final message =
-            '$path: $missing of ${scenario.allowedDecisions.count} '
+            '$path: $missing of $choiceCount '
             'allowed decisions have no authored evaluation';
         if (requireComplete) {
           err.writeln('ERROR $message');
@@ -114,7 +127,7 @@ int validateScenarios(
         }
         out.writeln('WARNING $message');
       }
-      out.writeln('VALID $path (${scenario.id}; structure + game_rules_v1)');
+      out.writeln('VALID $path ($id; structure + game_rules_v1)');
     } on FormatException catch (error) {
       err.writeln('ERROR $path: ${error.message}');
       failureCount++;
@@ -125,7 +138,7 @@ int validateScenarios(
   }
   out.writeln('Checked ${files.length} file(s); $failureCount failure(s).');
   out.writeln(
-    'Validation checks supported game_rules_v1 bidding constraints, not turn order or coaching quality; '
+    'Validation checks supported game_rules_v1 bidding and public play constraints, not turn order or coaching quality; '
     'manual coaching review remains required (EC-024).',
   );
   return failureCount == 0 ? 0 : 1;

@@ -161,7 +161,7 @@ mid-hand play yet.
 Validated toolchain: Flutter 3.44.1 stable / Dart 3.12.1.
 
 ```sh
-git switch codex/play-situation-model
+git switch codex/play-scenario-contract
 flutter pub get
 flutter run -d chrome
 ```
@@ -217,19 +217,19 @@ EC-060. The language option is not implemented yet. The owner-confirmed
 [glossary](docs/EGYPTIAN_ARABIC.md) distinguishes الكول from each player's trick
 estimate (طالب كام؟).
 
-### Current domain checkpoint
+### Current contract checkpoint
 
-EC-045 adds a validated public play-situation model with separate auction bid
-and player estimate. The visible app is unchanged. Run the 20 focused checks:
+EC-046 adds portable play JSON parsing and authored card evaluation. The visible
+app remains the bidding trainer and table preview. Verify the contract with:
 
 ```sh
-flutter test test/core/game_rules/play_situation_test.dart
+dart run tool/validate_scenarios.dart --require-complete test/fixtures/play_contract.json
+flutter test test/scenarios/play_scenario_test.dart
 ```
 
-Expected: all pass, including estimates 0–3, overtricks, leading/following/void
-choices, and rejection of duplicate cards or inconsistent counts. The portable
-play JSON contract remains the next task, EC-046. See
-[model contract and limits](docs/GAME_RULES.md#ec-045-public-play-situation).
+The fixture is synthetic and not bundled coaching. Play UI integration and
+reviewed tactical scenarios are next. See the [authoring contract](docs/SCENARIO_AUTHORING.md#single-decision-play-contract-ec-046)
+and [MVP status / remaining path](docs/MVP_STATUS.md).
 
 ### Automated checks
 
