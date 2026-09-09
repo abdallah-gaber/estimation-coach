@@ -512,3 +512,153 @@ schema or capability extension was needed. Checkpoint 3 remains in progress:
 25 of 32 base scenarios are authored, and the variant mechanism (D-023) is
 still domain-tested only, so the Variety gate still earns zero and readiness
 stays 45%.
+
+## EC-055 — Checkpoint 3 coverage batch 2 (7 new base scenarios, matrix complete)
+
+Reviewed all seven new scenarios and every legal choice against
+`game_rules_v1`. Together they close every remaining gap in the checkpoint 3
+coverage matrix ([MVP_STATUS.md](MVP_STATUS.md#checkpoint-3-coverage-matrix-ec-055)):
+32/32. No schema, UI or variant-mechanism change was needed for any of them.
+
+### `bid_training_015` — Seven Clubs, only one honor
+
+Deterministic fact: seven Clubs, headed by a single Ace, no King/Queen/Jack
+anywhere in the suit. **4C — reasonable** (safe, underuses the length).
+**5C — strong**: the Ace plus exceptional length is a genuinely different
+kind of support from a short, honor-dense suit — an authored judgment that
+length alone, without concentration, still earns real credit. **6C —
+risky**: needs the length to run two tricks past the Ace, not one.
+
+**Non-decorative evidence check:** compare against `bid_training_012`
+(Ace-King-Queen-Jack of Spades, six cards) — both reach Strong at five
+tricks, but for structurally different reasons (concentrated honors vs. raw
+length). If this hand's Clubs were only four cards instead of seven, the
+length argument for a fifth trick would not hold, and 5C would need to drop
+to at least Risky.
+
+### `bid_training_016` — Length with a gap, or short and solid?
+
+Third Mixed/ambiguous scenario. Deterministic facts: Spades is
+Ace-Queen-Jack-nine-seven (five cards, King missing); Hearts is
+Ace-King-six-four (four cards, no gap). **4S/4H — reasonable**, each
+explicitly stating the other is "equally defensible." **5S/5H — risky**,
+since neither the chosen suit nor the honor-free side suits supports a fifth
+trick. No evaluation reaches Strong — an authored judgment that a
+missing-honor suit with more length and a complete-but-shorter suit are a
+genuine toss-up, not a hidden preference for one.
+
+### `play_safe_probable_004` — Two unknowns instead of one
+
+Deterministic facts: South is void in the led suit (holds no Diamonds), so
+both cards are legal; the jack of trump beats every card shown so far; both
+East and North have not yet acted (South acts second, not last). **JC —
+strong**: reviewed as the best available choice given South is significantly
+below target, but the feedback explicitly names that two seats, not one,
+could still beat it — a real escalation of the unresolved risk in
+`play_safe_probable_003` (one seat), stated plainly rather than treated the
+same. **2H — weak**: cannot win regardless, gives up the strongest legal
+card for no reduction in that same risk.
+
+**Non-decorative evidence check:** if this hand were changed so South acts
+last instead of second, the scenario would collapse into the same shape as
+`play_safe_probable_001`/`_002` (a certain win). Keeping South second, with
+two unresolved seats rather than one, is what keeps this a distinct
+"degree of uncertainty" lesson rather than a fourth near-copy of `_003`.
+
+### `play_void_tracking_005` — Leading around a known void
+
+First void-tracking scenario where South leads (current trick empty) rather
+than responds. Deterministic facts: the observed trick shows West void in
+Clubs; from South leading, the rotation is South → East → North → West, so
+West acts last in the new trick. **AC — risky**: leading the ace into the
+suit where West is confirmed void offers West a free, already-evidenced
+chance to trump it. **4D — strong**: avoids that one confirmed risk; the
+feedback is explicit that this does not prove Diamonds are safe in every
+sense, only that the one identified risk is avoided.
+
+**Non-decorative evidence check:** this is a structurally new decision
+point, not a reskinned response case — `play_void_tracking_001/002/004` are
+all about which card to play into an already-started trick; here the
+question is which suit to lead into, before any trick exists. The UI's
+"You lead. Any card is legal." path (already built, previously untested by
+any production scenario) is exercised for the first time.
+
+### `play_target_protection_006` — Either trump wins — save the stronger one
+
+Deterministic facts: East, North and West have all followed Clubs; no trump
+has appeared yet; South is void in Clubs and holds two Diamonds (trump),
+either of which currently wins since South acts last. **2D — strong**: wins
+the needed trick while preserving the stronger trump. **9D — reasonable**:
+also wins, but spends the better trump when the weaker one would have
+sufficed — authored judgment about resource conservation, not a claim that
+the nine is a mistake.
+
+**Non-decorative evidence check:** distinct from `play_target_protection_004`
+(which chooses between overtrumping, undertrumping, and discarding against
+an opponent's *already-played* trump while exactly on target). Here no trump
+has been played by anyone, South is below target and wants the trick, and
+the choice is purely which of South's own two winning cards to spend.
+
+### `play_mixed_tactical_001` — Below target, and a known void backs the play
+
+First Mixed tactical reading scenario, combining two already-supported
+signals without inventing a new one. Deterministic facts: East is confirmed
+void in Spades (trump) from an observed trick; South acts before East in
+this trick's remaining order; South is below target. **3S — strong**: the
+feedback names the void as **decisive** (East cannot supply the one card
+type that could beat a trump) and the below-target state as **supporting**
+(why taking the trick, not just being safe to try, matters). **2C — weak**:
+cannot win, gives away a trick the void makes unusually safe to attempt.
+
+**Non-decorative evidence check:** remove the observed trick (no void
+evidence) and this scenario collapses into the same shape as
+`play_safe_probable_003`/`_004` — a merely probable trump play against an
+unresolved responder. The void is what elevates it from probable to
+effectively certain; the target state alone would not.
+
+### `play_mixed_tactical_002` — The same visible trump, an opposite target
+
+Second Mixed tactical reading scenario, deliberately reusing
+`play_target_protection_004`'s exact mechanism (an opponent's trump already
+visible in the current trick) with one variable flipped. Deterministic
+fact: North has already played a low trump on this trick. **9C — strong**:
+the feedback names South's below-target state as **decisive** (it is why
+overtrumping, not avoiding, is correct here) and the visible trump as
+**supporting** (it only establishes which card beats North's, not whether
+winning is wanted). **2D — weak**: cannot beat the visible trump, gives away
+an available and needed trick.
+
+**Non-decorative evidence check:** swap this scenario's target state for
+`play_target_protection_004`'s (exactly on target instead of below) and the
+correct card would flip from overtrump to undertrump — proving the visible
+trump alone does not determine the rating; the target state does, exactly
+as the "decisive vs. supporting" split in the feedback claims.
+
+### Fixture collision found and fixed during authoring
+
+`play_mixed_tactical_001`'s original off-suit filler card, the ace of Clubs,
+collided with `play_void_tracking_005`'s hand and broke an existing
+cross-scenario test assertion in `play_training_test.dart`
+(`scenarios.first.evaluate(scenarios.last.situation.legalChoices.first)`,
+sensitive to alphabetical file order) once `play_mixed_tactical_001` began
+sorting before `play_safe_probable_001`. Changed to the two of Clubs; the
+card was never referenced by exact rank in that evaluation's own rating
+(Weak, off-suit, cannot win), so only the feedback text needed rewording to
+match. No rating or evaluated-choice content changed as a result.
+
+### Checkpoint verification boundary
+
+Strict validation checks complete legal-choice coverage and public-state
+legality for all 33 production files, unchanged from before this batch for
+the existing 26. The existing catalog-driven session tests load and exercise
+the seven new files without test/UI registration changes; only the
+hard-coded totals in `test/bidding_training_test.dart` (14→16 hands,
+66→73 choices) needed updating. Coaching quality is supported by the
+explicit review above, not inferred from passing automated checks. No rule,
+schema or capability extension was needed — the two Mixed tactical reading
+scenarios combine existing signals rather than introducing anything new.
+The checkpoint 3 coverage matrix is now complete (32/32 base scenarios), but
+checkpoint 3 itself remains in progress: deciding whether to wire the
+domain-tested variant mechanism (D-023) into the product, and an owner
+repeated-session review, are still open, so the Variety gate still earns
+zero and readiness stays 45%.

@@ -1,13 +1,14 @@
 # MVP Roadmap Lock
 
-Updated 2026-09-09. **Runnable preview; not ready to ship.** Fourteen reviewed
-bidding hands and twelve play scenarios are available. EC-048 is merged;
-EC-043 has all five reviewed exact-target scenarios. EC-049's Session Selector
-shuffles both practice sessions. EC-055 (checkpoint 3) has frozen a
-32-scenario coverage target, closed 6 of the 13 gaps identified by its first
-bounded PR (7 remain), and proven a variant mechanism at the domain level.
-Progress storage, the remaining scenario variety, the hub and English/مصري
-switching remain unfinished.
+Updated 2026-09-09. **Runnable preview; not ready to ship.** Sixteen reviewed
+bidding hands and seventeen play scenario files (16 distinct reasoning cases)
+are available. EC-048 is merged; EC-043 has all five reviewed exact-target
+scenarios. EC-049's Session Selector shuffles both practice sessions. EC-055
+(checkpoint 3) has frozen a 32-scenario coverage target and reached it
+(32/32) across three bounded PRs, and proven a variant mechanism at the
+domain level. Progress storage, the hub and English/مصري switching remain
+unfinished; deciding on variant UI wiring and the owner's repeated-session
+review are what remain to close checkpoint 3 itself.
 
 [Task tracker](../PROJECT_TRACKER.md) owns individual task statuses. This page
 owns the frozen finish order, release Definition of Done and readiness formula.
@@ -20,13 +21,14 @@ to fit review/context limits; those PRs are not additional roadmap checkpoints.
 Checkpoints 1 and 2 are complete. Checkpoint 3 (EC-055) is in progress: its
 first bounded PR froze the coverage target and proved the variant mechanism
 at the domain level; its second bounded PR closed 6 of the 13 base-scenario
-gaps (7 remain).
+gaps; its third closed the remaining 7 (32/32, matrix complete). The variant
+UI-wiring decision and the owner's repeated-session review are still open.
 
 | # | Checkpoint | Tasks | Status | Exit criteria |
 | --- | --- | --- | --- | --- |
 | 1 | Finish EC-043 | EC-043 | DONE — 5/5 scenarios | Two final scenarios add undertrumping evidence and a choice between safe winners in Sans. Content-only, existing contract, complete legal-choice coaching and documented review. |
 | 2 | Anti-memorization sessions | EC-049 | DONE | A pure `selectSession` shuffles the eligible pool with an injected `Random`; `ScenarioSession` composes it with catalog loading, caching and previous-session-last tracking. Both trainers consume one `nextSession` call; "Practice again" requests a new order. Reproducible under test with controlled seeds; empty/single-item/exhausted pools have explicit behavior. |
-| 3 | Scenario Variants + Content Breadth | EC-055 | IN PROGRESS — 25/32 base scenarios | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
+| 3 | Scenario Variants + Content Breadth | EC-055 | IN PROGRESS — 32/32 base scenarios | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
 | 4 | Personal Coaching | EC-050/051/052 | BACKLOG | Decisions persist locally across restart, map to documented skills, aggregate deterministically, and drive targeted weak-area practice. |
 | 5 | Training Hub | EC-053 | BACKLOG | Quick Mix, Bid Practice, Play Practice, Weak Areas and Continue are usable, including honest empty states and meaningful saved-session resume. |
 | 6 | Egyptian Arabic + UI polish | EC-060 | READY — after checkpoint 5 | English and مصري navigation/coaching, persisted preference, RTL and confirmed terminology work reliably. Focused visual, accessibility and usability polish preserves card identities and canonical seat order. |
@@ -107,72 +109,101 @@ Updated 2026-09-09 (checkpoint 3's second bounded PR): **+6 base scenarios**
 closing the highest-value gaps identified by the first bounded PR. No variant
 transformations, schema, or UI changes in this PR.
 
-**Bidding — 16 target**
+Updated again 2026-09-09 (checkpoint 3's third bounded PR): **+7 base
+scenarios**, closing every remaining gap. **32/32 — the coverage matrix is
+now complete.** No variant, schema, or UI changes in this PR either; see
+"Checkpoint 3 remains open" below for what still gates closing EC-055 itself.
 
-| Category | Target | Before | After | Scenario IDs (new in bold) | Gap after |
-| --- | ---: | ---: | ---: | --- | ---: |
-| Dash / Enter | 5 | 4 | 5 | `bid_enter_controls_001`, `bid_training_003`, `_004`, `_005`, **`_011`** | 0 |
-| Bid sizing | 4 | 1 | 3 | `bid_safe_probable_001`, **`bid_training_012`**, **`_013`** | 1 |
-| Trump selection/control | 4 | 4 | 4 | `bid_training_006`, `_007`, `_008`, `_010` | 0 |
-| Mixed/ambiguous bidding judgment | 3 | 1 | 2 | `bid_training_009`, **`_014`** | 1 |
-| **Bidding total** | **16** | **10** | **14** | | **2** |
+**Bidding — 16 target, 16 achieved**
 
-- `bid_training_011` ("Nothing above a six") is the first Dash/Enter scenario
-  where Dash itself is rated Strong: no card above a six anywhere, no suit
-  over four cards, deliberately lower and shorter than `bid_training_003`'s
-  "reasonable" low hand.
-- `bid_training_012`/`_013` are the first two dedicated bid_sizing scenarios
-  besides `bid_safe_probable_001`, each offering only **one** trump so the
-  decision is purely a trick-count judgment, not a trump comparison: a
-  near-solid six-card Spade run (`_012`) and a moderate five-card Heart
-  suit backed by two side Aces (`_013`) — deliberately different strength
-  profiles.
-- `bid_training_014` is the second Mixed/ambiguous scenario (see
-  `bid_training_009` for the first): two genuinely comparable four-card
-  trump candidates (King-Queen of Spades vs. Ace-Jack of Hearts) with no
-  side-suit help anywhere else in the hand. No evaluation reaches Strong.
-  Its `primary_skill` stays `trump_selection` (no dedicated tag exists yet);
-  the Mixed/ambiguous classification is a coverage-matrix judgment recorded
-  here, same as `bid_training_009`.
+| Category | Target | Achieved | Scenario IDs (newest in bold) |
+| --- | ---: | ---: | --- |
+| Dash / Enter | 5 | 5 | `bid_enter_controls_001`, `bid_training_003`, `_004`, `_005`, `_011` |
+| Bid sizing | 4 | 4 | `bid_safe_probable_001`, `bid_training_012`, `_013`, **`_015`** |
+| Trump selection/control | 4 | 4 | `bid_training_006`, `_007`, `_008`, `_010` |
+| Mixed/ambiguous bidding judgment | 3 | 3 | `bid_training_009`, `_014`, **`_016`** |
+| **Bidding total** | **16** | **16** | |
 
-**Play — 16 target**
+- `bid_training_015` ("Seven Clubs, only one honor") is the third bid_sizing
+  scenario: a long (seven-card) suit with only one honor, testing length
+  without concentration — a different profile from `_012`'s short-but-solid
+  six-card run and `_013`'s moderate five-card suit with side Aces.
+- `bid_training_016` ("Length with a gap, or short and solid?") is the third
+  Mixed/ambiguous scenario (after `_009` and `_014`): a five-card Spade suit
+  with a missing King (real risk, more length) against a four-card Heart
+  suit with a complete Ace-King sequence (no risk, less length) — a
+  risk-versus-length tension neither `_009` (spread, no length anywhere) nor
+  `_014` (two similarly-shaped moderate candidates) tests. No evaluation
+  reaches Strong.
 
-| Category | Target | Before | After | Scenario IDs (new in bold) | Gap after |
-| --- | ---: | ---: | ---: | --- | ---: |
-| Safe vs probable | 4 | 2 | 3 | `play_safe_probable_001`, `_002`, **`_003`** | 1 |
-| Void tracking / table reading | 4 | 2 | 3 | `play_void_tracking_001`, `_002`, **`_004`** | 1 |
-| Exact-target protection | 6 | 5 | 5 | `play_target_protection_001`–`_005` | 1 |
-| Mixed tactical reading | 2 | 0 | 0 | — | 2 |
-| **Play total** | **16** | **9** | **11** | | **5** |
+**Play — 16 target, 16 achieved**
 
-- `play_safe_probable_003` ("A likely trump winner, not a certain one") is
-  the first safe_vs_probable scenario where South does not act last: East
-  still plays after South, so the strongest legal card is genuinely
-  *probable*, not certain — unlike `_001`/`_002`, where South is always
-  last and the win is guaranteed. No void or other resolving evidence is
-  given; the uncertainty is deliberately left open.
-- `play_void_tracking_004` ("A known void that doesn't apply here") is a
-  boundary-condition case, not a suit reskin: South leads last in this
-  trick (order East→North→West→South), so a shown void (North, an earlier
-  Diamonds trick) cannot matter here for two independent reasons — wrong
-  suit, and North has already acted this trick regardless. `_001`/`_002`
-  both depend on East still acting after South; this scenario tests
-  recognizing when that condition does *not* hold.
+| Category | Target | Achieved | Scenario IDs (newest in bold) |
+| --- | ---: | ---: | --- |
+| Safe vs probable | 4 | 4 | `play_safe_probable_001`, `_002`, `_003`, **`_004`** |
+| Void tracking / table reading | 4 | 4 | `play_void_tracking_001`, `_002`, `_004`, **`_005`** |
+| Exact-target protection | 6 | 6 | `play_target_protection_001`–`_005`, **`_006`** |
+| Mixed tactical reading | 2 | 2 | **`play_mixed_tactical_001`**, **`_002`** |
+| **Play total** | **16** | **16** | |
+
+- `play_safe_probable_004` ("Two unknowns instead of one") escalates `_003`
+  rather than repeating it: South acts second, with **two** seats (not one)
+  still to act, a genuinely greater degree of uncertainty than `_003`'s
+  single unresolved responder.
+- `play_void_tracking_005` ("Leading around a known void") is the first
+  void-tracking scenario where South leads (current trick empty) rather than
+  responds — a structurally distinct decision (which suit to lead around a
+  known void) from `_001`/`_002`/`_004`, all of which respond mid-trick.
+- `play_target_protection_006` ("Either trump wins — save the stronger one")
+  is a facet none of `_001`–`_005` cover: choosing between two of South's
+  own legal trumps that both currently win, not deciding whether to win at
+  all. The lesson is trump conservation, distinct from `_004`'s undertrumping
+  (avoiding an unwanted win) and `_005`'s Sans winner choice.
+- `play_mixed_tactical_001`/`_002` are the two Mixed tactical reading
+  scenarios, each combining two already-supported signals in one decision
+  with an explicit decisive-vs-supporting split in the feedback (no new
+  capability was added to produce them):
+  - `_001` ("Below target, and a known void backs the play"): **decisive** —
+    East's known void in trump (derived from an observed trick, the same
+    mechanism as `play_void_tracking_001`/`_005`) means East cannot
+    overtrump, elevating the play from merely probable (as in
+    `play_safe_probable_003`/`_004`) to effectively certain. **Supporting**
+    — South is below target and needs this trick, which is why taking it
+    deliberately is the reviewed choice.
+  - `_002` ("The same visible trump, an opposite target"): reuses
+    `play_target_protection_004`'s exact mechanism (an opponent's trump
+    already visible in the current trick) but **decisive** — South is below
+    target here rather than exactly on it, so overtrumping is correct where
+    `_004`'s undertrumping was correct. **Supporting** — the visible trump
+    only establishes what card is needed to win, not whether winning is
+    wanted.
 - `play_void_tracking_003` ("The same trap in a different suit") still does
-  **not** count as a fourth distinct case — see the first bounded PR's
-  finding, unchanged by this PR: its own `author_notes` call it a
-  suit-relabeled repeat of `play_void_tracking_001`.
+  **not** count as a distinct case — unchanged from the first bounded PR's
+  finding: its own `author_notes` call it a suit-relabeled repeat of
+  `play_void_tracking_001`.
 
-**Total: 32 target, 19 → 25 distinct existing (+6), 13 → 7 gap.** Remaining
-base scenarios needed: 1 Bid sizing, 1 Mixed/ambiguous bidding, 1 Safe vs
-probable, 1 Void tracking/table reading, 1 Exact-target protection, 2 Mixed
-tactical reading (category shape still undefined). Content-only; no schema,
-UI, variant or selection changes in this PR.
+**Total: 32 target, 32 achieved.** All three bounded PRs together: 19 → 25 →
+32 distinct scenarios (13 → 7 → 0 gap). Every new scenario across all three
+PRs is a genuinely distinct reasoning case, verified against existing content
+before authoring, not a suit/rank reskin. Content-only across all three PRs;
+no schema, UI, variant-mechanism, or selection changes.
 
-Identify recall-prone gaps, close this matrix, and record the owner's
-repeated-session review before closing the checkpoint. Any new capability is
-implemented once; new scenarios using supported contracts remain
-content-only. No runtime AI is needed for selection, variants or coaching.
+### Checkpoint 3 remains open
+
+Reaching 32/32 base scenarios closes the coverage-matrix acceptance
+criterion, but not the checkpoint. Two things still gate EC-055 itself:
+
+1. **Deciding whether the domain-tested variant mechanism (D-023) is worth
+   wiring into the product.** It remains play-only and its visible effect
+   (opponents' taken-trick counts) is minor; wiring it in prematurely would
+   overstate what one narrow, already-domain-tested transformation proves.
+2. **Owner repeated-session review** confirming that practice with this
+   32-scenario, 33-file pack requires reasoning rather than answer recall —
+   not yet started.
+
+Until both close, the Variety gate stays at 0% and MVP Readiness stays at
+45%, even though the scenario count target is met. EC-055 is not marked
+DONE by this PR.
 
 ## Fixed weighted readiness gates
 
@@ -185,7 +216,7 @@ is satisfied; otherwise it earns zero. No subjective partial percentages.
 | Foundation / architecture | 15% | 15% | EC-001/002/010/012/020/021/022/023/026 and portable content/domain separation delivered; required CI exists. |
 | Bidding Coach | 15% | 15% | EC-030/031/032/033 delivered: the original ten reviewed hands, 53 evaluated choices, visual legal decisions and evidence-based feedback. Content added since (EC-055) belongs to the variety gate. |
 | Play Coach core | 15% | 15% | EC-040/041/044/045/046/047/042/048 delivered: legal card play, portable scenarios, reviewed feedback, void evidence and known auction-bound validation. EC-043 content belongs to the variety gate. |
-| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoints 1 and 2 are complete; 3 remains open. Session selection is delivered; no credit yet for validated variants or broader reviewed content. |
+| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoints 1 and 2 are complete; 3 remains open. Session selection is delivered and the 32/32 coverage matrix is complete; the variant UI-wiring decision and owner repeated-session review still gate closing checkpoint 3. |
 | Personal coaching | 15% | 0% | Checkpoint 4 closed: persistence, skill aggregation and targeted weak-area practice. |
 | Training hub + localization/polish | 10% | 0% | Both checkpoints 5 and 6 closed. |
 | Acceptance / ship | 10% | 0% | Checkpoint 7's Definition of Done evidence, owner acceptance and release tag `v1.0.0-mvp` recorded. |

@@ -1,0 +1,96 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_015",
+  "type": "bidding",
+  "title": "Seven Clubs, only one honor",
+  "difficulty": "intermediate",
+  "primary_skill": "bid_sizing",
+  "skills": [
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "AC",
+    "9C",
+    "8C",
+    "7C",
+    "6C",
+    "5C",
+    "3C",
+    "KH",
+    "4H",
+    "8D",
+    "3D",
+    "6S",
+    "2S"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "EC-055 checkpoint-3 coverage: a third bid_sizing scenario, deliberately different in shape from bid_training_012 (short, near-solid six-card run) and bid_training_013 (moderate five-card suit plus two side Aces). Here the trump suit is long (seven cards) but carries only one honor, the Ace; the sizing question is how much credit exceptional length alone supports without top-card concentration, contrasted against bid_training_012's opposite profile (short but near-solid). Single trump offered (Clubs), so the decision is purely trick-count judgment. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 6
+    },
+    "trumps": [
+      "clubs"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "clubs"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Safe, but undersells the length",
+        "summary": "Four is secure from the Ace of Clubs alone, without needing any of the six low Clubs to ever be established.",
+        "points": [
+          "Control: the Ace of Clubs is one certain trick, checkable directly against the hand shown.",
+          "This target does not need the suit's exceptional length to produce anything further.",
+          "A stronger target is defensible from this same length; four is not wrong, just conservative."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "clubs"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "The Ace plus exceptional length",
+        "summary": "Five combines the one certain trick with the seven-card suit's length, a different kind of support than a suit headed by several honors.",
+        "points": [
+          "Control: the Ace of Clubs is a certain trick.",
+          "Probable, not certain: seven cards is unusually long; once opponents' Clubs are exhausted, a low Club left in hand can become a winner by length alone.",
+          "This does not require every remaining Club to run clean, only that the suit's length contributes past the Ace."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "clubs"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Needs several rounds to run clean",
+        "summary": "Six asks the suit's length to produce two extra tricks beyond the Ace, not just one.",
+        "points": [
+          "A single honor does not, by itself, establish two further length tricks.",
+          "The King of Hearts and Queen-less side suits offer nothing to fall back on if the Clubs do not run as cleanly as hoped.",
+          "This is not an unreasonable attempt, but it depends on more rounds going well than a five-trick target does."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_016",
+  "type": "bidding",
+  "title": "Length with a gap, or short and solid?",
+  "difficulty": "advanced",
+  "primary_skill": "trump_selection",
+  "skills": [
+    "trump_selection",
+    "bid_sizing"
+  ],
+  "player_position": "south",
+  "hand": [
+    "AS",
+    "QS",
+    "JS",
+    "9S",
+    "7S",
+    "AH",
+    "KH",
+    "6H",
+    "4H",
+    "8D",
+    "3D",
+    "5C",
+    "2C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "EC-055 checkpoint-3 coverage: third Mixed/ambiguous bidding judgment scenario (see bid_training_009 and bid_training_014 for the first two; primary_skill stays trump_selection since no dedicated tag exists, matching that precedent). Deliberately different tension from both: bid_training_009 has controls spread thin with no length anywhere, and bid_training_014 compares two similarly-shaped moderate suits. Here the two candidates trade off differently: Spades is longer (five cards, Ace-Queen-Jack) but missing the King, a real finesse-dependent gap; Hearts is shorter (four cards) but headed by the Ace and King together, no gap, just less length. Diamonds and Clubs offer no side support either way. No evaluation in this scenario reaches Strong. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 5
+    },
+    "trumps": [
+      "spades",
+      "hearts"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "spades"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "More length, but a missing King",
+        "summary": "Ace-Queen-Jack of Spades with two more low cards gives real length, but the missing King is a genuine gap this hand cannot see past.",
+        "points": [
+          "Control: Ace-Queen-Jack are three honors, but the missing King means an early Spade trick is not guaranteed the way a complete top sequence would be.",
+          "Five-card length gives more room to develop extra tricks than Hearts' four, once the gap is resolved one way or another.",
+          "Choosing Hearts instead is equally defensible here; this is a genuine judgment call between risk-with-length and safety-without-it."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "hearts"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "No gap, but less room to grow",
+        "summary": "Ace-King of Hearts together are a complete top sequence with no missing card to worry about, but only two more Hearts back them up.",
+        "points": [
+          "Control: Ace-King is a certain, ungapped two-card sequence, safer than a suit with a hole in its honors.",
+          "Four-card length offers less room for extra tricks than Spades' five once the top cards are used.",
+          "Choosing Spades instead is equally defensible here; this is a genuine judgment call between risk-with-length and safety-without-it."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "spades"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "The gap matters more at a higher target",
+        "summary": "A fifth trick asks the Spade length to produce more, right when the missing King is most likely to interfere with running the suit cleanly.",
+        "points": [
+          "Three honors and five-card length support a cautious target, not automatically a higher one.",
+          "Diamonds and Clubs hold nothing higher than an eight, so neither can be counted on for an extra winner.",
+          "This is not unreasonable, but it stretches past what the gapped suit visibly supports."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "hearts"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Four cards is not much room to stretch",
+        "summary": "The Ace-King sequence is certain for two tricks; a fifth needs the two low Hearts to do more than simply follow suit.",
+        "points": [
+          "A complete but short sequence supports a cautious target, not automatically a higher one.",
+          "Diamonds and Clubs hold nothing higher than an eight, so neither can be counted on for an extra winner.",
+          "This is not unreasonable, but it stretches past what the short suit visibly supports."
+        ]
+      }
+    }
+  ]
+}
