@@ -11,15 +11,16 @@ Bounded PRs may split a checkpoint's implementation, but cannot add an eighth
 checkpoint without explicit owner approval. Checkpoints 1 and 2 are complete;
 checkpoint 3 (EC-055) is in progress — its first bounded PR froze the coverage
 target and proved the variant mechanism at the domain level, its second
-closed 6 of the 13 base-scenario gaps, and its third closed the remaining 7
-(32/32, matrix complete). The variant UI-wiring decision and the owner's
-repeated-session review are still open, so checkpoint 3 is not done.
+closed 6 of the 13 base-scenario gaps, its third closed the remaining 7
+(32/32, matrix complete), and its fourth decided against wiring the variant
+mechanism into the product (D-024) and prepared the owner repeated-session
+review. That review is the only item still open, so checkpoint 3 is not done.
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
 | 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
 | 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | DONE |
-| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant mechanism v1 domain-tested; UI-wiring decision and owner review remain) |
+| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant decided against wiring, D-024; awaiting owner repeated-session review) |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
 | 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
 | 6 | Egyptian Arabic + UI polish — مصري terminology, localization/RTL, focused usability polish | EC-060 | READY (after checkpoint 5) |
@@ -796,6 +797,37 @@ files, and the web build succeeds. Readiness stays 45%; the Variety gate
 stays 0% (checkpoint 3 remains open — the variant UI-wiring decision and
 owner repeated-session review still needed). Checkpoint 4 was not started.
 
+### Fourth bounded PR (this PR): variant decision + owner-review prep
+
+Closure PR for checkpoint 3. Docs-only: no new scenarios, no schema, UI or
+variant-mechanism code changes.
+
+1. **Made the variant decision explicit and final for the MVP**
+   ([D-024](docs/DECISIONS.md)): variant v1 (opponent taken-trick-count
+   redistribution, D-023) stays domain-tested only and is **not** wired into
+   either trainer. Neither of D-023's revisit conditions changed (still one
+   transformation; feedback still free text), and it only varies a field
+   players do not reason from. The coverage matrix and Session Selector
+   (EC-049) are the mechanisms actually expected to carry this checkpoint's
+   anti-memorization requirement. The architecture extension point stays
+   documented as-is for a future, richer variant; no new transformation was
+   added, and the schema/feedback structure was not changed to enable one
+   prematurely.
+2. **Prepared the owner repeated-session review**: added an explicit
+   five-question checklist to
+   [docs/MVP_STATUS.md](docs/MVP_STATUS.md#checkpoint-3-owner-repeated-session-review),
+   covering recognition-from-position, needing to read the table, whether
+   repeated sessions feel different, any scenarios similar enough to answer
+   from memory, and whether Bidding/Play both feel sufficiently varied.
+   Product-focused, not "tests pass."
+3. **Did not fake owner acceptance.** The owner has not yet run this review;
+   this PR does not mark EC-055 DONE, does not change the Variety gate from
+   0%, and does not change MVP Readiness from 45%. The review checklist is
+   the sole remaining item; nothing else currently blocks EC-055.
+
+313 tests pass, analysis is clean, strict validation accepts all 33 content
+files unchanged, and the web build succeeds. Checkpoint 4 was not started.
+
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
 - Each allowed transformation documents and preserves game/coaching invariants:
@@ -806,7 +838,9 @@ owner repeated-session review still needed). Checkpoint 4 was not started.
   and safe/probable, void-tracking and exact-target play concepts. Distinct
   tactical evidence counts as breadth; cosmetic variants alone do not. **Matrix
   complete: 32/32 scenarios authored.** ✅
-- Record owner repeated-session review showing reasoning rather than answer recall. Not started.
+- Record owner repeated-session review showing reasoning rather than answer recall.
+  **Checklist prepared** (docs/MVP_STATUS.md); owner has not yet run it — this
+  is the only open acceptance criterion for EC-055.
 - New scenarios using supported contracts remain content-only; no runtime AI. ✅
 
 ---

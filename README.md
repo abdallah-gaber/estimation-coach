@@ -14,10 +14,10 @@ shuffled session order. Saved personal coaching, the hub and English/مصري
 switching are still ahead.
 **Current focus:** checkpoints 1 and 2 are complete; checkpoint 3
 (**EC-055 — Scenario Variants + Content Breadth**) is in progress. Its
-32-scenario coverage target is now fully authored (32/32) across three
-bounded PRs, and a variant mechanism is proven at the domain level, not yet
-wired into either trainer. Deciding whether to wire it in and an owner
-repeated-session review are what remain to close the checkpoint.
+32-scenario coverage target is fully authored (32/32), and its variant
+mechanism stays domain-tested only, deliberately not wired into either
+trainer for the MVP ([D-024](docs/DECISIONS.md)). An owner repeated-session
+review is the only remaining item to close the checkpoint.
 
 Readiness is calculated from [fixed weighted gates](docs/MVP_STATUS.md#fixed-weighted-readiness-gates):
 **15 + 15 + 15 = 45%**. Session selection and content breadth (checkpoint 2
@@ -31,9 +31,8 @@ formatting, analysis, tests, scenario validation and web build separately.
 2. **Anti-memorization sessions — DONE** — a Session Selector shuffles both
    practice sessions, independent of catalog/file order.
 3. **Scenario Variants + Content Breadth — IN PROGRESS** — coverage matrix
-   complete (32/32) and variant mechanism v1 domain-tested; deciding whether
-   to wire the variant mechanism into the product and an owner
-   repeated-session review remain.
+   complete (32/32); variant mechanism v1 stays domain-tested only, not
+   wired in for the MVP (D-024). An owner repeated-session review remains.
 4. **Personal Coaching** — local decisions, skill aggregation and weak areas.
 5. **Training Hub** — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue.
 6. **Egyptian Arabic + UI polish** — مصري terms, localization/RTL and usability.
