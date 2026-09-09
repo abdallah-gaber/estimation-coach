@@ -45,7 +45,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   test(
-    'all 53 legal choices return exact authored feedback across four ratings',
+    'all 66 legal choices return exact authored feedback across four ratings',
     () {
       final ratings = <DecisionRating>{};
       var count = 0;
@@ -61,7 +61,7 @@ void main() {
           count++;
         }
       }
-      expect(count, 53);
+      expect(count, 66);
       expect(ratings, DecisionRating.values.toSet());
     },
   );
@@ -95,13 +95,13 @@ void main() {
 
   test('bundled catalog is complete and immutable', () async {
     final scenarios = await loadBiddingScenarios();
-    expect(scenarios, hasLength(10));
+    expect(scenarios, hasLength(14));
     expect(scenarios.map((s) => s.id), catalog().map((s) => s.id));
     expect(() => scenarios.clear(), throwsUnsupportedError);
   });
 
   testWidgets(
-    'all ten independent hands can be reviewed and session completed',
+    'all fourteen independent hands can be reviewed and session completed',
     (tester) async {
       final scenarios = catalog();
       await tester.pumpWidget(
@@ -152,7 +152,7 @@ void main() {
     await tester.pumpAndSettle();
     // The default session is shuffled (EC-049): the first hand may be a
     // Dash/enter or a normal-bidding decision, so accept either heading.
-    expect(find.textContaining('Hand 1 of 10'), findsOneWidget);
+    expect(find.textContaining('Hand 1 of 14'), findsOneWidget);
     expect(
       find.text('Dash or enter?').evaluate().isNotEmpty ||
           find.text('Your bid').evaluate().isNotEmpty,

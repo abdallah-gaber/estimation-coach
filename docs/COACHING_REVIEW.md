@@ -398,3 +398,117 @@ or without auction context. The contract JSON fixture (estimate 1, bid 4) and
 all other production scenarios needed no correction. Strict catalog regression
 restores the old 5-versus-4 mismatch in a temporary copy and verifies rejection
 with a file/path diagnostic while the valid file continues to be checked.
+
+## EC-055 — Checkpoint 3 coverage batch 1 (6 new base scenarios)
+
+Reviewed all six new scenarios and every legal choice against `game_rules_v1`.
+Each closes a gap identified by the checkpoint 3 coverage matrix
+([MVP_STATUS.md](MVP_STATUS.md#checkpoint-3-coverage-matrix-ec-055)); none is
+a suit/rank reskin of existing content. No schema, UI or variant-mechanism
+change was needed for any of them.
+
+### `bid_training_011` — Nothing above a six
+
+Deterministic fact, directly checkable against the thirteen cards shown: no
+Ace, King, Queen or Jack anywhere in the hand, and no card ranked above a
+six. **Dash — strong**, the first Dash/Enter scenario where Dash itself
+reaches Strong rather than Reasonable or Weak. **Enter — reasonable**,
+consistent with every other Dash/Enter scenario: entering commits to
+nothing yet, so it stays at least defensible regardless of hand strength.
+
+**Non-decorative evidence check:** compare against `bid_training_003` ("Low
+cards across four suits"), rated Dash-reasonable. That hand reaches 7s and
+8s and a four-card Club suit; this hand never exceeds a six and no suit
+exceeds four cards. The rating difference tracks a real difference in the
+cards, not an arbitrary escalation.
+
+### `bid_training_012` / `_013` — Bid sizing with a single trump offered
+
+Both scenarios offer exactly one trump (`allowed_decisions.trumps` has one
+entry), so every legal choice is a trick-count judgment on an already-fixed
+trump, not a trump comparison — the trump_selection family (`_006`–`_010`,
+`_014`) always offers two.
+
+- `_012`: Ace-King-Queen-Jack of Spades is a deterministic four-honor trump
+  base. **4S — reasonable** (safe, underuses the hand). **5S — strong**
+  (matches the four honors plus one plausible side/length contribution).
+  **6S — risky** (needs two conditional sources, not one). **7S — weak**
+  (needs nearly everything conditional to land). The Queen of Diamonds and
+  King of Hearts are explicitly flagged as conditional, never counted as
+  certain.
+- `_013`: King-Queen of Hearts (moderate, not solid, trump) plus the Ace of
+  Spades and Ace of Diamonds (deterministic side controls) is a genuinely
+  different profile from `_012`'s single overwhelming suit. **4H —
+  reasonable**, **5H — strong** (three separate sources support it, not one
+  suit stretching to cover it), **6H — risky** (needs a low Heart promoted
+  by length on top of both Aces holding).
+
+### `bid_training_014` — Two incomplete suits, no side support
+
+Second Mixed/ambiguous bidding scenario (see `bid_training_009` for the
+first, and the coverage matrix for why both keep `primary_skill:
+trump_selection`). King-Queen of Spades and Ace-Jack of Hearts are
+deterministically comparable in strength (two honors each, four-card
+length each); Diamonds and Clubs are deterministically honor-free (nothing
+above a nine). **4S/4H — reasonable**, explicitly stating the other is
+"equally defensible" rather than implying a hidden preference. **5S/5H —
+risky**, since neither candidate nor the side suits supports a fifth trick.
+No evaluation in this scenario reaches Strong — an authored judgment that
+this hand does not have a clearly correct answer, not an oversight.
+
+### `play_safe_probable_003` — A likely trump winner, not a certain one
+
+Deterministic facts: South is void in the led suit (holds no Diamonds), so
+both cards are legal; the king of trump beats every card shown so far; East
+has not yet acted. Unlike `_001`/`_002`, South does **not** act last here
+(East does), so — unlike those two scenarios — this is the first
+safe_vs_probable case where the feedback must explicitly decline to claim
+certainty. **KH — strong**: reviewed as the better choice given the team is
+below target, but the feedback states plainly that East holding the trump
+ace is a real, unresolved possibility this scenario deliberately does not
+rule out (no observed trick establishes a void for East here). **2C —
+weak**: gives up a likely trick without reducing that same unresolved risk,
+since the king is not "protected" by being held back — nothing about
+discarding changes what East holds.
+
+**Non-decorative evidence check:** if South instead held the trump ace, the
+trick would be certain and this would collapse into the same shape as
+`play_safe_probable_001`/`_002`. Using the king (not the ace) and leaving
+East's holding genuinely unresolved is what keeps this a distinct
+"probable, not certain" lesson rather than a third certain-win scenario.
+
+### `play_void_tracking_004` — A known void that doesn't apply here
+
+Deterministic facts: the current trick is Clubs; South acts last (East
+leads, so the rotation is East → North → West → South); the king beats
+every Club already played; the observed trick shows North void in
+**Diamonds**, a different suit, in an earlier trick. **KC — strong**: the
+king wins with certainty because South is last to act — no seat, void or
+not, can respond after South's card this trick. **4C — weak**: gives away a
+trick that was already certain, for no compensating safety, since the
+shown void cannot affect a trick nobody can still respond to.
+
+**Non-decorative evidence check:** this is the boundary-condition case the
+`play_void_tracking_001`/`002` pattern needs to stay a real lesson rather
+than a reflex ("void shown → always play the low card"). Replace the
+leader with North (so East plays after South, as in `_001`/`_002`) and this
+scenario's KC/4C choice would flip: KC would then risk being overtrumped by
+a void East, and the Strong/Weak ratings would need to swap. The rating
+here depends on South acting last, not on the mere presence of a shown
+void; `play_void_tracking_003` (a suit reskin of `_001`, not a distinct
+case — see the checkpoint 3 coverage matrix) never tested this boundary.
+
+### Checkpoint verification boundary
+
+Strict validation checks complete legal-choice coverage and public-state
+legality for all 26 production files, unchanged from before this batch for
+the existing 20. The existing catalog-driven session tests load and
+exercise the six new files without test/UI registration changes; only the
+hard-coded totals in `test/bidding_training_test.dart` (10→14 hands,
+53→66 choices) needed updating, since those numbers describe the catalog's
+size rather than any coaching behavior. Coaching quality is supported by the
+explicit review above, not inferred from passing automated checks. No rule,
+schema or capability extension was needed. Checkpoint 3 remains in progress:
+25 of 32 base scenarios are authored, and the variant mechanism (D-023) is
+still domain-tested only, so the Variety gate still earns zero and readiness
+stays 45%.

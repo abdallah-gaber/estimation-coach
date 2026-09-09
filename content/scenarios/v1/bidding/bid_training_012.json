@@ -1,0 +1,113 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_012",
+  "type": "bidding",
+  "title": "How far does a near-solid suit stretch?",
+  "difficulty": "intermediate",
+  "primary_skill": "bid_sizing",
+  "skills": [
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "AS",
+    "KS",
+    "QS",
+    "JS",
+    "9S",
+    "7S",
+    "KH",
+    "4H",
+    "QD",
+    "6D",
+    "3D",
+    "8C",
+    "5C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "EC-055 checkpoint-3 coverage: a bid_sizing scenario with only one trump offered (Spades), so the decision is purely how many tricks this specific holding supports, not which suit to choose. Contrast with bid_training_006-010, which each compare two trump candidates. Ace-King-Queen-Jack of Spades gives four near-certain trump winners once trumps are drawn; the King of Hearts and Queen of Diamonds are conditional side cards, and the nine/seven of Spades are length tricks that depend on the suit running. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 7
+    },
+    "trumps": [
+      "spades"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "spades"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Safe, but leaves strength on the table",
+        "summary": "Four is a secure floor for this holding, but it undersells four near-certain trump honors without claiming anything conditional.",
+        "points": [
+          "Control: Ace-King-Queen-Jack of Spades are four trump honors, a fact you can check directly against the hand shown.",
+          "This target does not need the King of Hearts, the Queen of Diamonds, or either low Spade to be worth anything.",
+          "A stronger target is defensible from this same hand; four is not wrong, just conservative."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "spades"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "Matches the visible trump control",
+        "summary": "Five uses the four trump honors plus one plausible contribution from the King of Hearts or a promoted low Spade, without depending on both.",
+        "points": [
+          "Control: four trump honors (Ace-King-Queen-Jack of Spades) are the foundation for this target.",
+          "Probable, not certain: the King of Hearts is a likely but conditional side winner; either low Spade could also be promoted once higher Spades are gone.",
+          "This does not require every conditional card to land — one of several plausible sources is enough for the fifth trick."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "spades"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "Needs more than one thing to go right",
+        "summary": "Six asks for both the King of Hearts and a promoted low Spade, not just one of them.",
+        "points": [
+          "The four trump honors alone do not reach six; both remaining sources of extra tricks are conditional, not established.",
+          "The Queen of Diamonds is unsupported (only a doubleton) and is not a safer alternative source for this target.",
+          "This is not an unreasonable attempt, but it depends on more than the visible strength guarantees."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 7,
+        "trump": "spades"
+      },
+      "rating": "weak",
+      "feedback": {
+        "title": "Asks for nearly everything to work",
+        "summary": "Seven needs the King of Hearts, the Queen of Diamonds, and both low Spades to all contribute — far more than this hand's controls support.",
+        "points": [
+          "Four trump honors are a strong start, not seven tricks' worth of established winners on their own.",
+          "Stacking every conditional card in the hand together is not the same as counting established winners.",
+          "A lower target is more defensible. This assessment does not predict the exact deal outcome."
+        ]
+      }
+    }
+  ]
+}
