@@ -7,6 +7,7 @@ import '../../core/game_rules/play_situation.dart';
 import '../../scenarios/bidding_scenario.dart' show PlayerSeat;
 import '../../scenarios/load_play_scenarios.dart';
 import '../../scenarios/play_scenario.dart';
+import '../../scenarios/scenario_session.dart';
 import '../../shared/widgets/card_labels.dart';
 import '../../shared/widgets/playing_card.dart';
 import '../bidding_training/bidding_labels.dart';
@@ -20,6 +21,7 @@ class PlayTrainingScreen extends StatefulWidget {
 }
 
 class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
+  late final Future<List<PlayScenario>> Function() _nextSession;
   late Future<List<PlayScenario>> _loading;
   final _scroll = ScrollController();
   final _feedbackKey = GlobalKey();
@@ -34,11 +36,17 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
   @override
   void initState() {
     super.initState();
+    _nextSession =
+        widget.loader ??
+        ScenarioSession<PlayScenario>(
+          loadCatalog: loadPlayScenarios,
+          idOf: (scenario) => scenario.id,
+        ).nextSession;
     _loading = _load();
   }
 
   Future<List<PlayScenario>> _load() async {
-    final pack = await (widget.loader?.call() ?? loadPlayScenarios());
+    final pack = await _nextSession();
     if (pack.isEmpty || pack.any((s) => s.missingEvaluationCount != 0)) {
       throw const FormatException('Training needs complete feedback');
     }
@@ -122,7 +130,13 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
 
   void _advance({bool restart = false}) {
     setState(() {
-      _index = restart ? 0 : _index + 1;
+      if (restart) {
+        // A new session order, not a reset to the first loaded scenario.
+        _loading = _load();
+        _index = 0;
+      } else {
+        _index += 1;
+      }
       _selected = null;
       _played = null;
       _busy = false;

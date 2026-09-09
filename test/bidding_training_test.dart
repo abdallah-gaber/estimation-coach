@@ -150,7 +150,14 @@ void main() {
       await loadBiddingScenarios();
     });
     await tester.pumpAndSettle();
-    expect(find.text('Dash or enter?'), findsOneWidget);
+    // The default session is shuffled (EC-049): the first hand may be a
+    // Dash/enter or a normal-bidding decision, so accept either heading.
+    expect(find.textContaining('Hand 1 of 10'), findsOneWidget);
+    expect(
+      find.text('Dash or enter?').evaluate().isNotEmpty ||
+          find.text('Your bid').evaluate().isNotEmpty,
+      isTrue,
+    );
   });
 
   testWidgets('Dash fixes zero; next hand is independent; session restarts', (
@@ -184,6 +191,62 @@ void main() {
     await tap(tester, 'Practice again');
     expect(find.text('Dash or enter?'), findsOneWidget);
   });
+
+  Future<void> completeHand(
+    WidgetTester tester,
+    BiddingScenario scenario,
+  ) async {
+    final choice = scenario.allowedDecisions.choices.first;
+    if (choice.action == BiddingAction.bid) {
+      await tap(tester, '${choice.tricks}');
+      final label = switch (choice.trump!) {
+        Trump.spades => 'Spades',
+        Trump.hearts => 'Hearts',
+        Trump.diamonds => 'Diamonds',
+        Trump.clubs => 'Clubs',
+        Trump.noTrump => 'Sans',
+      };
+      await tap(tester, label);
+      await tap(tester, 'Review bid');
+    } else {
+      await tap(
+        tester,
+        choice.action == BiddingAction.dash
+            ? 'Dash · 0 tricks'
+            : 'Enter bidding',
+      );
+    }
+  }
+
+  testWidgets(
+    'Practice again requests a new session order instead of resetting to '
+    'the first loaded scenario',
+    (tester) async {
+      var calls = 0;
+      final orderA = pack();
+      final orderB = pack().reversed.toList();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: BiddingTrainingScreen(
+            loader: () async => (++calls == 1) ? orderA : orderB,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(orderA[0].title), findsOneWidget);
+
+      await completeHand(tester, orderA[0]);
+      await tap(tester, 'Next hand');
+      expect(find.text(orderA[1].title), findsOneWidget);
+      await completeHand(tester, orderA[1]);
+      await tap(tester, 'Finish session');
+      expect(find.text('Session complete'), findsOneWidget);
+
+      await tap(tester, 'Practice again');
+      expect(calls, 2);
+      expect(find.text(orderB[0].title), findsOneWidget);
+    },
+  );
 
   testWidgets(
     'legal raises disable lower suits and clear an invalid selection',

@@ -419,6 +419,42 @@ weights of 15/15/15/20/15/10/10 and binary completion credit; the current sum is
 45%, separate from CI status. Update docs and the local SVG when gates change.
 This decision authorizes documentation/governance only, not feature implementation.
 
+## D-022 — Session Selector: shuffled sessions without touching the trainer UI
+
+**Status:** Accepted
+
+EC-049 (checkpoint 2) needed session order independent of catalog/filename
+order without adding randomization logic to `BiddingTrainingScreen` or
+`PlayTrainingScreen`. Two new, independently testable pieces implement the
+architecture boundary from `MVP_STATUS.md`:
+`Scenario Catalog → Session Selector → existing trainer UI`.
+
+`selectSession<T>` (`lib/core/session/session_selector.dart`) is a pure
+function: given a pool, a `Random` source and an optional previous session's
+last item, it returns a shuffled permutation. It compares items by an injected
+`idOf` rather than object identity, since a reloaded catalog is a fresh list
+of equivalent instances. Explicit contract: an empty pool returns an empty
+list; a single-item pool returns that item and necessarily repeats the
+previous session's last scenario when there is no alternative; otherwise the
+result never starts with the previous session's last item.
+
+`ScenarioSession<T>` (`lib/scenarios/scenario_session.dart`) composes a
+catalog loader with `selectSession`, caching the catalog (retried
+automatically if a prior load failed) and tracking the previous session's
+last scenario across calls, so repeated calls — including "Practice again" —
+return fresh orders without reloading or mutating scenario content.
+
+Both trainer screens now depend on one function, `nextSession`, wired in
+`initState` (production default) or supplied via the existing `loader`
+constructor parameter (widget tests inject a fixed, deterministic list, same
+as before this checkpoint). "Practice again" calls the same function again
+instead of resetting to index 0 of the originally loaded list, so it produces
+a new order rather than always returning to the first loaded scenario.
+
+No variant generation, weak-area weighting, decision persistence, Training
+Hub or runtime AI is introduced. Cards are never randomized — only the
+scenario pool's order.
+
 ## Decision template
 
 Copy this section for future decisions.

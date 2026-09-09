@@ -8,13 +8,13 @@ For milestone status and the remaining release path, see [MVP_STATUS.md](docs/MV
 The remaining MVP has exactly **seven checkpoints**, in the order below.
 These supersede the historical milestone groupings later in this file.
 Bounded PRs may split a checkpoint's implementation, but cannot add an eighth
-checkpoint without explicit owner approval. Checkpoint 1 is complete;
-next focus is checkpoint 2 (EC-049), which has not started.
+checkpoint without explicit owner approval. Checkpoints 1 and 2 are complete;
+next focus is checkpoint 3 (EC-055), which has not started.
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
 | 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
-| 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | BACKLOG |
+| 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | DONE |
 | 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | BACKLOG |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
 | 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
@@ -628,20 +628,41 @@ The contract is documented before coached UI integration in EC-041.
 ---
 
 ## EC-049 — Anti-memorization sessions
-**Status:** BACKLOG
+**Status:** DONE
 **Roadmap:** Checkpoint 2; after completing EC-043.
 
 Replaying the current small fixed packs causes the player to remember scenario
 answers instead of reasoning from the table.
 
+Implemented the frozen architecture boundary `Scenario Catalog → Session
+Selector → existing trainer UI`: `selectSession<T>`
+(`lib/core/session/session_selector.dart`) is a pure, generic function that
+shuffles an eligible pool with an injected `Random` source, comparing items by
+id rather than object identity. `ScenarioSession<T>`
+(`lib/scenarios/scenario_session.dart`) composes a catalog loader with the
+selector, caches the catalog, and tracks the previous session's last scenario
+so a new session never starts with it when an alternative exists. Both
+trainer screens consume one `nextSession` function — set once in `initState`,
+either the production `ScenarioSession` or (in widget tests) the existing
+`loader` override — and hold no randomization logic themselves. "Practice
+again" calls that same function again instead of resetting to the first
+loaded scenario, so it returns a freshly ordered session. See
+[D-022](docs/DECISIONS.md).
+
+303 tests pass (20 new: 12 for `selectSession`, 6 for `ScenarioSession`, plus
+2 widget-level regressions proving "Practice again" requests a new order).
+Analysis is clean, strict validation still accepts all 20 content files
+unchanged, and the web build succeeds. No scenario content, schema or
+evaluation logic changed.
+
 ### Acceptance criteria
-- Session Selector chooses a shuffled order independently of catalog/filename order.
+- Session Selector chooses a shuffled order independently of catalog/filename order. ✅
 - No immediate repeats within or between sessions when another eligible scenario
-  exists; explicit behavior for empty, single-item and exhausted pools.
+  exists; explicit behavior for empty, single-item and exhausted pools. ✅
 - Controlled seeds make selection reproducible in tests; verify different valid
-  orders and preserve scenario legality/feedback unchanged.
+  orders and preserve scenario legality/feedback unchanged. ✅
 - Existing trainer UI consumes selected scenarios without randomizing cards or
-  owning generation logic. No runtime AI dependency.
+  owning generation logic. No runtime AI dependency. ✅
 
 ## EC-055 — Scenario Variants + Content Breadth
 **Status:** BACKLOG
