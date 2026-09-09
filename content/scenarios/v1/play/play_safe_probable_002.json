@@ -19,7 +19,8 @@
     "trump": "spades",
     "trick_estimate": 4,
     "tricks_taken": {"north": 3, "east": 3, "south": 3, "west": 2},
-    "auction_bid": {"tricks": 4, "trump": "spades"}
+    "auction_bid": {"tricks": 4, "trump": "spades"},
+    "opponent_estimates": {"north": 4, "east": 4, "west": 3}
   },
   "evaluations": [
     {

@@ -428,6 +428,9 @@
             "east": {
               "$ref": "#/$defs/playCount"
             },
+            "south": {
+              "$ref": "#/$defs/playCount"
+            },
             "west": {
               "$ref": "#/$defs/playCount"
             }

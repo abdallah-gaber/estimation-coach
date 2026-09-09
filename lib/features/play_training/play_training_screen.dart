@@ -483,18 +483,22 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
     );
   }
 
+  /// The leading seat keeps its led-suit line, but no longer *instead* of its
+  /// target and taken counts — hiding those for one seat left the public
+  /// table incomplete for the very seat that opened the trick.
   Widget _opponentSeat(PlayerSeat seat, PlaySituation situation) => _seat(
     seatLabel(seat),
     seat == situation.leader
-        ? 'Led ${situation.ledSuit!.label}'
-        : _opponentTakenLabel(seat, situation),
+        ? 'Led ${situation.ledSuit!.label}\n'
+              '${_opponentStateLabel(seat, situation)}'
+        : _opponentStateLabel(seat, situation),
   );
 
-  /// Honest public-state label for a non-leading opponent: their own
-  /// authored target alongside tricks taken when the target is known, or an
-  /// explicit "unknown" fallback rather than inventing one for scenarios
-  /// authored before opponent estimates existed (EC-055/D-027).
-  String _opponentTakenLabel(PlayerSeat seat, PlaySituation situation) {
+  /// Honest public-state label for one opponent: their own authored target
+  /// alongside tricks taken when the target is known, or an explicit
+  /// "unknown" fallback rather than an invented number when a scenario
+  /// leaves that seat's estimate absent (EC-055/D-027).
+  String _opponentStateLabel(PlayerSeat seat, PlaySituation situation) {
     final estimate = situation.opponentEstimates[seat];
     final taken = situation.tricksTaken[seat];
     return estimate == null

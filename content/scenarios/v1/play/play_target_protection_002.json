@@ -18,7 +18,8 @@
     ],
     "trump": "spades",
     "trick_estimate": 4,
-    "tricks_taken": {"north": 2, "east": 2, "south": 4, "west": 1}
+    "tricks_taken": {"north": 2, "east": 2, "south": 4, "west": 1},
+    "opponent_estimates": {"north": 4, "east": 3, "west": 3}
   },
   "evaluations": [
     {
@@ -47,5 +48,5 @@
       }
     }
   ],
-  "author_notes": "EC-043 intentional-loss case. Same visible cards as _001 isolate how the exact target changes the decision. Ratings address this trick, not guaranteed success through the rest of the hand."
+  "author_notes": "EC-043 intentional-loss case. Same visible cards as _001 isolate how the exact target changes the decision. Ratings address this trick, not guaranteed success through the rest of the hand. Opponent estimates (EC-055/D-027) are chosen for the same reason the taken counts are: to keep the decision about South's own exact target. North wins this trick in the reviewed intentional-loss line, so North estimates 4 with 2 taken — still needing another trick afterwards — rather than a value this trick would complete. Deliberately losing here is therefore not also a decision about North's contract."
 }

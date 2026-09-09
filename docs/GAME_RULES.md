@@ -95,20 +95,33 @@ connects a reviewed pack of these to the Play practice screen.
   other, and its length cannot exceed the total completed tricks implied by
   `tricksTaken`.
 - `opponentEstimates` (EC-055/D-027) is an optional `Map<PlayerSeat,
-  TrickEstimate>` for the three seats other than `playerPosition` — each
-  opponent's own exact-trick target, alongside their already-public
-  `tricksTaken`. It must never contain `playerPosition`'s own seat (that
-  seat's target is `trickEstimate`, never duplicated here); a missing seat is
-  not a claim that seat has no estimate, only that it is not shown. Absent
-  and partial sets stay explicitly partial — nothing is inferred. Only once
-  all three opponents are present does completing the four-seat set with
-  `trickEstimate` get checked against the owner-confirmed total-13 rule via
-  `isValidEstimateTotal` (`estimate_totals.dart`); a combined total of
-  exactly 13 is rejected the same way a directly-authored one would be. This
-  field exists so the public table can show *what each opponent needs*, not
-  just what they have taken — it does not model who the Caller is, infer an
-  opponent's estimate from anything else, or turn this into a strategy
-  simulation of opponent behavior.
+  TrickEstimate>` holding each *other* seat's own exact-trick target,
+  alongside their already-public `tricksTaken`. Which seats those are follows
+  `playerPosition`: exactly that seat is excluded (its target is
+  `trickEstimate`, never duplicated here), so a snapshot pending on any of
+  the four seats behaves identically — South is not special. A missing seat
+  is not a claim that seat has no estimate, only that it is not shown, and
+  absent or partial sets stay explicitly partial: nothing is inferred to fill
+  them in. Three [game_rules_v1](GAME_RULES_V1.md#post-auction-trick-estimates)
+  estimate rules are enforced through the modules that own them, with no
+  caller identity inferred anywhere:
+  - Every authored opponent estimate is bounded by a supplied `auctionBid`'s
+    trick count, via the same `isValidNonCallerEstimate` already applied to
+    `trickEstimate` (rule 2). Equalling the bid is allowed — that is "With"
+    (rule 3). Without `auctionBid`, no bound is inferred, exactly as for
+    `trickEstimate`.
+  - A *complete* set (all three other seats present) is checked as a whole
+    once combined with `trickEstimate`: its total must not equal 13
+    (`isValidEstimateTotal`, rule 4), and — when `auctionBid` is supplied —
+    some seat must estimate exactly the winning bid, because the Caller is
+    one of these four and their estimate *is* that bid
+    (`includesCallerEstimate`, rule 1). Which seat that is stays unidentified.
+  - A partial set is never measured against either whole-set rule.
+
+  The field exists so the public table can show *what each opponent needs*,
+  not just what they have taken. It does not model opponent behavior, rank
+  opponents as threats, or add any objective beyond the pending player's own
+  exact target.
 
 The model checks internal public-snapshot consistency, not whether hidden hands
 or a full historical round could produce it. It does not validate opponents'
@@ -139,14 +152,18 @@ flutter test test/core/game_rules/play_situation_test.dart
 flutter test test/core/game_rules/trick_winner_test.dart
 ```
 
-The 39 `PlaySituation` tests cover boundaries, low estimates, overtricks, all
+The 41 `PlaySituation` tests cover boundaries, low estimates, overtricks, all
 trump categories, all leading seats, voids, defensive copies, rotation
 validation for every leader and rejected seat sequences, observed-trick
 validation (including that leading with observed history shown does **not**
-require the leader to be that history's winner), `opponentEstimates`
-accepted absent/partial/full and exposed as an immutable copy, the
-combined four-seat total-13 rejection, the own-seat rejection, and invalid
-snapshots. The 9 `trickWinner` tests cover led-suit wins, trump wins,
+require the leader to be that history's winner), and invalid snapshots. For
+`opponentEstimates` specifically: accepted absent/partial/full, exposed as
+an immutable copy, the excluded seat following `playerPosition` for all four
+possible pending seats (not a hardcoded South), the auction-bid bound
+including "With" at exactly the bid and no bound without auction context,
+and both whole-set rules — the combined total-13 rejection and the
+"some seat must be able to be the Caller" rejection — each shown not to fire
+on a partial set. The 9 `trickWinner` tests cover led-suit wins, trump wins,
 multiple trumps, Sans, every leader/winner combination, and that the same
 cards can resolve differently depending only on trump.
 
@@ -192,6 +209,10 @@ winner, or computes a score — both classify already-known values.
 
 - `estimateTotal`/`isValidEstimateTotal` sum a complete `Map<PlayerSeat,
   TrickEstimate>` and check it does not equal 13.
+- `includesCallerEstimate` checks a complete set contains some seat at the
+  Caller's estimate, since the Caller's estimate *is* the winning auction
+  bid (rule 1). It answers "could any of these four be the Caller?", never
+  "which one is".
 - `classifyEstimateTotal` returns `EstimateTotalBalance.over` (total ≥ 14) or
   `.under` (≤ 12); it throws if the total is exactly 13 rather than silently
   picking a side.

@@ -220,7 +220,8 @@ explicitly, not guessed at.
 | `auctionBid` distinct from each player's `trickEstimate` | [EGYPTIAN_ARABIC.md](EGYPTIAN_ARABIC.md#auction-bid-and-trick-estimate-are-distinct), D-013 | `Bid` vs `TrickEstimate` in `play_situation.dart` |
 | `TrickEstimate`'s 0–13 physical bound | [GAME_RULES.md](GAME_RULES.md#ec-045-public-play-situation) | `TrickEstimate` in `play_situation.dart` — the bound only, not how a real estimate gets assigned |
 | Void suits derived from observed follow-suit violations | D-018 | `lib/core/game_rules/void_tracking.dart` (a consequence of follow-suit, not a new rule) |
-| A non-Caller's estimate must not exceed the Caller's | [Post-auction trick estimates](#post-auction-trick-estimates) rule 2 | `lib/core/game_rules/estimate_totals.dart` (`isValidNonCallerEstimate`) |
+| The Caller's own estimate is their winning auction bid's trick count | [Post-auction trick estimates](#post-auction-trick-estimates) rule 1 | `estimate_totals.dart` (`includesCallerEstimate`) — checks a *complete* four-seat set contains some seat at that count, without identifying which seat is the Caller; added EC-055/D-027 |
+| A non-Caller's estimate must not exceed the Caller's | [Post-auction trick estimates](#post-auction-trick-estimates) rule 2 | `lib/core/game_rules/estimate_totals.dart` (`isValidNonCallerEstimate`) — applied to the pending player's own estimate and to every authored opponent estimate |
 | "With": an estimate equal to the Caller's | rule 3 | `estimate_totals.dart` (`isWithCaller`) — derived from equality, never an authored flag |
 | Total of four estimates must never equal 13 | rule 4 | `estimate_totals.dart` (`isValidEstimateTotal`, `estimateTotal`) |
 | "Over"/"Under": total ≥ 14 is Over, ≤ 12 is Under | rule 5 | `estimate_totals.dart` (`classifyEstimateTotal`) |
@@ -231,7 +232,7 @@ explicitly, not guessed at.
 
 | Rule domain | Confirmed in | What's missing |
 | --- | --- | --- |
-| Trick winners (highest of led suit; highest trump if any played; A high…2 low; Sans only led suit can win) | [Trick winners](#trick-winners) | No resolver anywhere in the app; used only as authored reasoning in EC-047/EC-042 coaching text |
+| Trick winners, as a *round* mechanism (advancing turns, computing the next trick's leader, accumulating taken counts) | [Trick winners](#trick-winners) | The rule itself is implemented for one already-complete trick (`trick_winner.dart`, `trickWinner`, EC-055/D-025) and used by content authors and tests; nothing wires it into round progression, and `PlaySituation` deliberately does not apply it (see D-025) |
 | Risk: associated with the last estimator when their estimate pushes the total farther from 13; multiple risk levels exist | [Post-auction trick estimates](#post-auction-trick-estimates) rule 7 | No module computes or classifies Risk; its point levels/scoring are unconfirmed and deliberately not implemented yet |
 
 Everything else already implemented (normal bidding, Dash, follow-suit, seat

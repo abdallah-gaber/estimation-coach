@@ -1,7 +1,7 @@
 import '../cards/cards.dart';
 import 'bidding.dart';
 import 'estimate_totals.dart'
-    show isValidEstimateTotal, isValidNonCallerEstimate;
+    show includesCallerEstimate, isValidEstimateTotal, isValidNonCallerEstimate;
 import 'legal_cards.dart' as rules;
 import 'seat_play.dart';
 import 'seat_rotation.dart';
@@ -130,17 +130,36 @@ final class PlaySituation {
       );
     }
     // opponentEstimates is additive public context (EC-055/D-027): each
-    // opponent's own exact-trick target, never the pending player's own seat
-    // (that stays trickEstimate, never duplicated here). Partial sets stay
-    // explicitly partial — nothing is inferred. Only once all three
-    // opponents are known does completing the four-seat set with
-    // trickEstimate become checkable against the owner-confirmed total-13
-    // rule.
+    // opponent's own exact-trick target, keyed by seat. Which seats count as
+    // opponents follows playerPosition, not a hardcoded South: only that
+    // seat is excluded, so a scenario pending on any seat works the same way.
+    // Partial sets stay explicitly partial — nothing is inferred.
     if (opponents.containsKey(playerPosition)) {
       throw ArgumentError(
         'opponentEstimates must not include the pending player\'s own seat',
       );
     }
+    // The Caller's estimate equals the winning bid and bounds everyone
+    // else's, so the same bound already applied to trickEstimate applies to
+    // every authored opponent estimate. Reuses the owning helper rather than
+    // re-deriving the comparison; still infers no caller identity.
+    if (auctionBid != null) {
+      final callerEstimate = TrickEstimate(auctionBid.tricks);
+      for (final estimate in opponents.values) {
+        if (!isValidNonCallerEstimate(
+          estimate: estimate,
+          callerEstimate: callerEstimate,
+        )) {
+          throw ArgumentError(
+            'Opponent estimates must not exceed the known winning auction bid',
+          );
+        }
+      }
+    }
+    // Only once all three opponents are known is the four-seat set complete,
+    // and only then do the whole-set rules apply: the total must not equal 13,
+    // and some seat must estimate exactly the winning bid, because the
+    // Caller is one of these four and their estimate *is* that bid.
     if (opponents.length == PlayerSeat.values.length - 1) {
       final allEstimates = <PlayerSeat, TrickEstimate>{
         ...opponents,
@@ -149,6 +168,16 @@ final class PlaySituation {
       if (!isValidEstimateTotal(allEstimates)) {
         throw ArgumentError(
           'Combined four-seat trick estimates must not total 13',
+        );
+      }
+      if (auctionBid != null &&
+          !includesCallerEstimate(
+            allEstimates,
+            callerEstimate: TrickEstimate(auctionBid.tricks),
+          )) {
+        throw ArgumentError(
+          'A complete estimate set must include one seat estimating the '
+          'known winning auction bid',
         );
       }
     }

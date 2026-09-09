@@ -15,15 +15,16 @@ closed 6 of the 13 base-scenario gaps, its third closed the remaining 7
 (32/32, matrix complete), its fourth decided against wiring the variant
 mechanism into the product (D-024) and prepared the owner repeated-session
 review, its fifth fixed a trick-winner inconsistency the review found
-(D-025), and its sixth fixed a target-feasibility contradiction the review
-found (D-026). That review, continuing, plus a queued opponent-estimates
-contract PR are the only items still open, so checkpoint 3 is not done.
+(D-025), its sixth fixed a target-feasibility contradiction the review found
+(D-026), and its seventh completed the public table with per-seat opponent
+estimates (D-027). That review, continuing, is the only item still open, so
+checkpoint 3 is not done.
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
 | 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
 | 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | DONE |
-| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant decided against wiring, D-024; two owner-review correctness fixes landed, D-025/D-026; opponent-estimates PR queued; owner review continues) |
+| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant decided against wiring, D-024; three owner-review fixes landed, D-025/D-026/D-027; owner review continues) |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
 | 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
 | 6 | Egyptian Arabic + UI polish — مصري terminology, localization/RTL, focused usability polish | EC-060 | READY (after checkpoint 5) |
@@ -966,50 +967,74 @@ started. The owner's repeated-session review continues.
 ### Seventh bounded PR (this PR): public opponent estimates
 
 The queued follow-up from the sixth bounded PR: the public play table showed
-each opponent's tricks taken with no target to compare it against.
+each opponent's tricks taken with no target to compare it against. Revised
+inside the same PR after owner review rejected a first version that added the
+field but left all 17 scenarios empty — which would have shipped the same
+incomplete table, since every opponent still rendered as `Target unknown`.
+Authored synthetic game states make an opponent's target *missing public
+state to author*, like the cards and taken counts already authored.
 
-**Contract**: an additive, optional `opponent_estimates` field (only
-`north`/`east`/`west`, each an exact 0–13 estimate; schema stays version 1),
-a matching `PlaySituation.opponentEstimates` domain field
-(`Map<PlayerSeat, TrickEstimate>`, default empty) that rejects the pending
-player's own seat and — only once all three opponents are present — checks
-the combined four-seat total against the existing total-must-not-equal-13
-rule (`isValidEstimateTotal`). Partial sets stay explicitly partial; nothing
-is inferred. Full rationale: [D-027](docs/DECISIONS.md).
+**Contract**: an additive, optional `opponent_estimates` object, each value
+an exact 0–13 estimate; `scenario_version` stays 1. The schema allows **all
+four** seat names and the domain rejects whichever equals `player_position`,
+so the field does not narrow the root contract's any-seat pending player to
+South. `PlaySituation.opponentEstimates` is a `Map<PlayerSeat, TrickEstimate>`
+(default empty), and three game_rules_v1 estimate rules previously unchecked
+are now enforced through the modules that own them, with no caller identity
+inferred: every authored estimate is bounded by a supplied `auction_bid`
+(rule 2, reusing `isValidNonCallerEstimate`; equalling it is "With", rule 3);
+a complete set combined with `trick_estimate` must not total 13 (rule 4) and
+must contain some seat at exactly the winning bid, because the Caller is one
+of the four and their estimate *is* that bid (rule 1, via the one new helper
+`includesCallerEstimate`). Partial sets are never measured against either
+whole-set rule. Full rationale: [D-027](docs/DECISIONS.md).
 
-**UI**: opponent seats on the play table now read `Target N · Taken M` when
-that seat's estimate is known, or an honest `Target unknown · Taken M`
-when it is not — never an invented number. The leader's `Led <suit>` label
-and South's own two chips are unchanged.
+**UI**: opponent seats read `Target N · Taken M`, or an honest
+`Target unknown · Taken M` when a seat's estimate is absent. The leading seat
+keeps its `Led <suit>` line but no longer *instead* of its target and taken
+counts — hiding those for the seat that opened the trick left the table
+incomplete. South's own chips are unchanged. Verified in a browser at desktop
+and 375px widths: no overflow, no console errors.
 
-**Content audit, and why nothing changed**: all 17 bundled play scenarios
-were reviewed against this new field. None records anything about an
-individual opponent's bid beyond the aggregate winning `auction_bid.tricks`
-and the player's own `trick_estimate` — there is no per-seat auction history
-in this content model to draw a real number from. Authoring specific
-opponent targets here would invent an auction outcome never authored, the
-same category of problem D-025/D-026 found and fixed. All 17 scenarios stay
-without `opponent_estimates`; the honest fallback exists because this is the
-expected state for existing content, not a hypothetical edge case.
+**Content**: all 17 bundled play scenarios now author a complete three-seat
+set, each individually reviewed against its own lesson. Every set is
+rule-valid (no seat over a supplied bid, some seat at the bid, no total of 13,
+maximum at least the auction minimum of 4 even where `auction_bid` is absent,
+no opponent at 0 which would be a Dash declaration). **No opponent is exactly
+on target in any scenario** — the one state that would give the player a
+reason to hand a seat a trick to break it, which this MVP does not teach. In
+the five `play_target_protection_001`–`005` scenarios whose reviewed line
+concedes the trick, North is authored so that trick does not complete North's
+target (or, in `_003`, so North's target is already missed and the outcome is
+inert), keeping the decision about South's own exact target; each choice is
+recorded in that file's `author_notes`. Where the arithmetic left no neutral
+option (a seat on 3 taken under a 4-trick bid can only be 4 to stay below
+target), that is stated rather than resolved with an on-target value. **No
+rating changed.** Per-scenario table and re-review:
+[docs/COACHING_REVIEW.md](docs/COACHING_REVIEW.md).
 
-**Tests** (+13, 351 total): `play_situation_test.dart` (+5) covers default
-empty, accepted absent/partial/full, immutable exposure, the combined
-total-13 rejection and the own-seat rejection. `play_scenario_test.dart`
-(+6) covers the schema/parser round-trip for partial/full sets, no South
-duplication, and four invalid-shape/relation rejections (bad seat key,
-unknown seat name, out-of-range value, fractional value, and a schema-valid
-but domain-rejected total-13 combination). `play_training_test.dart` (+2)
-covers the honest fallback on a real unmodified scenario and the
-`Target N · Taken M` rendering on a copy of one with `opponent_estimates`
-added. Full review: [docs/COACHING_REVIEW.md](docs/COACHING_REVIEW.md).
+**Tests** (+20, 358 total): `estimate_totals_test.dart` (+2) for
+`includesCallerEstimate` directly; `play_situation_test.dart` (+4) for
+absent/partial/full acceptance, immutable exposure, the excluded seat
+following `playerPosition` across all four pending seats, the auction bound
+including "With" and no bound without a bid, and both whole-set rules shown
+not to fire on a partial set; `play_scenario_test.dart` (+8) for the
+schema/parser round trip plus seven rejection cases; `play_training_test.dart`
+(+2) asserting all 17 scenarios render a real `Target · Taken` for every
+opponent including the leading seat, with no `Target unknown` anywhere, and
+the honest fallback when a seat's estimate is removed.
 
-351 tests pass, analysis is clean, strict validation accepts all 33 content
-files unchanged (no content was edited), and the web build succeeds. No
-coaching rating changed; no opponent behavioral modeling, strategic
-objective, or multi-trick simulation was added. Coverage matrix stays
-32/32, the Variety gate stays 0%, MVP Readiness stays 45%, EC-055 is not
-marked DONE, checkpoint 4 was not started. The owner's repeated-session
-review continues.
+Also corrected a stale row in `docs/GAME_RULES_V1.md`'s rule-status audit that
+still claimed no trick-winner resolver existed anywhere in the app, which
+D-025 had made untrue.
+
+358 tests pass, analysis is clean, strict validation accepts all 33 content
+files, and the web build succeeds. No coaching rating changed; no opponent
+behavioral modeling, strategic objectives, or multi-trick simulation was
+added — the trainer stays local, tactical and exact-target-aware. Coverage
+matrix stays 32/32 (edits to existing scenarios, not new ones), the Variety
+gate stays 0%, MVP Readiness stays 45%, EC-055 is not marked DONE, checkpoint
+4 was not started. The owner's repeated-session review continues.
 
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
@@ -1022,12 +1047,12 @@ review continues.
   tactical evidence counts as breadth; cosmetic variants alone do not. **Matrix
   complete: 32/32 scenarios authored.** ✅
 - Record owner repeated-session review showing reasoning rather than answer recall.
-  **In progress**: the owner's review has found and this project has fixed two
-  genuine correctness issues so far (`play_void_tracking_005`'s trick-winner
-  inconsistency, D-025; its target-feasibility contradiction, D-026), and has
-  delivered the queued opponent-estimates contract extension (D-027) so the
-  public table is no longer missing opponent targets; the review itself
-  continues — this is the only open acceptance criterion for EC-055.
+  **In progress**: the owner's review has found and this project has fixed
+  three genuine issues so far (`play_void_tracking_005`'s trick-winner
+  inconsistency, D-025; its target-feasibility contradiction, D-026; and the
+  incomplete public table, now carrying per-seat opponent estimates in all 17
+  scenarios, D-027); the review itself continues — this is the only open
+  acceptance criterion for EC-055.
 - New scenarios using supported contracts remain content-only; no runtime AI. ✅
 
 ---

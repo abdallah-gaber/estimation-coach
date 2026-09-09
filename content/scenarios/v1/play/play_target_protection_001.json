@@ -18,7 +18,8 @@
     ],
     "trump": "spades",
     "trick_estimate": 4,
-    "tricks_taken": {"north": 2, "east": 2, "south": 3, "west": 2}
+    "tricks_taken": {"north": 2, "east": 2, "south": 3, "west": 2},
+    "opponent_estimates": {"north": 4, "east": 3, "west": 3}
   },
   "evaluations": [
     {
@@ -47,5 +48,5 @@
       }
     }
   ],
-  "author_notes": "EC-043 contrast pair with _002: identical hand and current trick, different visible taken counts. No hidden-card or final-round guarantee. No auction context is needed for this decision."
+  "author_notes": "EC-043 contrast pair with _002: identical hand and current trick, different visible taken counts. No hidden-card or final-round guarantee. No auction context is needed for this decision. Opponent estimates (EC-055/D-027) are authored so no seat is exactly on target: North estimates 4 with 2 taken, needing two of the four remaining tricks, so the trick South declines in the Risky line is not the one that would complete North's target. Nothing here asks the player to reason about an opponent's contract."
 }

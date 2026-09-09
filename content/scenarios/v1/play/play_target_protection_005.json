@@ -18,7 +18,8 @@
     ],
     "trump": "no_trump",
     "trick_estimate": 4,
-    "tricks_taken": {"north": 2, "east": 2, "south": 3, "west": 2}
+    "tricks_taken": {"north": 2, "east": 2, "south": 3, "west": 2},
+    "opponent_estimates": {"north": 4, "east": 3, "west": 3}
   },
   "evaluations": [
     {
@@ -61,5 +62,5 @@
       }
     }
   ],
-  "author_notes": "EC-043 competing-winners case in Sans: AH and QH both win now, so the decision concerns which winning card to spend before reaching the exact target. No unseen king, future lead, full-round success or scoring outcome is asserted."
+  "author_notes": "EC-043 competing-winners case in Sans: AH and QH both win now, so the decision concerns which winning card to spend before reaching the exact target. No unseen king, future lead, full-round success or scoring outcome is asserted. Opponent estimates (EC-055/D-027) leave North needing two of the four remaining tricks (estimate 4, 2 taken), so the trick North takes in the Risky line does not complete North's target. Which of South's two winning Hearts to spend is unaffected by opponent targets: both take this trick from the same seats."
 }

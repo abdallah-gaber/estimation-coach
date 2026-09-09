@@ -19,7 +19,8 @@
     "trump": "diamonds",
     "trick_estimate": 4,
     "tricks_taken": {"north": 3, "east": 3, "south": 2, "west": 3},
-    "auction_bid": {"tricks": 4, "trump": "diamonds"}
+    "auction_bid": {"tricks": 4, "trump": "diamonds"},
+    "opponent_estimates": {"north": 4, "east": 4, "west": 4}
   },
   "evaluations": [
     {

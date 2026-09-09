@@ -89,6 +89,41 @@ void main() {
     );
   });
 
+  test('a complete set must contain some seat at the Caller\'s estimate', () {
+    final caller = TrickEstimate(4);
+    // Any seat can be the one at the winning bid; several may be ("With").
+    for (final set in [
+      estimates(4, 3, 2, 1),
+      estimates(1, 4, 2, 3),
+      estimates(1, 3, 4, 2),
+      estimates(2, 1, 3, 4),
+      estimates(4, 4, 4, 2),
+    ]) {
+      expect(includesCallerEstimate(set, callerEstimate: caller), isTrue);
+    }
+    // Nobody at 4 means no seat could be the Caller of a 4-trick bid.
+    expect(
+      includesCallerEstimate(estimates(3, 3, 2, 1), callerEstimate: caller),
+      isFalse,
+    );
+    // Exceeding the bid is a separate rule; this one only asks for equality.
+    expect(
+      includesCallerEstimate(estimates(5, 3, 2, 1), callerEstimate: caller),
+      isFalse,
+    );
+  });
+
+  test('includesCallerEstimate rejects an incomplete set', () {
+    expect(
+      () => includesCallerEstimate({
+        PlayerSeat.north: TrickEstimate(4),
+        PlayerSeat.east: TrickEstimate(3),
+        PlayerSeat.west: TrickEstimate(2),
+      }, callerEstimate: TrickEstimate(4)),
+      throwsArgumentError,
+    );
+  });
+
   test('"With" is exact equality with the Caller\'s estimate', () {
     final caller = TrickEstimate(5);
     expect(

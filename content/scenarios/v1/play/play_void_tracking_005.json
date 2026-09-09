@@ -16,6 +16,7 @@
     "trick_estimate": 4,
     "tricks_taken": {"north": 2, "east": 3, "south": 3, "west": 3},
     "auction_bid": {"tricks": 4, "trump": "hearts"},
+    "opponent_estimates": {"north": 3, "east": 4, "west": 4},
     "observed_tricks": [
       [
         {"player": "east", "card": "7C"},

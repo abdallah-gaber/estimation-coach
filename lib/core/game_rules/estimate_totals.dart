@@ -35,6 +35,21 @@ EstimateTotalBalance classifyEstimateTotal(
   return total >= 14 ? EstimateTotalBalance.over : EstimateTotalBalance.under;
 }
 
+/// The Caller's own estimate *is* their winning auction bid's trick count
+/// (game_rules_v1 rule 1), so a complete four-seat set must contain at least
+/// one seat estimating exactly [callerEstimate]. More than one seat may —
+/// that is "With" (rule 3). Which seat is the Caller stays unidentified: this
+/// only asks whether *some* seat could be it.
+bool includesCallerEstimate(
+  Map<PlayerSeat, TrickEstimate> estimates, {
+  required TrickEstimate callerEstimate,
+}) {
+  _requireAllSeats(estimates);
+  return estimates.values.any(
+    (estimate) => estimate.tricks == callerEstimate.tricks,
+  );
+}
+
 /// A non-Caller's estimate must not exceed the Caller's (game_rules_v1).
 bool isValidNonCallerEstimate({
   required TrickEstimate estimate,

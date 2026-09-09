@@ -130,7 +130,14 @@ final class PlayScenario {
     if (raw.containsKey('opponent_estimates')) {
       final path = r'$.situation.opponent_estimates';
       final rawOpponents = _object(raw['opponent_estimates'], path);
-      _keys(rawOpponents, ['north', 'east', 'west'], path);
+      // Every seat name is structurally allowed; `PlaySituation` rejects
+      // whichever one equals `player_position`, so the contract does not
+      // assume the pending player is always South.
+      _keys(
+        rawOpponents,
+        PlayerSeat.values.map((seat) => seat.name).toList(),
+        path,
+      );
       for (final entry in rawOpponents.entries) {
         final seat = _enum(entry.key, PlayerSeat.values, '$path.${entry.key}');
         opponentEstimates[seat] = TrickEstimate(
