@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:estimation_coach/core/cards/cards.dart';
+import 'package:estimation_coach/core/game_rules/trick_winner.dart';
 import 'package:estimation_coach/core/game_rules/void_tracking.dart';
 import 'package:estimation_coach/scenarios/bidding_scenario.dart';
 import 'package:estimation_coach/scenarios/play_scenario.dart';
@@ -357,4 +358,32 @@ void main() {
       );
     },
   );
+
+  test('play_void_tracking_005 authors South as its empty-trick leader '
+      'consistently with who actually wins its shown prior trick', () {
+    // This scenario intends its one observed trick as the immediately
+    // previous one — the whole point is "you just won this, now lead" —
+    // so, unlike PlaySituation's general contract (which does not assume
+    // observedTricks is contiguous; see docs/DECISIONS.md D-025), this
+    // specific file's own authored intent lets trickWinner double-check
+    // it directly.
+    final scenario = PlayScenario.fromJson(
+      jsonDecode(
+        File(
+          'content/scenarios/v1/play/play_void_tracking_005.json',
+        ).readAsStringSync(),
+      ),
+    );
+    final situation = scenario.situation;
+    expect(situation.currentTrick, isEmpty, reason: 'South is leading');
+    expect(situation.observedTricks, hasLength(1));
+    expect(
+      trickWinner(situation.observedTricks.single, situation.trump),
+      PlayerSeat.south,
+      reason:
+          'the observed trick must be legitimately won by South for '
+          'South to be a consistent leader of the next, empty trick',
+    );
+    expect(situation.leader, PlayerSeat.south);
+  });
 }

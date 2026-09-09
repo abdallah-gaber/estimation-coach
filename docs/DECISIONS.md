@@ -619,7 +619,7 @@ review (see the checklist in
 No automated check can substitute for that review; the Variety gate stays
 at 0% and MVP Readiness stays at 45% until the owner confirms it explicitly.
 
-## D-025 — Add a bounded `trickWinner` helper and one narrow leader/history invariant
+## D-025 — Add a bounded `trickWinner` helper; do not enforce leader/history continuity generically
 
 **Status:** Accepted — found during the owner's checkpoint 3 repeated-session review
 
@@ -632,9 +632,7 @@ with 2C. Per game_rules_v1's confirmed trick-winner rule (highest card of
 the led suit wins unless trump is played, then highest trump wins), **West**
 — not South — won that trick. The scenario's current (empty) trick then
 authored `"leader": "south"`, contradicting the standard, already-documented
-relationship that the winner of a trick leads the next one
-(game_rules_v1's Play direction section already says leading "depends on
-who wins this one," it just had no way to check it before now).
+relationship that the winner of a trick leads the next one.
 
 `PlaySituation`'s existing validation could not catch this: it deliberately
 does not resolve trick winners (see
@@ -646,17 +644,17 @@ leading (empty-current-trick) scenario with observed history behind it, so
 the gap was never exercised. `play_void_tracking_005` (EC-055's third
 bounded PR, the first-ever leading scenario) is what finally hit it.
 
-### The fix: content, plus a small, precisely-scoped validation rule
+### The content fix
 
-**Content fix** (smallest change that preserves the training goal): changed
-West's discard from `5H` (a trump) to `3D` (an off-suit, non-trump card) and
-South's card from `2C` to `KC` — South's own Ace of Clubs, still held now,
-was never the card played there. With no trump played, the highest Club
-(South's King) legitimately wins, so South leading next is game-consistent.
-West's Club void — the evidence this scenario trains leading around — is
-unchanged; both evaluations' ratings (Risky for the Ace into the void,
-Strong for avoiding it) are unaffected, and the one feedback point naming
-West's discarded suit was updated from "Heart" to "Diamond" to match. See
+Smallest change that preserves the training goal: changed West's discard
+from `5H` (a trump) to `3D` (an off-suit, non-trump card) and South's card
+from `2C` to `KC` — South's own Ace of Clubs, still held now, was never the
+card played there. With no trump played, the highest Club (South's King)
+legitimately wins, so South leading next is game-consistent. West's Club
+void — the evidence this scenario trains leading around — is unchanged;
+both evaluations' ratings (Risky for the Ace into the void, Strong for
+avoiding it) are unaffected, and the one feedback point naming West's
+discarded suit was updated from "Heart" to "Diamond" to match. See
 `content/scenarios/v1/play/play_void_tracking_005.json`'s `author_notes`
 for the full before/after.
 
@@ -664,56 +662,83 @@ for the full before/after.
 `observed_tricks` was checked (`play_void_tracking_001/002/003/004/005`,
 `play_mixed_tactical_001`). Only `play_void_tracking_005` has an empty
 current trick — the one situation where the authored `leader` is not
-already independently visible as the owner of `currentTrick`'s first play,
-so it is the only situation where "who leads" is asserted by the `leader`
-field alone with no corroborating visible evidence, and thus the only place
-this specific contradiction could exist undetected. The other five all have
-a non-empty current trick already in progress with its own visibly-authored
-leader; game_rules_v1's explicit "no claim of recency" principle for
-observed tricks means they do not assert their observed trick is the
-immediately preceding one, so no fix was needed there (confirmed by
-computing each one's observed-trick winner and confirming none of them
-claims that winner is who leads — three of the five, as it happens, are not
-won by their current trick's leader, unremarkably, since nothing in their
-content claims they should be).
+already independently visible as the owner of `currentTrick`'s first play —
+so it was the only file needing a fix.
 
-**Decision: yes, add a small deterministic helper, narrowly scoped.**
+### The helper: added; a generic validation rule: deliberately not added
+
 `lib/core/game_rules/trick_winner.dart` adds `trickWinner(ObservedTrick,
 Trump)`, a pure function applying game_rules_v1's already-confirmed rule to
 exactly one already-complete trick (led suit wins unless trumped; highest
-trump wins; Sans only led-suit cards can win). `PlaySituation`'s constructor
-gained exactly one new check: **when the current trick is empty and at
-least one trick has been observed, the authored `leader` must equal
-`trickWinner` of the last observed trick.** This is deliberately the
-narrowest rule that closes the actual gap:
+trump wins; Sans only led-suit cards can win). It lives in its own file with
+no dependency on `play_situation.dart` (see "Avoiding a circular
+dependency" below) and is fully covered by
+`test/core/game_rules/trick_winner_test.dart`.
 
-- It fires only when the current trick is empty — the one case with no
-  other way to verify who leads.
-- It only ever looks at the *last* observed trick, never chains multiple
-  observed tricks against each other (that remains explicitly out of scope,
-  unchanged from GAME_RULES.md's existing carve-out).
-- It computes nothing beyond one trick's winner: no next-leader-after-that,
-  no round progression, no scoring. `trickWinner` takes one `ObservedTrick`
-  and returns one `PlayerSeat`; it is not wired into any resolver, turn
-  loop, or the trainer UI.
+An earlier version of this fix also added a `PlaySituation` check —
+"when the current trick is empty and history exists, `leader` must equal
+`trickWinner` of `observedTricks.last`" — and that check is what caught the
+`play_void_tracking_005` bug in the first place. **It was removed before
+merge.** The check assumed something the `observedTricks` contract does not
+promise: that the last observed trick is *immediately* previous to the
+current one. `observedTricks` is explicitly curated, visible evidence —
+"not a claim of recency... or completeness" (see GAME_RULES.md's EC-045
+section, unchanged) — precisely so an author can show only the trick(s)
+relevant to a lesson, skipping any number of intervening tricks that
+happened but were not worth showing. A future scenario could legitimately
+have South as the current, empty trick's leader while the last authored
+`observed_trick` is an older piece of evidence someone *else* won, with one
+or more unshown tricks in between. The removed check would have rejected
+that valid scenario outright. Enforcing continuity correctly would require
+either an explicit "this observed trick is immediately previous" flag in the
+schema (a schema change the task instructed against, and one this checkpoint
+has no confirmed need for beyond this single scenario) or a way to prove a
+gap doesn't exist (which nothing in the current contract can do). Neither is
+worth adding for one file.
 
-This is not a full-round simulator, and does not become one: it is the same
-"small, independent pure Dart module" pattern as `estimate_totals.dart` and
-`exact_bid_outcome.dart`, applying a rule the owner already confirmed and
-game_rules_v1 already documents, to prevent exactly the authored-content
-contradiction just found — nothing more.
+**What replaced it**: a targeted, scenario-specific regression test,
+`test/scenarios/play_scenario_test.dart` — `play_void_tracking_005 authors
+South as its empty-trick leader consistently with who actually wins its
+shown prior trick`. It loads that one file, confirms its situation intends
+direct continuation (empty current trick, exactly one observed trick — this
+scenario's own narrative point is "you just won this, now lead"), and
+asserts `trickWinner(observedTricks.single, trump) == leader`. This proves
+the one scenario that actually needs the property continues to hold it,
+without asserting the property for every scenario that will ever exist.
+
+**Avoiding a circular dependency**: `SeatPlay` and `ObservedTrick` moved out
+of `play_situation.dart` into their own file,
+`lib/core/game_rules/seat_play.dart` (no behavior change — same
+constructors, same validation, same rotation check). `play_situation.dart`
+imports and re-exports them (`export 'seat_play.dart' show ObservedTrick,
+SeatPlay;`) so every existing import of `SeatPlay`/`ObservedTrick` via
+`play_situation.dart` keeps working unchanged. `trick_winner.dart` imports
+`seat_play.dart` directly, never `play_situation.dart` — so
+`play_situation.dart → trick_winner.dart → play_situation.dart` cannot
+happen; `trick_winner.dart` has no dependency on `PlaySituation` at all now
+that no invariant inside it calls the helper.
+
+`trickWinner` is not a full-round simulator and does not become one: it is
+the same "small, independent pure Dart module" pattern as
+`estimate_totals.dart` and `exact_bid_outcome.dart`, applying a rule the
+owner already confirmed and game_rules_v1 already documents, resolving
+nothing beyond one already-complete trick, and available for authors and
+tests to use directly wherever a scenario's own intent already establishes
+the trick as immediately previous — without the domain model asserting that
+intent for every scenario.
 
 ### Consequence
 
-`docs/GAME_RULES.md` and `docs/GAME_RULES_V1.md` are updated to state this
-one new capability precisely, without weakening the surrounding "no
-resolver, no turn order, no scoring" scope statements, which remain true
-for every case this rule does not cover. `test/core/game_rules/trick_winner_test.dart`
-and new cases in `test/core/game_rules/play_situation_test.dart` cover it.
-This is a bounded correctness fix, not checkpoint 3 content or acceptance
-work: it does not change the coverage matrix (still 32/32), does not touch
-readiness (still 45%), and does not mark EC-055 done. The owner's
-repeated-session review continues.
+`docs/GAME_RULES.md`, `docs/GAME_RULES_V1.md` and `docs/SCENARIO_AUTHORING.md`
+document `trickWinner` as an available pure helper and explain why it is not
+wired into `PlaySituation`'s validation, without weakening any "no resolver,
+no turn order, no scoring" statement elsewhere — those remain true, and are
+now explicitly true for cross-trick leader/winner continuity in general too,
+not just for chaining multiple observed tricks. This is a bounded
+correctness fix, not checkpoint 3 content or acceptance work: it does not
+change the coverage matrix (still 32/32), does not touch readiness (still
+45%), and does not mark EC-055 done. The owner's repeated-session review
+continues.
 
 ## Decision template
 

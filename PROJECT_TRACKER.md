@@ -853,25 +853,35 @@ overclaiming. Full re-review: [docs/COACHING_REVIEW.md](docs/COACHING_REVIEW.md)
 case where `leader` is asserted with no other visible evidence to check it
 against — so it was the only file needing a fix.
 
-**Added a small, precisely-scoped fix to prevent recurrence**
-([D-025](docs/DECISIONS.md)): `trickWinner`
-(`lib/core/game_rules/trick_winner.dart`) applies the already-confirmed
-game_rules_v1 trick-winner rule to one already-complete trick; `PlaySituation`
-gained exactly one new check — when leading (`currentTrick` empty) with
-observed history shown, the authored leader must equal that helper's answer
-for the *last* observed trick. Scoped narrowly: fires only on that one
-condition, never chains multiple observed tricks, resolves nothing beyond one
-trick's winner, and is not wired into any UI or turn/scoring logic — not a
-round simulator. 9 new tests (`trick_winner_test.dart`) plus 2 new
-`PlaySituation` regression tests (36 total in that file) cover it, including
-proof that the *original* broken data is now rejected.
+**Added the pure `trickWinner` helper; deliberately did not add a generic
+validation rule** ([D-025](docs/DECISIONS.md)): `trickWinner`
+(`lib/core/game_rules/trick_winner.dart`, 9 tests) applies the
+already-confirmed game_rules_v1 trick-winner rule to one already-complete
+trick. An earlier version of this fix also added a `PlaySituation` check —
+leading with observed history shown required the leader to equal that
+helper's answer for the last observed trick — and that check is what caught
+the bug initially, but it assumed `observedTricks.last` is always the
+immediately previous trick, which the `observed_tricks` contract does not
+promise (it is curated, visible evidence, not a claim of recency). **That
+check was removed before merge**, since it would reject a valid future
+scenario with an unshown trick between the last observed one and the
+current empty one. In its place, `test/scenarios/play_scenario_test.dart`
+gained one targeted regression test proving specifically that
+`play_void_tracking_005`'s authored leader matches its shown trick's actual
+winner — the one file whose own intent requires that property, without
+asserting it for every scenario. `SeatPlay`/`ObservedTrick` moved to a new
+`lib/core/game_rules/seat_play.dart` so `trick_winner.dart` never imports
+`play_situation.dart`, avoiding the circular dependency the first version
+of this fix introduced.
 
-`docs/GAME_RULES.md` and `docs/GAME_RULES_V1.md` are updated to state this one
-new capability precisely, without weakening any other "no resolver, no round,
-no scoring" statement, which remain true everywhere else. `docs/SCENARIO_AUTHORING.md`
-tells future content authors about the new leading-scenario check.
+`docs/GAME_RULES.md`, `docs/GAME_RULES_V1.md` and `docs/SCENARIO_AUTHORING.md`
+document `trickWinner` as an available pure helper, explain why it is not
+wired into `PlaySituation`'s validation, and tell future content authors to
+add their own targeted test when a scenario's intent requires continuity —
+without weakening any "no resolver, no round, no scoring" statement, which
+remain true everywhere else.
 
-325 tests pass, analysis is clean, strict validation accepts all 33 content
+324 tests pass, analysis is clean, strict validation accepts all 33 content
 files (unchanged count — a correction, not new content), and the web build
 succeeds. This is a bounded correctness fix, not checkpoint 3 acceptance work:
 the coverage matrix stays 32/32, the Variety gate stays 0%, MVP Readiness

@@ -712,24 +712,26 @@ progress with independently-visible leaders, and game_rules_v1's existing
 "no claim of recency" principle for observed tricks means they never assert
 their shown trick is the immediately preceding one.
 
-Decided this gap was worth a small, precisely-scoped fix rather than a
-content-only patch: added `trickWinner` (`lib/core/game_rules/trick_winner.dart`,
-9 tests) implementing the already-confirmed game_rules_v1 rule for one
-already-complete trick, and one new `PlaySituation` check (2 new tests in
-`play_situation_test.dart`, 36 total in that file now) — when leading with
-observed history shown, the authored leader must equal that helper's answer
-for the last observed trick. This is not a round simulator: it resolves
-nothing beyond one already-shown trick, never chains multiple observed
-tricks, and is not wired into the trainer UI or any turn/scoring logic. Full
-rationale in [D-025](DECISIONS.md).
+Added `trickWinner` (`lib/core/game_rules/trick_winner.dart`, 9 tests)
+implementing the already-confirmed game_rules_v1 rule for one
+already-complete trick — but **not** a generic `PlaySituation` check
+requiring every empty-current-trick leader to equal that helper's answer for
+the last observed trick. `observed_tricks` is curated evidence, not
+guaranteed contiguous with the current trick; a generic check would reject a
+valid future scenario with an unshown trick between the last observed one
+and the current empty one. Instead, `test/scenarios/play_scenario_test.dart`
+gained one targeted regression test asserting this specific property for
+`play_void_tracking_005` only, the one scenario whose own authored intent
+(and title, "Leading around a known void") requires it. `SeatPlay` and
+`ObservedTrick` moved to their own file, `lib/core/game_rules/seat_play.dart`,
+so `trick_winner.dart` never imports `play_situation.dart` and no circular
+dependency exists. Full rationale in [D-025](DECISIONS.md).
 
 ### Checkpoint verification boundary
 
-325 tests pass (18 more than the prior batch: 9 `trickWinner`, 2 new
-`PlaySituation` cases, plus this file's own review does not add test count).
-Analysis is clean, strict validation accepts all 33 content files (unchanged
-count — this was a correction, not new content), and the web build succeeds.
-This is a bounded correctness fix discovered during owner review, not
-checkpoint 3 acceptance work: the coverage matrix stays 32/32, readiness
-stays 45%, EC-055 is not marked DONE, and the owner's repeated-session review
-continues.
+324 tests pass. Analysis is clean, strict validation accepts all 33 content
+files (unchanged count — this was a correction, not new content), and the web
+build succeeds. This is a bounded correctness fix discovered during owner
+review, not checkpoint 3 acceptance work: the coverage matrix stays 32/32,
+readiness stays 45%, EC-055 is not marked DONE, and the owner's
+repeated-session review continues.

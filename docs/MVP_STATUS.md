@@ -243,10 +243,13 @@ success alone does not satisfy this criterion.
 - **Pass 1, 2026-09-09** — In progress. Found one genuine game-state
   inconsistency, not a coaching-wording issue: `play_void_tracking_005`'s
   observed trick was actually won by West (a trump), not South, contradicting
-  the authored leader. Fixed in the same PR (content correction, plus a small
-  `trickWinner` helper and validation rule to catch this class of error going
-  forward — see [D-025](DECISIONS.md)). The five questions above have not yet
-  been answered end-to-end; the review continues.
+  the authored leader. Fixed with the smallest content change that preserves
+  the lesson, plus a small pure `trickWinner` helper for content authors and
+  a targeted regression test for that one scenario — deliberately not a
+  generic validation rule, since `observed_tricks` is not guaranteed
+  contiguous with the current trick (see [D-025](DECISIONS.md) for why). The
+  five questions above have not yet been answered end-to-end; the review
+  continues.
 
 This criterion is not satisfied by the PR that added this log: it remains
 prepared and in progress, not completed. The Variety gate stays at 0% and
