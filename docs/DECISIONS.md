@@ -619,6 +619,102 @@ review (see the checklist in
 No automated check can substitute for that review; the Variety gate stays
 at 0% and MVP Readiness stays at 45% until the owner confirms it explicitly.
 
+## D-025 — Add a bounded `trickWinner` helper and one narrow leader/history invariant
+
+**Status:** Accepted — found during the owner's checkpoint 3 repeated-session review
+
+### The finding
+
+The owner's first repeated-session review pass found a genuine game-state
+inconsistency in `play_void_tracking_005`: its single observed trick had
+East lead a Club, North follow, **West trump with 5H**, and South follow low
+with 2C. Per game_rules_v1's confirmed trick-winner rule (highest card of
+the led suit wins unless trump is played, then highest trump wins), **West**
+— not South — won that trick. The scenario's current (empty) trick then
+authored `"leader": "south"`, contradicting the standard, already-documented
+relationship that the winner of a trick leads the next one
+(game_rules_v1's Play direction section already says leading "depends on
+who wins this one," it just had no way to check it before now).
+
+`PlaySituation`'s existing validation could not catch this: it deliberately
+does not resolve trick winners (see
+[GAME_RULES.md](GAME_RULES.md#ec-045-public-play-situation) — "one observed
+trick's leader is never checked against a previous trick's winner, since
+that would require a winner resolver this project does not have"). That
+carve-out was correct when written; nothing before this checkpoint needed a
+leading (empty-current-trick) scenario with observed history behind it, so
+the gap was never exercised. `play_void_tracking_005` (EC-055's third
+bounded PR, the first-ever leading scenario) is what finally hit it.
+
+### The fix: content, plus a small, precisely-scoped validation rule
+
+**Content fix** (smallest change that preserves the training goal): changed
+West's discard from `5H` (a trump) to `3D` (an off-suit, non-trump card) and
+South's card from `2C` to `KC` — South's own Ace of Clubs, still held now,
+was never the card played there. With no trump played, the highest Club
+(South's King) legitimately wins, so South leading next is game-consistent.
+West's Club void — the evidence this scenario trains leading around — is
+unchanged; both evaluations' ratings (Risky for the Ace into the void,
+Strong for avoiding it) are unaffected, and the one feedback point naming
+West's discarded suit was updated from "Heart" to "Diamond" to match. See
+`content/scenarios/v1/play/play_void_tracking_005.json`'s `author_notes`
+for the full before/after.
+
+**Audit of the same bug class**: every production play scenario with
+`observed_tricks` was checked (`play_void_tracking_001/002/003/004/005`,
+`play_mixed_tactical_001`). Only `play_void_tracking_005` has an empty
+current trick — the one situation where the authored `leader` is not
+already independently visible as the owner of `currentTrick`'s first play,
+so it is the only situation where "who leads" is asserted by the `leader`
+field alone with no corroborating visible evidence, and thus the only place
+this specific contradiction could exist undetected. The other five all have
+a non-empty current trick already in progress with its own visibly-authored
+leader; game_rules_v1's explicit "no claim of recency" principle for
+observed tricks means they do not assert their observed trick is the
+immediately preceding one, so no fix was needed there (confirmed by
+computing each one's observed-trick winner and confirming none of them
+claims that winner is who leads — three of the five, as it happens, are not
+won by their current trick's leader, unremarkably, since nothing in their
+content claims they should be).
+
+**Decision: yes, add a small deterministic helper, narrowly scoped.**
+`lib/core/game_rules/trick_winner.dart` adds `trickWinner(ObservedTrick,
+Trump)`, a pure function applying game_rules_v1's already-confirmed rule to
+exactly one already-complete trick (led suit wins unless trumped; highest
+trump wins; Sans only led-suit cards can win). `PlaySituation`'s constructor
+gained exactly one new check: **when the current trick is empty and at
+least one trick has been observed, the authored `leader` must equal
+`trickWinner` of the last observed trick.** This is deliberately the
+narrowest rule that closes the actual gap:
+
+- It fires only when the current trick is empty — the one case with no
+  other way to verify who leads.
+- It only ever looks at the *last* observed trick, never chains multiple
+  observed tricks against each other (that remains explicitly out of scope,
+  unchanged from GAME_RULES.md's existing carve-out).
+- It computes nothing beyond one trick's winner: no next-leader-after-that,
+  no round progression, no scoring. `trickWinner` takes one `ObservedTrick`
+  and returns one `PlayerSeat`; it is not wired into any resolver, turn
+  loop, or the trainer UI.
+
+This is not a full-round simulator, and does not become one: it is the same
+"small, independent pure Dart module" pattern as `estimate_totals.dart` and
+`exact_bid_outcome.dart`, applying a rule the owner already confirmed and
+game_rules_v1 already documents, to prevent exactly the authored-content
+contradiction just found — nothing more.
+
+### Consequence
+
+`docs/GAME_RULES.md` and `docs/GAME_RULES_V1.md` are updated to state this
+one new capability precisely, without weakening the surrounding "no
+resolver, no turn order, no scoring" scope statements, which remain true
+for every case this rule does not cover. `test/core/game_rules/trick_winner_test.dart`
+and new cases in `test/core/game_rules/play_situation_test.dart` cover it.
+This is a bounded correctness fix, not checkpoint 3 content or acceptance
+work: it does not change the coverage matrix (still 32/32), does not touch
+readiness (still 45%), and does not mark EC-055 done. The owner's
+repeated-session review continues.
+
 ## Decision template
 
 Copy this section for future decisions.

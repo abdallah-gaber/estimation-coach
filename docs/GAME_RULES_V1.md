@@ -86,9 +86,15 @@ Owner-confirmed on 2026-09-08:
 - Rank order is A > K > Q > J > 10 > 9 > 8 > 7 > 6 > 5 > 4 > 3 > 2.
 - In Sans (صنز), only cards of the led suit can win.
 
-These rules are used as authored reasoning in Play practice's coaching (EC-047),
-but no resolver implements them: the app does not compute a trick winner or
-update taken counts from a play.
+These rules are used as authored reasoning in Play practice's coaching (EC-047).
+The trainer UI still does not compute a trick winner or update taken counts
+from a play — no runtime resolver exists. A small, pure implementation of this
+rule for exactly *one already-complete trick* does exist
+(`lib/core/game_rules/trick_winner.dart`, `trickWinner`, added EC-055/D-025)
+and is used by exactly one content-validation check — see
+[Play direction / seat rotation](#play-direction--seat-rotation) below. It is
+not a resolver in the sense above: it never runs during play, chains across
+tricks, or updates any count.
 
 ## Play direction / seat rotation
 
@@ -111,10 +117,11 @@ Equivalent rotations by leader:
 This defines **seat succession within one trick only** — who plays next after
 whom, starting from that trick's leader. It does not define:
 
-- who wins a trick (see [Trick winners](#trick-winners) above, still
-  unimplemented by any resolver);
-- which seat leads the *next* trick (that depends on who wins this one, which
-  is not resolved);
+- who wins a trick in general ([Trick winners](#trick-winners) above is the
+  confirmed rule; `trickWinner` computes it for one already-complete trick,
+  but nothing chains that across a sequence of tricks);
+- which seat leads a trick *after the very next one* — that still depends on
+  winning tricks not yet shown, which remains unresolved;
 - a full round/deal turn order, scoring, or auction termination — those remain
   undefined (see [Scope](#scope)).
 
@@ -124,8 +131,16 @@ enforced by `PlaySituation`'s `currentTrick`/`observedTricks` validation (see
 `current_trick` must be an ordered prefix of this rotation from its leader,
 the pending player must be exactly the next seat to act, and every
 `observed_tricks` entry must show all four seats in this exact order from its
-own leader. This is validated content/domain structure, not trick-winner
-resolution or next-leader computation — those remain explicitly out of scope.
+own leader. This is validated content/domain structure, not general
+trick-winner resolution or next-leader computation — those remain out of
+scope, **except** one narrow case added after a real authored-content bug
+(EC-055/D-025): when the pending player is leading (`currentTrick` is empty)
+and at least one trick has been observed, the authored `leader` must equal
+`trickWinner` of the *last* observed trick — the only situation where "who
+leads" is asserted by the `leader` field alone, with no other visible
+evidence (an already-shown first play in a non-empty current trick) to check
+it against. This does not chain multiple observed tricks against each other,
+and does not compute who leads beyond that one immediate next trick.
 
 ## Scope
 

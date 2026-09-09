@@ -421,12 +421,26 @@ fact your coaching text relies on, keeping content and reasoning from
 silently drifting apart.
 
 Each observed trick's four seats must follow the same confirmed rotation as
-`current_trick` (validated structurally — see above), but do not use
-`observed_tricks` to encode a trick winner or a continuation across tricks:
-the model does not check that one trick's leader plausibly follows from a
-previous trick's winner, since that would require a winner resolver, which
-does not exist. A full round/deal turn order beyond one trick's seat
-succession remains undefined.
+`current_trick` (validated structurally — see above). Do not use
+`observed_tricks` to encode a continuation across *multiple* observed tricks:
+the model does not check that one observed trick's leader plausibly follows
+from an earlier observed trick's winner (that would require chaining a
+full-round resolver, which does not exist). A full round/deal turn order
+beyond one trick's seat succession remains undefined.
+
+One narrower case *is* checked (EC-055/D-025, added after a real authored
+bug — `play_void_tracking_005` originally had its shown trick won by a
+different seat than the one it named as leading next): **if you author an
+empty `current_trick` (the player is leading) with `observed_tricks`
+present, the `leader` you write must actually be the winner of the last
+observed trick**, computed by `lib/core/game_rules/trick_winner.dart`'s
+`trickWinner` from the confirmed [trick-winner
+rule](GAME_RULES_V1.md#trick-winners) (led suit wins unless trumped, highest
+trump wins, Sans only led-suit wins). `PlayScenario.fromJson` rejects a
+mismatch with a schema error under `$.situation`. This does not mean every
+observed trick must show a winner matching anything — it applies only when
+the current trick is empty, since that is the one case where "who leads" has
+no other visible evidence to check it against.
 
 #### Exact-target coaching (EC-043)
 

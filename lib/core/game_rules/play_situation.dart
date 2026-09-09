@@ -3,6 +3,7 @@ import 'bidding.dart';
 import 'estimate_totals.dart' show isValidNonCallerEstimate;
 import 'legal_cards.dart' as rules;
 import 'seat_rotation.dart';
+import 'trick_winner.dart' show trickWinner;
 
 /// An already assigned exact-trick target, not an auction bid or Dash declaration.
 /// 0–13 is a physical bound; this does not define how estimates are assigned.
@@ -129,6 +130,25 @@ final class PlaySituation {
         if (!cards.add(play.card)) {
           throw ArgumentError('Duplicate card in hand/current/observed play');
         }
+      }
+    }
+    // Narrow, deliberately bounded check (game_rules_v1's confirmed trick-
+    // winner rule): when the pending player leads with no card played yet,
+    // and at least one trick is shown, the authored leader must be who that
+    // last shown trick's rule-computed winner actually is — otherwise the
+    // authored history and the authored leader contradict each other. This
+    // says nothing about who leads *beyond* the immediate next trick, does
+    // not chain multiple observed tricks against each other, and does not
+    // apply once the current trick already has a visible first play (that
+    // leader is already directly authored, not inferred).
+    if (plays.isEmpty && history.isNotEmpty) {
+      final priorWinner = trickWinner(history.last, trump);
+      if (priorWinner != leader) {
+        throw ArgumentError(
+          'Leader must be the winner of the last observed trick '
+          '(game_rules_v1 trick-winner rule) when leading with no card '
+          'played yet',
+        );
       }
     }
     if (auctionBid != null && auctionBid.trump != trump) {

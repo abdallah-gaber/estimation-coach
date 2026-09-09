@@ -97,21 +97,33 @@ connects a reviewed pack of these to the Play practice screen.
 
 The model checks internal public-snapshot consistency, not whether hidden hands
 or a full historical round could produce it. It does not validate opponents'
-follow-suit compliance without their hands, resolve a winner, progress turns,
-assign estimates, infer the winning bidder's identity, or grade decisions.
-Completed tricks/hands beyond what `observedTricks` explicitly shows are
-outside this pending-decision model — in particular, one observed trick's
-leader is never checked against a previous trick's winner, since that would
-require a winner resolver this project does not have.
+follow-suit compliance without their hands, progress turns, assign estimates,
+infer the winning bidder's identity, or grade decisions. Completed tricks/hands
+beyond what `observedTricks` explicitly shows are outside this pending-decision
+model — in particular, one observed trick's leader is still never checked
+against another observed trick's winner (chaining multiple prior tricks against
+each other would require a full-round resolver this project does not have).
+
+One narrow exception (EC-055/D-025, added after a real authored-content bug):
+when the pending player is leading (`currentTrick` is empty) and at least one
+trick has been observed, the authored `leader` must equal
+[`trickWinner`](GAME_RULES_V1.md#trick-winners) of the *last* observed trick —
+the one case where "who leads" has no other, independently-visible evidence to
+check it against. This still resolves nothing beyond that one already-complete
+trick: no next-trick-after-that, no round progression, no scoring.
 
 ```sh
 flutter test test/core/game_rules/play_situation_test.dart
+flutter test test/core/game_rules/trick_winner_test.dart
 ```
 
-The 32 tests cover boundaries, low estimates, overtricks, all trump
-categories, all leading seats, voids, defensive copies, rotation validation
-for every leader and rejected seat sequences, observed-trick validation, and
-invalid snapshots.
+The 36 `PlaySituation` tests cover boundaries, low estimates, overtricks, all
+trump categories, all leading seats, voids, defensive copies, rotation
+validation for every leader and rejected seat sequences, observed-trick
+validation, the leader/last-observed-trick-winner check, and invalid
+snapshots. The 9 `trickWinner` tests cover led-suit wins, trump wins, multiple
+trumps, Sans, every leader/winner combination, and that the same cards can
+resolve differently depending only on trump.
 
 ## EC-042: void tracking
 

@@ -828,6 +828,56 @@ variant-mechanism code changes.
 313 tests pass, analysis is clean, strict validation accepts all 33 content
 files unchanged, and the web build succeeds. Checkpoint 4 was not started.
 
+### Fifth bounded PR (this PR): fix a trick-winner inconsistency found in owner review
+
+The owner's repeated-session review (prepared by the fourth bounded PR) is now
+**in progress** and found a real game-state inconsistency, not a wording
+issue, in its first pass: `play_void_tracking_005`'s single observed trick
+(East 7C, North 8C, West 5H, South 2C, trump Hearts) is won by **West**
+(trumping with 5H), but the scenario's empty current trick authored
+`"leader": "south"` — contradicting the rule that the trick's winner leads
+next.
+
+**Content fix** (smallest change preserving the lesson): West's discard
+changed from `5H` (a trump) to `3D` (non-trump — the Club void this scenario
+trains is unchanged); South's card changed from `2C` to `KC` (South's own
+King, not the Ace still held now). With no trump played, South's King
+legitimately wins, making the authored leader correct. Both evaluations'
+ratings are unchanged; one feedback point's named suit was corrected
+("Heart" → "Diamond") and one was strengthened with the new evidence, without
+overclaiming. Full re-review: [docs/COACHING_REVIEW.md](docs/COACHING_REVIEW.md).
+
+**Audited the same bug class** across every play scenario with
+`observed_tricks` (`play_void_tracking_001/002/003/004/005`,
+`play_mixed_tactical_001`). Only `_005` has an empty current trick — the only
+case where `leader` is asserted with no other visible evidence to check it
+against — so it was the only file needing a fix.
+
+**Added a small, precisely-scoped fix to prevent recurrence**
+([D-025](docs/DECISIONS.md)): `trickWinner`
+(`lib/core/game_rules/trick_winner.dart`) applies the already-confirmed
+game_rules_v1 trick-winner rule to one already-complete trick; `PlaySituation`
+gained exactly one new check — when leading (`currentTrick` empty) with
+observed history shown, the authored leader must equal that helper's answer
+for the *last* observed trick. Scoped narrowly: fires only on that one
+condition, never chains multiple observed tricks, resolves nothing beyond one
+trick's winner, and is not wired into any UI or turn/scoring logic — not a
+round simulator. 9 new tests (`trick_winner_test.dart`) plus 2 new
+`PlaySituation` regression tests (36 total in that file) cover it, including
+proof that the *original* broken data is now rejected.
+
+`docs/GAME_RULES.md` and `docs/GAME_RULES_V1.md` are updated to state this one
+new capability precisely, without weakening any other "no resolver, no round,
+no scoring" statement, which remain true everywhere else. `docs/SCENARIO_AUTHORING.md`
+tells future content authors about the new leading-scenario check.
+
+325 tests pass, analysis is clean, strict validation accepts all 33 content
+files (unchanged count — a correction, not new content), and the web build
+succeeds. This is a bounded correctness fix, not checkpoint 3 acceptance work:
+the coverage matrix stays 32/32, the Variety gate stays 0%, MVP Readiness
+stays 45%, EC-055 is not marked DONE, and checkpoint 4 was not started. The
+owner's repeated-session review continues.
+
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
 - Each allowed transformation documents and preserves game/coaching invariants:
@@ -839,8 +889,9 @@ files unchanged, and the web build succeeds. Checkpoint 4 was not started.
   tactical evidence counts as breadth; cosmetic variants alone do not. **Matrix
   complete: 32/32 scenarios authored.** ✅
 - Record owner repeated-session review showing reasoning rather than answer recall.
-  **Checklist prepared** (docs/MVP_STATUS.md); owner has not yet run it — this
-  is the only open acceptance criterion for EC-055.
+  **In progress**: the owner's review found and this PR fixed one genuine
+  game-state inconsistency (`play_void_tracking_005`, see D-025); the review
+  itself continues — this is the only open acceptance criterion for EC-055.
 - New scenarios using supported contracts remain content-only; no runtime AI. ✅
 
 ---
