@@ -5,10 +5,10 @@ bidding hands and seventeen play scenario files (16 distinct reasoning cases)
 are available. EC-048 is merged; EC-043 has all five reviewed exact-target
 scenarios. EC-049's Session Selector shuffles both practice sessions. EC-055
 (checkpoint 3) has frozen a 32-scenario coverage target and reached it
-(32/32) across three bounded PRs, and proven a variant mechanism at the
-domain level. Progress storage, the hub and English/مصري switching remain
-unfinished; deciding on variant UI wiring and the owner's repeated-session
-review are what remain to close checkpoint 3 itself.
+(32/32) across three bounded PRs, and decided not to wire its domain-tested
+variant mechanism into the product for the MVP (D-024). Progress storage,
+the hub and English/مصري switching remain unfinished; the owner's
+repeated-session review is the only item left to close checkpoint 3 itself.
 
 [Task tracker](../PROJECT_TRACKER.md) owns individual task statuses. This page
 owns the frozen finish order, release Definition of Done and readiness formula.
@@ -21,14 +21,16 @@ to fit review/context limits; those PRs are not additional roadmap checkpoints.
 Checkpoints 1 and 2 are complete. Checkpoint 3 (EC-055) is in progress: its
 first bounded PR froze the coverage target and proved the variant mechanism
 at the domain level; its second bounded PR closed 6 of the 13 base-scenario
-gaps; its third closed the remaining 7 (32/32, matrix complete). The variant
-UI-wiring decision and the owner's repeated-session review are still open.
+gaps; its third closed the remaining 7 (32/32, matrix complete); its fourth
+decided not to wire the variant mechanism into the product (D-024) and
+prepared the owner repeated-session review. That review is the only item
+still open.
 
 | # | Checkpoint | Tasks | Status | Exit criteria |
 | --- | --- | --- | --- | --- |
 | 1 | Finish EC-043 | EC-043 | DONE — 5/5 scenarios | Two final scenarios add undertrumping evidence and a choice between safe winners in Sans. Content-only, existing contract, complete legal-choice coaching and documented review. |
 | 2 | Anti-memorization sessions | EC-049 | DONE | A pure `selectSession` shuffles the eligible pool with an injected `Random`; `ScenarioSession` composes it with catalog loading, caching and previous-session-last tracking. Both trainers consume one `nextSession` call; "Practice again" requests a new order. Reproducible under test with controlled seeds; empty/single-item/exhausted pools have explicit behavior. |
-| 3 | Scenario Variants + Content Breadth | EC-055 | IN PROGRESS — 32/32 base scenarios | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
+| 3 | Scenario Variants + Content Breadth | EC-055 | IN PROGRESS — awaiting owner review | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
 | 4 | Personal Coaching | EC-050/051/052 | BACKLOG | Decisions persist locally across restart, map to documented skills, aggregate deterministically, and drive targeted weak-area practice. |
 | 5 | Training Hub | EC-053 | BACKLOG | Quick Mix, Bid Practice, Play Practice, Weak Areas and Continue are usable, including honest empty states and meaningful saved-session resume. |
 | 6 | Egyptian Arabic + UI polish | EC-060 | READY — after checkpoint 5 | English and مصري navigation/coaching, persisted preference, RTL and confirmed terminology work reliably. Focused visual, accessibility and usability polish preserves card identities and canonical seat order. |
@@ -188,22 +190,53 @@ PRs is a genuinely distinct reasoning case, verified against existing content
 before authoring, not a suit/rank reskin. Content-only across all three PRs;
 no schema, UI, variant-mechanism, or selection changes.
 
-### Checkpoint 3 remains open
+### Variant mechanism: decided, not wired
 
-Reaching 32/32 base scenarios closes the coverage-matrix acceptance
-criterion, but not the checkpoint. Two things still gate EC-055 itself:
+[D-024](DECISIONS.md) makes this final for the MVP rather than leaving it
+open: **variant v1 (opponent taken-trick-count redistribution) stays
+domain-tested only and is not wired into either trainer.** It varies one
+field players do not reason from when choosing a card; the coverage matrix
+above and the Session Selector (EC-049) are the mechanisms actually expected
+to carry this checkpoint's anti-memorization requirement. This is a scope
+decision, not a quality verdict — `generateTricksTakenVariant` and
+`PlayScenario.withTricksTaken` remain correct, tested, and available. The
+architecture extension point stays documented exactly as designed (see
+above) for a future, richer variant, without adding a second transformation
+now or changing the schema/feedback structure to enable one prematurely.
 
-1. **Deciding whether the domain-tested variant mechanism (D-023) is worth
-   wiring into the product.** It remains play-only and its visible effect
-   (opponents' taken-trick counts) is minor; wiring it in prematurely would
-   overstate what one narrow, already-domain-tested transformation proves.
-2. **Owner repeated-session review** confirming that practice with this
-   32-scenario, 33-file pack requires reasoning rather than answer recall —
-   not yet started.
+### Checkpoint 3 owner repeated-session review
 
-Until both close, the Variety gate stays at 0% and MVP Readiness stays at
-45%, even though the scenario count target is met. EC-055 is not marked
-DONE by this PR.
+With the variant decision made and the coverage matrix complete, **the
+owner's repeated-session review is the only remaining item closing
+checkpoint 3.** No automated check can substitute for it. The product now
+has 16 bidding scenarios, 17 play scenario files (32 distinct reviewed
+reasoning cases), a shuffled session order (EC-049) that avoids an
+avoidable immediate repeat at a session boundary, and a variant mechanism
+deliberately left unwired (above). The owner should play multiple full
+practice sessions (both Bid Practice and Play Practice, more than once
+each, including at least one "Practice again" restart) and judge:
+
+1. Do I still recognize answers mainly from scenario position/order, or has
+   the shuffle broken that?
+2. Do I need to read the actual cards/table state before deciding, or can I
+   answer without looking?
+3. Do repeated sessions feel meaningfully different because of shuffled
+   order and broader reasoning coverage?
+4. Are any scenarios so similar to each other that I answer from memory
+   without reasoning? (Name them if so — that is a coverage-matrix gap, not
+   a bug.)
+5. Do Bidding and Play both feel sufficiently varied for the MVP, or does
+   one side feel thinner than the other?
+
+Record the result here (pass/fail per question, with any named
+look-alike scenarios) once the owner completes it. A "pass" on all five
+closes checkpoint 3 and the Variety gate; a "fail" on any of them is
+specific, actionable feedback — likely a coverage-matrix gap (an additional
+distinct scenario needed) rather than a defect in what already exists. Test
+success alone does not satisfy this criterion, and this criterion is not
+satisfied by this PR: it is prepared, not completed. The Variety gate stays
+at 0% and MVP Readiness stays at 45% until the owner explicitly records a
+pass here.
 
 ## Fixed weighted readiness gates
 
@@ -216,7 +249,7 @@ is satisfied; otherwise it earns zero. No subjective partial percentages.
 | Foundation / architecture | 15% | 15% | EC-001/002/010/012/020/021/022/023/026 and portable content/domain separation delivered; required CI exists. |
 | Bidding Coach | 15% | 15% | EC-030/031/032/033 delivered: the original ten reviewed hands, 53 evaluated choices, visual legal decisions and evidence-based feedback. Content added since (EC-055) belongs to the variety gate. |
 | Play Coach core | 15% | 15% | EC-040/041/044/045/046/047/042/048 delivered: legal card play, portable scenarios, reviewed feedback, void evidence and known auction-bound validation. EC-043 content belongs to the variety gate. |
-| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoints 1 and 2 are complete; 3 remains open. Session selection is delivered and the 32/32 coverage matrix is complete; the variant UI-wiring decision and owner repeated-session review still gate closing checkpoint 3. |
+| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoints 1 and 2 are complete; 3 remains open. Session selection is delivered, the 32/32 coverage matrix is complete, and the variant mechanism decision is made (D-024, not wired); only the owner's repeated-session review still gates closing checkpoint 3. |
 | Personal coaching | 15% | 0% | Checkpoint 4 closed: persistence, skill aggregation and targeted weak-area practice. |
 | Training hub + localization/polish | 10% | 0% | Both checkpoints 5 and 6 closed. |
 | Acceptance / ship | 10% | 0% | Checkpoint 7's Definition of Done evidence, owner acceptance and release tag `v1.0.0-mvp` recorded. |

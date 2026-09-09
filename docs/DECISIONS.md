@@ -558,6 +558,67 @@ gap count to reach 32 base scenarios is 13, not the 12 that a flat
 of manual duplication the variant mechanism exists to replace once it can
 safely vary something more visible than an opponent's trick count.
 
+## D-024 — Variant v1 stays unwired for the MVP; checkpoint 3 closes on content + review only
+
+**Status:** Accepted — checkpoint 3 (EC-055) closure PR
+
+### The decision
+
+D-023 deferred wiring `generateTricksTakenVariant` into either trainer as an
+open question, to be revisited "once either (a) a second, independent
+transformation exists... or (b) feedback moves toward structured,
+re-renderable content." Now that the checkpoint 3 coverage matrix is
+complete (32/32) and this is the closure PR, that question needs a final
+answer for the MVP rather than staying open indefinitely.
+
+**Decision: do not wire variant v1 into the UI for the MVP.** Neither
+precondition from D-023 has changed — there is still exactly one
+transformation, and feedback is still free text — and no new evidence from
+authoring the final 13 coverage scenarios changed the underlying assessment:
+
+- It only varies opponents' taken-trick count chips, a field players do not
+  reason from when choosing a card. Wiring it in would add UI-surfaced
+  randomness for a field with no coaching weight, not meaningfully reduce
+  memorization risk.
+- The 32-scenario coverage matrix (this checkpoint's main anti-memorization
+  investment) and the Session Selector (EC-049) are the mechanisms actually
+  expected to carry the anti-memorization requirement for the MVP. Wiring in
+  a single-field, play-only transformation alongside them would not add
+  reasoning variety proportional to the added surface area (schema-adjacent
+  UI wiring, a new code path in both trainers, new test surface).
+- This is a scope decision, not a quality verdict on the mechanism itself:
+  `generateTricksTakenVariant` and `PlayScenario.withTricksTaken` remain
+  correct, tested, and available. Nothing about this decision deprecates or
+  removes them.
+
+### What stays in place for future richer variants
+
+No code changes accompany this decision. The architecture extension point
+from `docs/MVP_STATUS.md` stays exactly as designed and documented:
+
+```text
+Scenario Catalog → Session Selector → Optional Validated Variant Generator → existing trainer UI
+```
+
+`lib/scenarios/scenario_variant.dart` and `lib/scenarios/play_scenario.dart`
+(`withTricksTaken`) remain in the codebase, tested, as the reference
+implementation of "one validated, fail-closed transformation slotted into
+this stage." A future POST-MVP task revisiting variants should start from
+the same audit discipline D-023 used (read every scenario's feedback in
+full before proposing a transformation) rather than assume card/suit
+substitution has become safe; it has not, unless feedback itself moves to a
+structured, re-renderable format first.
+
+### Consequence for checkpoint 3
+
+This decision, combined with the coverage matrix reaching 32/32, removes
+the variant-mechanism acceptance criterion as an open item for EC-055. The
+sole remaining item to close checkpoint 3 is the owner's repeated-session
+review (see the checklist in
+[MVP_STATUS.md](MVP_STATUS.md#checkpoint-3-owner-repeated-session-review)).
+No automated check can substitute for that review; the Variety gate stays
+at 0% and MVP Readiness stays at 45% until the owner confirms it explicitly.
+
 ## Decision template
 
 Copy this section for future decisions.
