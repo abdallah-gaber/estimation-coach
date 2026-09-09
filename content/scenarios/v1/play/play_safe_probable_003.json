@@ -1,0 +1,52 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_safe_probable_003",
+  "title": "A likely trump winner, not a certain one",
+  "difficulty": "intermediate",
+  "primary_skill": "safe_vs_probable",
+  "skills": ["safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["KH", "2C"],
+  "situation": {
+    "leader": "north",
+    "current_trick": [
+      {"player": "north", "card": "8D"},
+      {"player": "west", "card": "QD"}
+    ],
+    "trump": "hearts",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 3, "south": 2, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "hearts"}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "KH"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Take the likely trick — you still need it",
+        "summary": "You hold no Diamonds, so trumping is legal. The king is the only trump shown so far and currently beats every card on the table, and you are below target with two tricks still needed.",
+        "points": [
+          "Nothing on the table beats the king right now: the trick so far is two Diamonds, and no trump has appeared yet.",
+          "East still acts after you this trick. Unlike a trick you win as the last player, this is not certain — East could hold the ace of trump, which is not shown or ruled out here.",
+          "Below target with tricks still needed, playing the likely winner is the reviewed choice over discarding a card that cannot win regardless. If East does hold the trump ace, discarding the two of Clubs instead would not have protected the king from ever facing that risk later."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "2C"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Giving away a likely trick for no gained safety",
+        "summary": "The two of Clubs cannot win this trick under any circumstance, and discarding it here gives up a trick that is currently likely to be won for nothing in return.",
+        "points": [
+          "You are below target and still need two of the four remaining tricks; passing on a likely winner does not reduce what is still needed later.",
+          "The king is not spent for nothing by trying: whether East holds the trump ace is unknown either way, so holding the king back does not avoid that risk, it only delays testing it.",
+          "This is not the same as the certain wins in other situations — East could still beat the king. But nothing about playing the two instead makes that outcome any less likely."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-055 checkpoint-3 coverage: a safe_vs_probable scenario where South does not act last (East still plays after South, unlike play_safe_probable_001/002 where South was always last and the win was certain). Playing the king of trump is the strongest legal card shown, but genuinely probable rather than certain: East might hold the trump ace, and this scenario deliberately leaves that unresolved rather than establishing a void (contrast with the play_void_tracking family, where the uncertainty is resolved by observed evidence). No card-tracking evidence for or against East holding the ace is provided; the feedback does not claim certainty it cannot support."
+}

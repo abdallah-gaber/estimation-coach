@@ -10,13 +10,14 @@ These supersede the historical milestone groupings later in this file.
 Bounded PRs may split a checkpoint's implementation, but cannot add an eighth
 checkpoint without explicit owner approval. Checkpoints 1 and 2 are complete;
 checkpoint 3 (EC-055) is in progress — its first bounded PR froze the coverage
-target and proved the variant mechanism at the domain level.
+target and proved the variant mechanism at the domain level, and its second
+bounded PR closed 6 of the 13 base-scenario gaps (7 remain).
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
 | 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
 | 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | DONE |
-| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (coverage matrix frozen, variant mechanism v1 domain-tested; 13 base scenarios and UI wiring remain) |
+| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (25/32 base scenarios; variant mechanism v1 domain-tested; 7 base scenarios and UI wiring remain) |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
 | 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
 | 6 | Egyptian Arabic + UI polish — مصري terminology, localization/RTL, focused usability polish | EC-060 | READY (after checkpoint 5) |
@@ -672,7 +673,7 @@ evaluation logic changed.
 Architecture: `Scenario Catalog → Session Selector → Optional Validated Variant
 Generator → existing trainer UI`.
 
-### First bounded PR (this PR): coverage target + variant mechanism v1
+### First bounded PR: coverage target + variant mechanism v1
 
 Froze the finite MVP coverage target at **32 reviewed base scenarios**
 (16 bidding + 16 play) and audited all 20 existing scenarios against it; see
@@ -707,6 +708,39 @@ content files unchanged (no scenario content, schema or evaluation logic
 changed), and the web build succeeds. Readiness stays 45%; the Variety gate
 stays 0% (checkpoint 3 is not closed). Checkpoint 4 was not started.
 
+### Second bounded PR (this PR): 6 new base scenarios
+
+Closed the highest-value gaps the first bounded PR identified: **+1 Dash/Enter,
++2 Bid sizing, +1 Mixed/ambiguous bidding, +1 Safe vs probable, +1 Void
+tracking/table reading** (26 total). Updated matrix with explicit before/after
+counts: [docs/MVP_STATUS.md](docs/MVP_STATUS.md#checkpoint-3-coverage-matrix-ec-055).
+
+- `bid_training_011` — first Dash/Enter scenario rating Dash itself Strong
+  (nothing above a six anywhere, no suit over four cards).
+- `bid_training_012`/`_013` — first two dedicated bid_sizing scenarios besides
+  `bid_safe_probable_001`; each offers only one trump so the decision is
+  purely trick-count judgment, not trump comparison.
+- `bid_training_014` — second Mixed/ambiguous scenario (after
+  `bid_training_009`): two genuinely comparable four-card trump candidates,
+  no side-suit help, no evaluation reaches Strong.
+- `play_safe_probable_003` — first safe_vs_probable scenario where South does
+  not act last; the strongest card is genuinely probable, not certain.
+- `play_void_tracking_004` — a boundary-condition case, not a suit reskin:
+  South leads last, so a shown void from an earlier, different-suit trick
+  cannot matter here, for two independent reasons.
+
+All 26 new legal choices are evaluated; every scenario passes strict
+schema/domain validation on the first run. No schema, UI, or variant-mechanism
+changes; no persistence, adaptive selection, or checkpoint 4 work. Existing
+tests hard-coding the prior 10-hand/53-choice and 10-situation totals were
+updated to the new 14-hand/66-choice and 12-situation totals — no test
+behavior changed, only the counts they assert.
+
+313 tests pass, analysis is clean, strict validation accepts all 26 content
+files, and the web build succeeds. Readiness stays 45%; the Variety gate
+stays 0% (checkpoint 3 remains open — 7 base scenarios and UI wiring for the
+variant mechanism still needed). Checkpoint 4 was not started.
+
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
 - Each allowed transformation documents and preserves game/coaching invariants:
@@ -716,7 +750,7 @@ stays 0% (checkpoint 3 is not closed). Checkpoint 4 was not started.
 - Establish and close a finite reviewed coverage matrix for bidding decisions
   and safe/probable, void-tracking and exact-target play concepts. Distinct
   tactical evidence counts as breadth; cosmetic variants alone do not. Matrix frozen
-  and audited (✅); 13 base scenarios still needed to close it.
+  and audited (✅); 25/32 scenarios authored, 7 still needed to close it.
 - Record owner repeated-session review showing reasoning rather than answer recall. Not started.
 - New scenarios using supported contracts remain content-only; no runtime AI. ✅
 

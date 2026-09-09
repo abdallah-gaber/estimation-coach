@@ -1,0 +1,96 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_013",
+  "type": "bidding",
+  "title": "Moderate trump, two side Aces",
+  "difficulty": "intermediate",
+  "primary_skill": "bid_sizing",
+  "skills": [
+    "bid_sizing",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "KH",
+    "QH",
+    "7H",
+    "5H",
+    "2H",
+    "AS",
+    "9S",
+    "4S",
+    "AD",
+    "8D",
+    "4D",
+    "6C",
+    "3C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "EC-055 checkpoint-3 coverage: a second bid_sizing scenario, deliberately weaker than bid_training_012's near-solid six-card Spade run. Only King-Queen head this five-card Heart suit, but two side Aces (Spades, Diamonds) give near-certain outside winners a single-suit sizing question rarely has. Single trump offered (Hearts), so the decision is purely how many tricks this specific combination of moderate trump control and side-suit Aces supports. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 6
+    },
+    "trumps": [
+      "hearts"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "hearts"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Safe, but the two Aces are doing nothing extra",
+        "summary": "Four is secure from King-Queen of Hearts and the two side Aces alone, without needing anything further from this hand.",
+        "points": [
+          "Control: King-Queen of Hearts lead the trump suit; the Spade and Diamond Aces are near-certain side winners if opponents can follow.",
+          "This target does not need either low Heart to be promoted by length.",
+          "A stronger target is defensible from three separate sources of strength; four is not wrong, just conservative."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "hearts"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "Trump control plus two side Aces",
+        "summary": "Five combines the King-Queen trump lead with both side Aces, three separate sources rather than one long suit alone.",
+        "points": [
+          "Control: King-Queen of Hearts as trump, plus the Ace of Spades and the Ace of Diamonds as side winners.",
+          "Unlike a single strong suit, this target draws on three different sources of strength rather than one holding stretching to cover it.",
+          "This does not guarantee five tricks; it reflects that three separate cards support this target rather than one alone."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 6,
+        "trump": "hearts"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "The low Hearts still need to be promoted",
+        "summary": "Six needs one of the remaining low Hearts to become a winner by length, on top of both side Aces already holding.",
+        "points": [
+          "King-Queen and the two Aces support five; a sixth trick asks the low Hearts to do more than follow suit.",
+          "Five cards in the trump suit is moderate length, not a long run that reliably promotes low cards.",
+          "This is not an unreasonable attempt, but it depends on more than the visible strength guarantees."
+        ]
+      }
+    }
+  ]
+}

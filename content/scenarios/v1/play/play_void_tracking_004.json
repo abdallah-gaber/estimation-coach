@@ -1,0 +1,61 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_void_tracking_004",
+  "title": "A known void that doesn't apply here",
+  "difficulty": "intermediate",
+  "primary_skill": "void_tracking",
+  "skills": ["void_tracking", "safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["KC", "4C"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "9C"},
+      {"player": "north", "card": "5C"},
+      {"player": "west", "card": "QC"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 2, "south": 3, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "spades"},
+    "observed_tricks": [
+      [
+        {"player": "west", "card": "8D"},
+        {"player": "south", "card": "2D"},
+        {"player": "east", "card": "6D"},
+        {"player": "north", "card": "9S"}
+      ]
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "KC"},
+      "rating": "strong",
+      "feedback": {
+        "title": "You act last — take the certain trick",
+        "summary": "The king beats every club already played, and you act last this trick, so nothing can respond to it. North's known void is in Diamonds, an entirely different trick, and cannot affect this one either way.",
+        "points": [
+          "East, North and West have all played Clubs; the king beats the queen, the highest Club shown so far.",
+          "You are the last seat to act in this trick, so no later card from any seat can challenge the king once it is played.",
+          "The earlier trick shows North void in Diamonds, not Clubs — a void in one suit says nothing about a different suit, and it is also irrelevant here for a second, independent reason: North has already played into this trick and cannot act again."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "4C"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Giving away a trick that was already safe",
+        "summary": "The four loses to the queen and gives up a trick that the king would have won with certainty, since no one acts after you here.",
+        "points": [
+          "Acting last means the king cannot be beaten this trick by anyone, known void or not — there is no risk of being overtrumped to weigh against taking it.",
+          "North's void from the earlier trick is in Diamonds, a different suit, and North has already played in this trick regardless.",
+          "This is not a cautious, defensible choice: nothing here makes holding the king back safer, since the win it gives up is already certain."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-055 checkpoint-3 coverage: a second, genuinely distinct void-tracking scenario (not a suit reskin of play_void_tracking_001/002/003). The lesson is a boundary condition of void tracking itself: a derived void only matters for a decision when the void seat still has to act after you in that same trick. Here South leads last (East leads, order East-North-West-South), so nothing any seat holds — void or not — can respond to South's card, and the shown void (North, Diamonds, an earlier trick) is doubly irrelevant: wrong suit, and North has already acted in the current trick regardless. play_void_tracking_001/002 both depend on East still being able to act after South; this scenario tests recognizing when that condition does not hold, rather than reapplying the same pattern with different cards."
+}

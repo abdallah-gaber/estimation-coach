@@ -1,0 +1,70 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_011",
+  "type": "bidding",
+  "title": "Nothing above a six",
+  "difficulty": "beginner",
+  "primary_skill": "dash_decisions",
+  "skills": [
+    "dash_decisions",
+    "safe_vs_probable"
+  ],
+  "player_position": "south",
+  "hand": [
+    "6S",
+    "4S",
+    "3S",
+    "2S",
+    "5H",
+    "4H",
+    "2H",
+    "6D",
+    "5D",
+    "3D",
+    "4C",
+    "3C",
+    "2C"
+  ],
+  "bidding_phase": "pre_bidding",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "EC-055 checkpoint-3 coverage: the first Dash/Enter scenario where Dash itself is rated Strong rather than Reasonable or Weak. Compared with bid_training_003 (also low across four suits but reaching 7-8), this hand never rises above a six anywhere, and no suit is long enough to risk the late-establishment pattern from bid_training_005's 7-card Club suit. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": true,
+    "enter": true
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "dash"
+      },
+      "rating": "strong",
+      "feedback": {
+        "title": "As safe a zero as this hand gets",
+        "summary": "No card in this hand is higher than a six, and no suit is long enough to worry about being established by elimination. Zero is a well-supported plan before trump is even known.",
+        "points": [
+          "Control: there are no Aces, Kings, Queens or Jacks anywhere in this hand — a fact you can check directly against the thirteen cards shown.",
+          "Ceiling: the highest card in any suit is a six, so even a generous number of higher cards being played elsewhere leaves little room for one of these to become a winner.",
+          "Shape: no suit reaches five cards, so this hand does not carry the long-suit exposure of a 6-7 card holding that can eventually run out of higher cards to hide behind.",
+          "This does not guarantee zero: which suit becomes trump and how the round actually plays out are still unknown. The judgment is that this hand supports Dash more confidently than a hand with a 7-8 high card or a long suit would."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "enter"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Still defensible, just less needed here",
+        "summary": "Entering keeps the decision open without committing to a bid. It remains a fair choice, even though this hand gives Dash unusually strong support.",
+        "points": [
+          "Entering does not choose a trick target or trump; that decision is separate and still open either way.",
+          "A hand this low and this short in every suit gives little reason to expect a supported four-trick bid later, but entering itself does not claim one.",
+          "Choosing to enter here is not wrong — it is simply less supported than Dash by this specific hand's evidence."
+        ]
+      }
+    }
+  ]
+}

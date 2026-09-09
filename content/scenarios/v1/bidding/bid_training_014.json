@@ -1,0 +1,114 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "id": "bid_training_014",
+  "type": "bidding",
+  "title": "Two incomplete suits, no side support",
+  "difficulty": "advanced",
+  "primary_skill": "trump_selection",
+  "skills": [
+    "trump_selection",
+    "bid_sizing"
+  ],
+  "player_position": "south",
+  "hand": [
+    "KS",
+    "QS",
+    "6S",
+    "3S",
+    "AH",
+    "JH",
+    "8H",
+    "2H",
+    "9D",
+    "5D",
+    "7C",
+    "4C",
+    "2C"
+  ],
+  "bidding_phase": "normal",
+  "dash_players": [],
+  "previous_actions": [],
+  "author_notes": "EC-055 checkpoint-3 coverage: second Mixed/ambiguous bidding judgment scenario for the checkpoint-3 coverage matrix (see bid_training_009 for the first; both keep primary_skill trump_selection since no dedicated tag exists yet, and are classified as Mixed/ambiguous only in docs/MVP_STATUS.md's coverage matrix). Deliberately different texture from bid_training_009: that hand has controls spread thin across every suit with no length, while this hand has two genuinely comparable four-card trump candidates (King-Queen of Spades vs. Ace-Jack of Hearts) and no help anywhere else — Diamonds and Clubs are entirely low. Neither candidate is clearly better than the other, and unlike bid_training_006-010's trump_selection pairs, no side-suit Ace or King outside the two candidates breaks the tie. No evaluation in this scenario reaches Strong. Independent hand; ratings are authored judgments, not probabilities or guaranteed outcomes.",
+  "allowed_decisions": {
+    "dash": false,
+    "bids": {
+      "min": 4,
+      "max": 5
+    },
+    "trumps": [
+      "spades",
+      "hearts"
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "spades"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "One defensible choice among two close options",
+        "summary": "King-Queen of Spades gives two trump honors and enough length to compete, but Ace-Jack of Hearts is a comparable alternative from the same hand.",
+        "points": [
+          "Control: King-Queen of Spades are two trump honors; four cards is adequate but not commanding length.",
+          "Neither Diamonds nor Clubs offers a side honor to support this or any other choice.",
+          "Choosing Hearts instead is equally defensible here; this is a genuine judgment call, not a clearly correct answer."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 4,
+        "trump": "hearts"
+      },
+      "rating": "reasonable",
+      "feedback": {
+        "title": "One defensible choice among two close options",
+        "summary": "The Ace of Hearts is a genuine trump control card, and the Jack gives a second honor, but King-Queen of Spades is a comparable alternative from the same hand.",
+        "points": [
+          "Control: the Ace of Hearts is the single highest card in either candidate suit; the Jack adds a second honor.",
+          "Neither Diamonds nor Clubs offers a side honor to support this or any other choice.",
+          "Choosing Spades instead is equally defensible here; this is a genuine judgment call, not a clearly correct answer."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "spades"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "A fifth trick has no clear source",
+        "summary": "King-Queen of Spades supports a cautious target; a fifth trick needs a low Spade promoted or a card from a suit with no honors at all.",
+        "points": [
+          "Two trump honors and moderate length do not by themselves establish a fifth trick.",
+          "Diamonds and Clubs hold nothing higher than a nine, so neither can be counted on for an extra winner.",
+          "This is not unreasonable, but it stretches past what either candidate suit visibly supports."
+        ]
+      }
+    },
+    {
+      "decision": {
+        "action": "bid",
+        "tricks": 5,
+        "trump": "hearts"
+      },
+      "rating": "risky",
+      "feedback": {
+        "title": "A fifth trick has no clear source",
+        "summary": "The Ace and Jack of Hearts support a cautious target; a fifth trick needs a low Heart promoted or a card from a suit with no honors at all.",
+        "points": [
+          "One certain trump winner and one further honor do not by themselves establish a fifth trick.",
+          "Diamonds and Clubs hold nothing higher than a nine, so neither can be counted on for an extra winner.",
+          "This is not unreasonable, but it stretches past what either candidate suit visibly supports."
+        ]
+      }
+    }
+  ]
+}

@@ -8,15 +8,15 @@ evidence behind the decision.
 
 ![MVP Readiness to Ship: 45%. Foundation, bidding coach and play core gates complete.](docs/assets/mvp-readiness.svg)
 
-**Status: runnable preview, not yet MVP.** Ten bidding hands and ten play
-scenarios work with deterministic feedback, presented in a shuffled session
-order. Saved personal coaching, scenario variety, the hub and English/مصري
-switching are still ahead.
+**Status: runnable preview, not yet MVP.** Fourteen bidding hands and twelve
+play scenarios work with deterministic feedback, presented in a shuffled
+session order. Saved personal coaching, scenario variety, the hub and
+English/مصري switching are still ahead.
 **Current focus:** checkpoints 1 and 2 are complete; checkpoint 3
 (**EC-055 — Scenario Variants + Content Breadth**) is in progress. Its first
-bounded PR froze a 32-scenario coverage target (13 base scenarios still
-needed) and proved a variant mechanism at the domain level, not yet wired
-into either trainer.
+bounded PR froze a 32-scenario coverage target and proved a variant mechanism
+at the domain level, not yet wired into either trainer; its second closed 6
+of the 13 gaps (7 remain).
 
 Readiness is calculated from [fixed weighted gates](docs/MVP_STATUS.md#fixed-weighted-readiness-gates):
 **15 + 15 + 15 = 45%**. Session selection (checkpoint 2) earns no Variety gate
@@ -29,8 +29,9 @@ scenario validation and web build separately.
 2. **Anti-memorization sessions — DONE** — a Session Selector shuffles both
    practice sessions, independent of catalog/file order.
 3. **Scenario Variants + Content Breadth — IN PROGRESS** — coverage matrix
-   frozen (32-scenario target, 13 gap) and variant mechanism v1 domain-tested;
-   validated deterministic variants and reviewed content breadth remain.
+   frozen (32-scenario target, 25/32 authored, 7 gap) and variant mechanism v1
+   domain-tested; validated deterministic variants, the remaining base
+   scenarios and reviewed content breadth remain.
 4. **Personal Coaching** — local decisions, skill aggregation and weak areas.
 5. **Training Hub** — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue.
 6. **Egyptian Arabic + UI polish** — مصري terms, localization/RTL and usability.
@@ -60,8 +61,8 @@ scoring are post-MVP. The trainer's decisions and coaching work locally.
 
 ## Development and manual testing
 
-This checkpoint has ten independent hands: four Dash/enter decisions and six
-normal-bidding situations. All 53 legal choices have deterministic authored feedback.
+This checkpoint has fourteen independent hands: five Dash/enter decisions and
+nine normal-bidding situations. All 66 legal choices have deterministic authored feedback.
 Read the [coaching review](docs/COACHING_REVIEW.md) for rating rationale.
 A reviewed play-practice session is available from the table icon in the top
 bar (see below). There is no full auction, simulated outcome, saved progress,
@@ -101,13 +102,14 @@ generated but unvalidated; use `flutter devices` to see available targets.
 4. Submit a legal raise and check the rating (**Strong**, **Reasonable**,
    **Risky** or **Weak decision**) against its **Why?** explanation.
    Outcomes are explicitly not simulated.
-5. Choose **Next hand** repeatedly through all ten hands — four Dash/enter
-   decisions and six normal-bidding situations, comparing balanced vs.
-   singleton-heavy hands and trump-control targets. All 53 legal choices
+5. Choose **Next hand** repeatedly through all fourteen hands — five
+   Dash/enter decisions and nine normal-bidding situations, comparing
+   balanced vs. singleton-heavy hands, trump-control targets, single-trump
+   sizing judgments and two-suit ambiguous choices. All 66 legal choices
    across the pack have deterministic authored feedback; read the
    [coaching review](docs/COACHING_REVIEW.md) for rating rationale.
-6. Finish all ten hands, then **Practice again**: a freshly shuffled session
-   order loads — not necessarily the same first hand as before.
+6. Finish all fourteen hands, then **Practice again**: a freshly shuffled
+   session order loads — not necessarily the same first hand as before.
 7. Resize to 320px and increase text size: cards and controls should wrap and
    remain reachable by scrolling. Use Tab/Enter to choose buttons and chips.
 8. Refresh: a new shuffled session starts. Progress is not persisted in this
@@ -120,8 +122,8 @@ generated but unvalidated; use `flutter devices` to see available targets.
 2. Verify North above, West left, East right, and **You · South** below the
    current trick, with the leader's seat labelled **Led &lt;suit&gt;** and the
    other two opponents labelled with their taken-trick count.
-3. The session presents all ten situations in a shuffled order; find each one
-   by its title rather than its position:
+3. The session presents all twelve situations in a shuffled order; find each
+   one by its title rather than its position:
    - **"A free trick with the ace of Hearts"**: Hearts were led; the 2 of
      Clubs and 5 of Diamonds are locked because you hold Hearts. Playing the
      ace is **Strong decision**; playing the three is **Weak decision**.
@@ -130,6 +132,11 @@ generated but unvalidated; use `flutter devices` to see available targets.
      Spades: expect **Strong decision** — it wins the open trick outright
      since you act last. Try **Try another choice**, then play 7 of Clubs
      instead: expect **Weak decision** for giving away a needed trick.
+   - **"A likely trump winner, not a certain one"**: unlike the two
+     situations above, you do not act last here — East still plays after
+     you. Playing the king of trump is **Strong decision** as the likely
+     best card, but the feedback is explicit that East holding the trump
+     ace is a real, unresolved possibility, not ruled out.
 4. Three situations train the exact target:
    - **"One trick short of your target"**: status **Below target**, taken 3,
      target 4. King of Hearts is **Strong decision**; three is **Risky**.
@@ -147,7 +154,7 @@ generated but unvalidated; use `flutter devices` to see available targets.
    **"One more trick in Sans"**: below target in Sans, AH is **Strong**, QH
    **Reasonable**, 3H **Risky**; 2C is locked. Compare **Why?**: both high
    Hearts win now; future leads are not predicted.
-6. Three situations add an **Observed play** section above the current
+6. Four situations add an **Observed play** section above the current
    trick: a compact, muted earlier trick, not labelled as "the last trick"
    since it is only the evidence relevant to this decision. In
    **"Save the king from a known void"**, that trick shows East failing to
@@ -155,18 +162,22 @@ generated but unvalidated; use `flutter devices` to see available targets.
    **Strong decision**; playing the king is **Risky** because East's void
    means East decides whether it gets trumped. The pack does not compute
    this itself — voids are never authored, only derived from the shown
-   history.
+   history. In **"A known void that doesn't apply here"**, South leads last
+   in the current trick, so an observed void from an earlier, different-suit
+   trick cannot matter to this decision either way — the king is **Strong
+   decision** regardless, and the four discards a trick that was already
+   safe.
 7. Selecting a card moves it visually into the current trick with a short
    flight animation and locks further play; reduced-motion settings skip the
    flight. Open **Why?** for the evidence, same as bidding feedback.
    **Outcome: not simulated** — no winner is resolved or scored yet.
-8. Finish all ten situations, then **Practice again**: a freshly shuffled
+8. Finish all twelve situations, then **Practice again**: a freshly shuffled
    session order loads — not necessarily the same first situation as before.
 9. Back returns to the same bidding hand and any feedback already displayed.
 10. At 320px width and large text, scroll through the table and hand. Seat
     labels, suit shapes, cards and selection controls should remain readable.
 
-This is a small reviewed pack (10 situations, 22 evaluated choices) connecting
+This is a small reviewed pack (12 situations, 26 evaluated choices) connecting
 the completed portable play contract (EC-046) to coached play (EC-047), plus
 derived void tracking (EC-042) and five exact-bid-protection scenarios (EC-043).
 Winner resolution and scoring remain out of scope; see the confirmed
@@ -188,7 +199,7 @@ dart run tool/validate_scenarios.dart --require-complete
 flutter build web
 ```
 
-Strict validation should pass all twenty scenario files (ten bidding, ten play)
+Strict validation should pass all twenty-six scenario files (fourteen bidding, twelve play)
 with no missing evaluations. Tests cover cards, game rules, derived void
 tracking and the known winning auction bound: a supplied bid of 4 cannot
 accompany estimate 5; absent auction context stays supported. Regression tests

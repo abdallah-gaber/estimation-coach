@@ -446,9 +446,12 @@ Add another supported scenario as a JSON file in the existing play directory;
 no registration or widget edit is needed. Supply feedback for every legal card
 and review its reasoning in `COACHING_REVIEW.md`. See
 `play_target_protection_001`–`005` for below/on/above examples, including
-undertrumping and choosing which safe winner to spend. Distinguish
-avoiding a trick while exactly on target from avoiding another trick after
-already exceeding the target: the latter cannot restore exact success.
+undertrumping and choosing which safe winner to spend; see
+`play_void_tracking_001`–`004` for void-derivation examples, including the
+boundary case where a derived void does not affect the current decision.
+Distinguish avoiding a trick while exactly on target from avoiding another
+trick after already exceeding the target: the latter cannot restore exact
+success.
 
 A complete four-player estimate set, With and room-total Over/Under are not
 represented by this contract. Future support should author their observable
@@ -492,8 +495,8 @@ flutter test test/scenarios/play_scenario_test.dart
 ```
 
 Expected: the synthetic fixture passes strict checks. Default validation scans
-the production content directory, currently containing ten bidding hands and
-ten reviewed play situations. Mixed bidding/play catalogs receive the same
+the production content directory, currently containing fourteen bidding hands
+and twelve reviewed play situations. Mixed bidding/play catalogs receive the same
 schema, domain, duplicate-ID and coverage checks. Syntax errors include field
 paths; relational snapshot errors are reported under `$.situation`. Bidding
 compatibility remains tested.
