@@ -1,0 +1,53 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_target_protection_006",
+  "title": "Either trump wins — save the stronger one",
+  "difficulty": "intermediate",
+  "primary_skill": "exact_bid_protection",
+  "skills": ["exact_bid_protection"],
+  "player_position": "south",
+  "hand": ["9D", "2D"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "9C"},
+      {"player": "north", "card": "5C"},
+      {"player": "west", "card": "QC"}
+    ],
+    "trump": "diamonds",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 3, "south": 2, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "diamonds"}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "2D"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Win with the smaller trump",
+        "summary": "You are below target and need this trick. No Club can beat a trump, and you act last, so either Diamond you hold wins it — the two is enough, and keeps the nine in hand.",
+        "points": [
+          "East, North and West have all played Clubs; no trump has appeared yet, so any Diamond you play wins this trick.",
+          "You act last, so nothing still to come can challenge either card once played.",
+          "The nine is not needed to win this specific trick; keeping it back preserves a stronger trump for a later trick where a bigger card might matter more."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "9D"},
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Also wins, but spends the stronger trump",
+        "summary": "The nine wins this trick just as surely as the two would, but it spends your better trump on a trick that did not need it.",
+        "points": [
+          "Both Diamonds are legal and both currently win; the choice does not change whether you take this trick, only which card you take it with.",
+          "This still makes needed progress toward the target — it is not a mistake, just less efficient than saving the stronger card.",
+          "Which retained trump helps more later depends on future leads and cards not shown; no outcome is guaranteed either way."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-055 checkpoint-3 coverage: a sixth exact-target-protection scenario, a facet not yet covered by play_target_protection_001-005: choosing between two legal trumps that both currently win, rather than deciding whether to win at all. Unlike play_target_protection_004 (undertrumping an opponent's already-played higher trump while exactly on target), here no trump has been played by anyone yet, South is below target and wants to win, and both of South's own trumps would succeed — the lesson is trump conservation (spend the minimum needed), not target avoidance. No claim is made about which trump helps more in a later, unresolved trick."
+}

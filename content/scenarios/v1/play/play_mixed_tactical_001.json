@@ -1,0 +1,60 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_mixed_tactical_001",
+  "title": "Below target, and a known void backs the play",
+  "difficulty": "advanced",
+  "primary_skill": "void_tracking",
+  "skills": ["void_tracking", "exact_bid_protection"],
+  "player_position": "south",
+  "hand": ["2C", "3S"],
+  "situation": {
+    "leader": "north",
+    "current_trick": [
+      {"player": "north", "card": "7H"},
+      {"player": "west", "card": "9H"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 3, "south": 2, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "spades"},
+    "observed_tricks": [
+      [
+        {"player": "west", "card": "8S"},
+        {"player": "south", "card": "5S"},
+        {"player": "east", "card": "4D"},
+        {"player": "north", "card": "KS"}
+      ]
+    ]
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "3S"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Below target, and East's known void backs the trump",
+        "summary": "You need this trick. East acts after you and is already known void in Spades, so East cannot overtrump you no matter what East holds — this trump is as close to certain as the evidence here allows.",
+        "points": [
+          "Decisive: the earlier trick shows East discarding a Diamond when Spades were led, so East holds no more Spades this hand and cannot beat any trump you play.",
+          "Supporting: you are below target and still need this trick, which is why taking it deliberately — rather than risking a pass — matters here.",
+          "You hold no Hearts, so trumping is legal. Nothing else on the table beats a trump, and the only seat left to act cannot supply one."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "2C"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Giving up a trick the known void makes safe to try",
+        "summary": "The two of Clubs is off-suit and non-trump; it cannot win this trick under any circumstance, and discarding it gives up a trick that East's confirmed void makes unusually safe to attempt.",
+        "points": [
+          "You are below target and still need this trick; passing on it does not reduce what is still needed later.",
+          "East's void is specifically in Spades (this trick's trump), not a suit unrelated to the decision — it directly removes the usual risk of being overtrumped.",
+          "This is not a cautious, defensible choice: the evidence here specifically supports trying, not holding back."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-055 checkpoint-3 coverage: first Mixed tactical reading scenario, combining two already-supported signals rather than inventing a new capability. Decisive signal: East's known void in trump (Spades), derived from the observed trick exactly as in play_void_tracking_001/005 — this is what elevates the trump play from merely probable (as in play_safe_probable_003/004, where the responding seat's holding is unresolved) to effectively certain, since a void seat cannot supply the one card type that could beat a trump. Supporting signal: South is below target and needs this trick, which motivates why taking it deliberately is the reviewed choice rather than a neutral or cautious one. Neither signal alone fully explains the rating: the void alone does not say South should try for the trick, and the below-target state alone does not say the attempt is nearly certain to succeed."
+}

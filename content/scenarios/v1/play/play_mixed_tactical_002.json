@@ -1,0 +1,53 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_mixed_tactical_002",
+  "title": "The same visible trump, an opposite target",
+  "difficulty": "advanced",
+  "primary_skill": "exact_bid_protection",
+  "skills": ["exact_bid_protection", "card_tracking"],
+  "player_position": "south",
+  "hand": ["9C", "2D"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "8H"},
+      {"player": "north", "card": "4C"},
+      {"player": "west", "card": "2H"}
+    ],
+    "trump": "clubs",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 2, "south": 3, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "clubs"}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "9C"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Below target — overtrump the visible club",
+        "summary": "North has already trumped with a low Club. You are below target and still need this trick, so beating that visible trump with your higher Club is the reviewed choice — the opposite of when the same evidence calls for undertrumping.",
+        "points": [
+          "Supporting: North's four of Clubs is already on the table, trumping the Hearts West led. That fact alone does not say whether you should beat it or not.",
+          "Decisive: you are below target and still need this trick. Beating the visible trump is what taking a needed trick requires here.",
+          "This is not the same situation as play_target_protection_004, where the same kind of visible trump called for undertrumping instead — there South was exactly on target and did not want the trick."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "2D"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Giving away a trick that was there to take",
+        "summary": "The two of Diamonds is off-suit and non-trump; it cannot beat North's already-played trump, and discarding it gives up a trick you are below target and need.",
+        "points": [
+          "You hold no Hearts, so both cards are legal, but only the higher Club can beat North's already-visible trump.",
+          "Below target with tricks still needed, passing on an available win does not reduce what is still required later.",
+          "The visible trump itself is not the reason to avoid this trick — it is only the reason a plain Diamond discard cannot win it."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-055 checkpoint-3 coverage: second Mixed tactical reading scenario, using a different combination of already-supported signals from play_mixed_tactical_001. Decisive signal: South's target state (below target here, versus exactly on target in play_target_protection_004) determines whether overtrumping the same kind of already-visible opponent trump is correct or wrong. Supporting signal: the visible trump (card-tracking) itself only establishes what specific card is needed to win, not whether winning is wanted. Deliberately mirrors play_target_protection_004's mechanism (a trump already visible in the current trick) to make the contrast explicit: the same visible evidence produces the opposite correct action once the target state flips. No claim is made about any trick beyond this one."
+}

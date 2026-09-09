@@ -1,0 +1,51 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_safe_probable_004",
+  "title": "Two unknowns instead of one",
+  "difficulty": "intermediate",
+  "primary_skill": "safe_vs_probable",
+  "skills": ["safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["JC", "2H"],
+  "situation": {
+    "leader": "west",
+    "current_trick": [
+      {"player": "west", "card": "8D"}
+    ],
+    "trump": "clubs",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 3, "east": 3, "south": 2, "west": 3},
+    "auction_bid": {"tricks": 4, "trump": "clubs"}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "JC"},
+      "rating": "strong",
+      "feedback": {
+        "title": "The best available card, with two players still to act",
+        "summary": "You hold no Diamonds, so trumping is legal. The jack is the only trump shown so far, but unlike a situation with one player left to respond, both East and North still act after you here.",
+        "points": [
+          "Nothing on the table beats the jack right now: the trick so far is one Diamond, and no trump has appeared yet.",
+          "Two seats, not one, still act after you this trick. Either East or North could hold a higher trump, which is not shown or ruled out here — this is a genuinely more open question than a single unknown responder.",
+          "You are well below target and still need both of the two remaining tricks. Playing the strongest legal card is the reviewed choice even with two players left to respond, since discarding guarantees nothing is gained either way."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "2H"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Giving up a needed trick against two unresolved players",
+        "summary": "The two of Hearts cannot win this trick under any circumstance, and discarding it here gives up a trick that is currently the strongest legal option, for nothing in return.",
+        "points": [
+          "You need both remaining tricks; passing on the strongest available card does not reduce what is still needed later.",
+          "The jack is not spent for nothing by trying: whether East or North holds a higher trump is unknown either way, so holding it back does not avoid that risk, it only delays testing it.",
+          "This is not the same as a certain win — two players could still beat the jack, not one. But nothing about playing the two instead makes either of them less likely to."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-055 checkpoint-3 coverage: a fourth safe_vs_probable scenario, escalating the uncertainty from play_safe_probable_003 rather than repeating it. There, only East remained to act after South (one unknown responder). Here South acts second, with both East and North still to act (two unknown responders), a genuinely greater degree of uncertainty. The rating is still Strong for the best available card, but the feedback explicitly names the compounded uncertainty rather than treating every 'not last to act' situation identically. No void or other resolving evidence is given for either remaining seat."
+}
