@@ -735,3 +735,88 @@ build succeeds. This is a bounded correctness fix discovered during owner
 review, not checkpoint 3 acceptance work: the coverage matrix stays 32/32,
 readiness stays 45%, EC-055 is not marked DONE, and the owner's
 repeated-session review continues.
+
+## EC-055 — Owner review finding: `play_void_tracking_005`'s heuristic contradicted its own exact-target math (D-026)
+
+The owner's review found a second, systemic issue: opponent estimates are
+not shown at all (a genuine contract gap, scoped as its own follow-up PR —
+see D-026), and — the correctness blocker fixed here — no check existed for
+whether an authored rating was even *compatible* with the player's own
+exact-target math for the current trick.
+
+### The bug
+
+South held 2 cards (2 tricks remain, including the pending decision), target
+4, taken 2 — a `mustWinAll` state: both remaining tricks were required. The
+scenario nonetheless rated **4D** Strong over **AC** Risky, purely because
+4D avoided West's one known Club void. But 4D is a bare low card with **no
+case for winning at all** — any reasonably-ranked Diamond from any of the
+other three unknown hands beats it, independent of any void — while AC is
+the Ace, unconditionally the highest possible card in its suit, beaten only
+by the one specific, named risk (West trumping). Preferring the card with no
+winning case over the guaranteed-winner-except-for-one-named-risk card, in a
+state where losing this trick makes the target unreachable, was not a
+defensible reading of the void evidence — the heuristic ("avoid the known
+risk") was correct in isolation but wrong in scope, since it ignored that
+avoiding one *named* risk by accepting a much larger *unnamed* one is not
+actually safer when this specific trick cannot be spared.
+
+### Audit
+
+All 17 production play scenarios were classified by the new
+`classifyTargetFeasibility` helper (taken vs. target vs. remaining tricks;
+full table and rationale in [D-026](DECISIONS.md)). Six scenarios are
+`mustWinAll`; five of the six already correctly recommend a card that wins.
+`play_void_tracking_005` was the only exception. Separately, every
+scenario's feedback text was checked for a claim requiring an *opponent's*
+estimate specifically — none exist in current content, so no existing rating
+is currently unjustified by that absence (the contract gap is real, but
+hasn't yet produced a false claim).
+
+### Fix and re-review
+
+Rebalanced `tricks_taken`: South 2→3, North 3→2 (East and West unchanged;
+sum stays 11, matching `13 - hand.length` for the unchanged 2-card hand). No
+card, no void evidence, and no rating changed. This moves the scenario from
+`mustWinAll` (need both of 2) to `slack` (need 1 of 2) — confirmed no
+evaluation referenced North's specific taken count, so the rebalance is
+strategically neutral.
+
+- **AC — risky** (unchanged rating, strengthened reasoning): now explicitly
+  states South needs only one more of the two remaining tricks, not both —
+  losing this one shifts the requirement onto the final trick and the ace
+  still in hand, rather than eliminating the target outright.
+- **4D — strong** (unchanged rating, strengthened reasoning): same addition
+  — the ace "remains available for the final trick" is now a true claim
+  (there genuinely is one more trick to use it in), not a claim that was
+  only true if this specific trick didn't matter.
+
+This is the same shape `play_void_tracking_001` already uses successfully
+(deliberately lose now, preserve the master card for the one trick still
+needed) — the fix brings `_005` in line with that established, already-sound
+pattern rather than inventing a new one.
+
+### Regression coverage and its honest limit
+
+`test/scenarios/play_target_feasibility_test.dart`: classifies all 17
+scenarios against a reviewed table (a scenario added or edited without
+updating it fails the test); proves `play_void_tracking_005` is now `slack`;
+and, for the subset of `mustWinAll` scenarios where South acts last (so a
+candidate's win/loss is mechanically provable via `trickWinner` from public
+information alone — only `play_target_protection_006` currently qualifies),
+asserts every Strong-rated card actually wins. The other four `mustWinAll`
+scenarios cannot be checked this way without reimplementing the coaching's
+own reasoning as a second, parallel engine (`play_void_tracking_002`
+specifically depends on a derived void, not just visible cards) — that limit
+is documented in the test file and here, not silently assumed away.
+
+### Checkpoint verification boundary
+
+338 tests pass (14 more than the prior batch: 10 `target_feasibility_test.dart`,
+4 `play_target_feasibility_test.dart`). Analysis is clean, strict validation
+accepts all 33 content files (unchanged count — a correction, not new
+content), and the web build succeeds. Coverage matrix stays 32/32, readiness
+stays 45%, EC-055 is not marked DONE, checkpoint 4 not started. The
+owner's repeated-session review continues; the opponent-estimates contract
+extension is scoped as a separate, non-optional follow-up PR (D-026),
+starting only after this one is reviewed and merged.

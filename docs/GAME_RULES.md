@@ -207,3 +207,26 @@ flutter test test/core/game_rules/exact_bid_outcome_test.dart
 7 and 5 tests respectively cover the boundaries above, including that the
 total-13 case throws rather than resolving to an arbitrary side, and that an
 out-of-range trick count is rejected.
+
+`lib/core/game_rules/target_feasibility.dart` (added EC-055/D-026) covers a
+third question `exact_bid_outcome.dart` alone cannot answer: whether the
+exact target is still *reachable* from here, not just whether it has already
+been hit or missed. `classifyTargetFeasibility` takes tricks taken, the
+target, and how many tricks remain (a hand's remaining card count, inclusive
+of the trick currently being decided) and returns one of `alreadyOver`,
+`onTarget`, `mustWinAll`, `slack` or `unreachable`. It exists because a
+`mustWinAll` scenario — every remaining trick, including the current one,
+must be won — makes a recommendation to voluntarily lose the current trick
+incoherent, and nothing before this checked for that. `test/scenarios/play_target_feasibility_test.dart`
+classifies all 17 production play scenarios against a reviewed table and,
+for the subset where South acts last (so a candidate card's win/loss is
+mechanically provable via `trick_winner.dart` without knowing hidden hands),
+asserts every Strong-rated card in a `mustWinAll` scenario actually wins.
+The remaining `mustWinAll` scenarios (South leading, or another seat still
+to respond) are not mechanically checkable this way — see that test file for
+why — and stay reviewed content, same as every other rating.
+
+```sh
+flutter test test/core/game_rules/target_feasibility_test.dart
+flutter test test/scenarios/play_target_feasibility_test.dart
+```

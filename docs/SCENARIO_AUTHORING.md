@@ -477,6 +477,31 @@ represented by this contract. Future support should author their observable
 inputs and derive classifications with the existing pure helpers, never
 redundant labels. No scoring, Risk, estimate ordering or simulator is implied.
 
+**Check target feasibility before rating a card that gives up the current
+trick, and before choosing `tricks_taken` at all.** A real owner-review
+finding (EC-055/D-026): a `mustWinAll` situation — where
+`target - tricks_taken[player_position]` equals the player's remaining hand
+size, meaning every remaining trick including the current one must be won —
+makes a Strong rating for a card that concedes the current trick incoherent,
+regardless of what other heuristic (a known void, a safe-vs-probable
+trade-off) seems to recommend it. Run
+`classifyTargetFeasibility(taken: ..., target: ..., remainingTricks:
+hand.length)` (`lib/core/game_rules/target_feasibility.dart`) against a
+new scenario's numbers before authoring ratings, and again after any edit
+to `tricks_taken` or `trick_estimate` — changing one seat's count to satisfy
+a different concern (as `play_void_tracking_005` needed) can silently flip
+the feasibility class. When a scenario is intentionally isolating one
+concept (a known void, a safe/probable choice, a visible trump), choose
+`target`/`tricks_taken`/hand-size numbers that leave genuine slack
+(`0 < target - taken < remaining`) unless the lesson specifically *is* about
+a must-win-all trade-off — and if it is, the recommended card must actually
+be the one more likely, or (where mechanically provable — see
+`test/scenarios/play_target_feasibility_test.dart`) certain, to win.
+Rebalancing `tricks_taken` for one seat requires rebalancing another to keep
+`sum(tricks_taken) == 13 - hand.length` (`PlaySituation` already enforces
+this); pick a seat whose count is not referenced by any evaluation's
+feedback text, so the rebalance stays strategically neutral.
+
 ### Choices and feedback
 
 There is no authored `allowed_decisions`: every card permitted by follow-suit

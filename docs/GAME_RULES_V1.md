@@ -225,6 +225,7 @@ explicitly, not guessed at.
 | Total of four estimates must never equal 13 | rule 4 | `estimate_totals.dart` (`isValidEstimateTotal`, `estimateTotal`) |
 | "Over"/"Under": total ≥ 14 is Over, ≤ 12 is Under | rule 5 | `estimate_totals.dart` (`classifyEstimateTotal`) |
 | Exact-bid target: success is exact tricks taken, not "at least" | rule 6 | `lib/core/game_rules/exact_bid_outcome.dart` (`classifyExactBid`) |
+| Whether the exact target is still reachable given tricks taken, the target and remaining tricks (derived from rule 6, not a new rule) | rule 6 + physical trick counting | `lib/core/game_rules/target_feasibility.dart` (`classifyTargetFeasibility`) — added EC-055/D-026 after an owner-review finding that a coaching heuristic contradicted this |
 
 ### Confirmed but not implemented
 
@@ -259,7 +260,8 @@ including full EC-043 scoring — depends on them:
 Keep confirmed rules in independent, small, pure modules — mirroring how
 `bidding.dart` (auction rules), `seat_rotation.dart` (seat succession),
 `void_tracking.dart` (derived void facts), `estimate_totals.dart`
-(estimate-set rules) and `exact_bid_outcome.dart` (exact-target outcome)
+(estimate-set rules), `exact_bid_outcome.dart` (exact-target outcome) and
+`target_feasibility.dart` (exact-target reachability given remaining tricks)
 already stay separate and independently testable. Do not fold these into one
 large combined rules type — each confirmed rule domain should stay its own
 file, testable on its own, so a future rule change invalidates dependent
