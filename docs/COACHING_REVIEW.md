@@ -956,3 +956,39 @@ overflow and no console errors. Coverage matrix stays 32/32 (these are edits
 to existing scenarios, not new ones), readiness stays 45%, EC-055 is not
 marked DONE, checkpoint 4 not started. The owner's repeated-session review
 continues.
+
+## EC-055 — Owner review: concise coaching by default (D-028)
+
+A presentation change only. **No rating, no authored sentence and no
+strategic meaning was altered**, and no scenario file was touched — this entry
+records that, and the measurement behind the design.
+
+### Why the suggested mapping was not used
+
+The task proposed `summary` as the default one-liner with the first 1–2
+`points` as compact default evidence. Measured over all 109 authored
+evaluations:
+
+| | summary chars (med/max) | multi-sentence summaries | first-point chars (med/max) |
+| --- | --- | --- | --- |
+| Bidding (73) | 97 / 176 | 14 of 73 | 92 / 156 |
+| Play (36) | 153 / 250 | 20 of 36 | 92 / 156 |
+
+That default would put roughly 350 characters of prose on screen — more than
+the previous behaviour, and against the requirement that no long paragraph be
+visible by default. The authored `title` is the field that already fits: 16–55
+characters, and written as a self-contained verdict ("Take the free trick",
+"Save the king; the ace is already gone", "A trump can be a losing card").
+
+### What a player sees
+
+Default: choice, rating, the authored `title`, the existing short factual
+lines, then `More detail · N points`. Expanded: the full `summary` followed by
+every `point`, verbatim. Nothing is truncated, split or paraphrased anywhere —
+the full reviewed coaching remains one tap away for every evaluation in both
+trainers, and the compact view is strictly shorter than what shipped before.
+
+The one deliberate gap: no evidence point appears in the compact view, because
+no authored field is short enough to promote without reintroducing paragraphs
+(see [D-028](DECISIONS.md)). The action names the point count so the depth
+behind it is still visible.

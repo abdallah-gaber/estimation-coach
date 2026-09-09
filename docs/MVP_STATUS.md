@@ -289,6 +289,21 @@ success alone does not satisfy this criterion.
   judged, since the table finally shows the full public state. The five
   questions above still have not been answered end-to-end; the review
   continues.
+- **Pass 1 continued, 2026-09-09** — A presentation finding rather than a
+  correctness one: post-decision coaching was too verbose for the intended
+  loop (*see table → decide → short useful feedback → continue*), because
+  both trainers showed the full authored `summary` immediately — up to 250
+  characters and three sentences. Coaching is now compact by default (rating
+  plus the authored one-line verdict) with the complete reviewed explanation
+  and every evidence point behind one `More detail · N points` action, shared
+  by both trainers. No authored coaching text, rating or strategic meaning
+  changed, and no content was rewritten — only which authored field is shown
+  when. See [D-028](DECISIONS.md), including why the suggested
+  `summary`-as-default mapping did not fit the measured content. This makes
+  the loop fast enough to judge questions 1 and 3 (order recall and repeated
+  sessions feeling different) without prose fatigue between decisions. The
+  five questions above still have not been answered end-to-end; the review
+  continues.
 
 This criterion is not satisfied by the PR that added this log: it remains
 prepared and in progress, not completed. The Variety gate stays at 0% and

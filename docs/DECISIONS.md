@@ -949,6 +949,78 @@ decision — not opponent-strategy optimization. Checkpoint 3 remains
 **IN PROGRESS**; MVP Readiness stays 45%; checkpoint 4 not started.
 
 
+## D-028 — Concise coaching by default; full reviewed detail on demand
+
+**Status:** Accepted
+
+### Context
+
+Owner review found the post-decision coaching too verbose for the intended
+loop — *see table → decide → short useful feedback → continue*. Both trainers
+showed the authored `title` **and** the full `summary` immediately, with the
+`points` behind a collapsed "Why?". The visible summary is the problem:
+measured across all 109 authored evaluations, play summaries run to 250
+characters and three sentences (median 153), so the default view led with a
+paragraph rather than a verdict.
+
+The task suggested mapping `summary` to the default one-liner and the first
+1–2 `points` to compact default evidence. **That mapping does not fit the
+existing content**, and the measurements say why:
+
+| | summary chars (med/max) | multi-sentence summaries | first-point chars (med/max) |
+| --- | --- | --- | --- |
+| Bidding (73 evals) | 97 / 176 | 14 of 73 | 92 / 156 |
+| Play (36 evals) | 153 / 250 | 20 of 36 | 92 / 156 |
+
+Promoting `summary` plus a first point into the default would have put
+~350 characters of prose on screen — *more* verbose than today, and a direct
+violation of "no long paragraph visible by default".
+
+### Decision
+
+Use the field that already *is* short: **`title` is the default one-line
+verdict.** Feedback titles are 16–55 characters (median 33 bidding, 40 play)
+and read as self-contained verdicts — "Take the free trick", "Save the king;
+the ace is already gone", "A trump can be a losing card". `summary` and
+**all** `points` move behind one explicit action.
+
+Default view: choice label, rating, the `title` line, the existing short
+non-prose facts (`Outcome: not simulated.`, and the bid trainer's commitment
+line), then `More detail · N points` and the continue/retry actions. Expanded
+adds the full `summary` and every `point`, unchanged.
+
+This needs **no content change at all**: no new field, no parallel feedback
+model, no rewriting, and no truncating, splitting or sentence-slicing of
+authored prose anywhere in the widget layer. The only change is *which
+authored field is shown when*. It is also strictly less verbose than before,
+since the summary was previously always visible.
+
+One shared `lib/shared/widgets/coaching_result_card.dart` renders this for
+both trainers, so the interaction cannot drift between them. It takes
+already-resolved strings and knows nothing about scenarios, evaluations or
+ratings as domain types, keeping coaching content in the content layer. Each
+trainer owns the disclosure state explicitly (rather than `ExpansionTile`'s
+implicit state) and resets it on next scenario, retry and Practice again, so
+one decision's expansion never carries into the next.
+
+### Consequences
+
+The "at most 1–2 short high-signal points" part of the target shape is
+satisfied as *zero* points by default, deliberately: no authored field is
+short enough to promote (first points median 92, max 156 chars), and
+length-thresholding them in the widget would be exactly the scenario-specific
+truncation this decision rules out. If the owner wants an evidence bullet in
+the compact view, the clean way is a dedicated short authored field per
+evaluation (~109 new strings), scoped as its own content task — not
+fabricated by cutting existing prose. The action label names the point count
+so the default still signals how much evidence is available.
+
+No rating, no strategic meaning and no authored text changed; the complete
+reviewed explanation stays one tap away. Recorded as a small owner-review UX
+improvement inside Checkpoint 3: EC-055 stays open, MVP Readiness stays 45%,
+checkpoint 4 not started, and no trainer screen was redesigned beyond this
+one panel.
+
 ## Decision template
 
 Copy this section for future decisions.

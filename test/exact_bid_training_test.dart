@@ -60,10 +60,11 @@ void main() {
         await tester.tap(card);
         await tester.pumpAndSettle();
         await tap(tester, 'Play card');
-        expect(
-          find.text(scenario.evaluate(GameCard.parse(code))!.feedback.summary),
-          findsOneWidget,
-        );
+        final feedback = scenario.evaluate(GameCard.parse(code))!.feedback;
+        // The concise headline is the default; the explanation stays behind
+        // the detail action.
+        expect(find.text(feedback.title), findsOneWidget);
+        expect(find.text(feedback.summary), findsNothing);
         expect(find.text('Before this play: $label'), findsOneWidget);
         expect(find.text('Taken: ${facts.playerTricksTaken}'), findsOneWidget);
         expect(find.text('Outcome: not simulated.'), findsOneWidget);
