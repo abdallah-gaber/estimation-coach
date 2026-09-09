@@ -963,6 +963,54 @@ work: the coverage matrix stays 32/32, the Variety gate stays 0%, MVP
 Readiness stays 45%, EC-055 is not marked DONE, checkpoint 4 was not
 started. The owner's repeated-session review continues.
 
+### Seventh bounded PR (this PR): public opponent estimates
+
+The queued follow-up from the sixth bounded PR: the public play table showed
+each opponent's tricks taken with no target to compare it against.
+
+**Contract**: an additive, optional `opponent_estimates` field (only
+`north`/`east`/`west`, each an exact 0–13 estimate; schema stays version 1),
+a matching `PlaySituation.opponentEstimates` domain field
+(`Map<PlayerSeat, TrickEstimate>`, default empty) that rejects the pending
+player's own seat and — only once all three opponents are present — checks
+the combined four-seat total against the existing total-must-not-equal-13
+rule (`isValidEstimateTotal`). Partial sets stay explicitly partial; nothing
+is inferred. Full rationale: [D-027](docs/DECISIONS.md).
+
+**UI**: opponent seats on the play table now read `Target N · Taken M` when
+that seat's estimate is known, or an honest `Target unknown · Taken M`
+when it is not — never an invented number. The leader's `Led <suit>` label
+and South's own two chips are unchanged.
+
+**Content audit, and why nothing changed**: all 17 bundled play scenarios
+were reviewed against this new field. None records anything about an
+individual opponent's bid beyond the aggregate winning `auction_bid.tricks`
+and the player's own `trick_estimate` — there is no per-seat auction history
+in this content model to draw a real number from. Authoring specific
+opponent targets here would invent an auction outcome never authored, the
+same category of problem D-025/D-026 found and fixed. All 17 scenarios stay
+without `opponent_estimates`; the honest fallback exists because this is the
+expected state for existing content, not a hypothetical edge case.
+
+**Tests** (+13, 351 total): `play_situation_test.dart` (+5) covers default
+empty, accepted absent/partial/full, immutable exposure, the combined
+total-13 rejection and the own-seat rejection. `play_scenario_test.dart`
+(+6) covers the schema/parser round-trip for partial/full sets, no South
+duplication, and four invalid-shape/relation rejections (bad seat key,
+unknown seat name, out-of-range value, fractional value, and a schema-valid
+but domain-rejected total-13 combination). `play_training_test.dart` (+2)
+covers the honest fallback on a real unmodified scenario and the
+`Target N · Taken M` rendering on a copy of one with `opponent_estimates`
+added. Full review: [docs/COACHING_REVIEW.md](docs/COACHING_REVIEW.md).
+
+351 tests pass, analysis is clean, strict validation accepts all 33 content
+files unchanged (no content was edited), and the web build succeeds. No
+coaching rating changed; no opponent behavioral modeling, strategic
+objective, or multi-trick simulation was added. Coverage matrix stays
+32/32, the Variety gate stays 0%, MVP Readiness stays 45%, EC-055 is not
+marked DONE, checkpoint 4 was not started. The owner's repeated-session
+review continues.
+
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
 - Each allowed transformation documents and preserves game/coaching invariants:
@@ -976,10 +1024,10 @@ started. The owner's repeated-session review continues.
 - Record owner repeated-session review showing reasoning rather than answer recall.
   **In progress**: the owner's review has found and this project has fixed two
   genuine correctness issues so far (`play_void_tracking_005`'s trick-winner
-  inconsistency, D-025; its target-feasibility contradiction, D-026); the
-  review itself continues — this is the only open acceptance criterion for
-  EC-055. A separate, non-optional opponent-estimates contract PR is queued
-  next, not yet started.
+  inconsistency, D-025; its target-feasibility contradiction, D-026), and has
+  delivered the queued opponent-estimates contract extension (D-027) so the
+  public table is no longer missing opponent targets; the review itself
+  continues — this is the only open acceptance criterion for EC-055.
 - New scenarios using supported contracts remain content-only; no runtime AI. ✅
 
 ---

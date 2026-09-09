@@ -268,6 +268,22 @@ success alone does not satisfy this criterion.
   scenarios. The five questions above have not yet been answered
   end-to-end; the review continues, and the opponent-estimates contract
   extension is queued as a separate bounded PR next.
+- **Pass 1 continued, 2026-09-09** — Delivered the queued opponent-estimates
+  follow-up: an additive, optional `opponent_estimates` field (north/east/west
+  only, schema stays version 1), a matching `PlaySituation.opponentEstimates`
+  domain field with its own-seat and combined-total-13 validation, and a
+  `Target N · Taken M` / `Target unknown · Taken M` table label so the public
+  state is honest about what it does and does not know (see
+  [D-027](DECISIONS.md)). Audited all 17 bundled scenarios against this new
+  field and authored it in none of them: the content model records the
+  aggregate winning bid and the player's own estimate, but no per-seat bid
+  history, so a specific opponent number would be invented, not completed —
+  documented in D-027 rather than retrofitted. No coaching rating changed.
+  Question 2 above can now be judged with full public state once opponent
+  estimates exist for a scenario; it remains unanswerable for these 17 until
+  a future scenario authors real per-seat bidding context. The five
+  questions above still have not been answered end-to-end; the review
+  continues.
 
 This criterion is not satisfied by the PR that added this log: it remains
 prepared and in progress, not completed. The Variety gate stays at 0% and

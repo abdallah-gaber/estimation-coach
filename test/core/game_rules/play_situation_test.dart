@@ -18,6 +18,7 @@ void main() {
     Trump trump = Trump.spades,
     Bid? bid,
     List<ObservedTrick> observed = const [],
+    Map<PlayerSeat, TrickEstimate> opponentEstimates = const {},
   }) => PlaySituation(
     playerPosition: player,
     hand: Hand(hand.map(GameCard.parse)),
@@ -41,6 +42,7 @@ void main() {
         },
     auctionBid: bid,
     observedTricks: observed,
+    opponentEstimates: opponentEstimates,
   );
 
   test(
@@ -263,6 +265,81 @@ void main() {
       throwsArgumentError,
     );
   });
+  test('opponent estimates default to empty and stay backward compatible', () {
+    expect(situation().opponentEstimates, isEmpty);
+  });
+  test('opponent estimates are accepted absent, partial and full', () {
+    expect(
+      situation(
+        opponentEstimates: {PlayerSeat.north: TrickEstimate(2)},
+      ).opponentEstimates,
+      {PlayerSeat.north: TrickEstimate(2)},
+    );
+    expect(
+      situation(
+        opponentEstimates: {
+          PlayerSeat.north: TrickEstimate(2),
+          PlayerSeat.east: TrickEstimate(3),
+        },
+      ).opponentEstimates,
+      hasLength(2),
+    );
+    final full = situation(
+      opponentEstimates: {
+        PlayerSeat.north: TrickEstimate(2),
+        PlayerSeat.east: TrickEstimate(3),
+        PlayerSeat.west: TrickEstimate(3),
+      },
+    );
+    expect(full.opponentEstimates, hasLength(3));
+    // South's own trickEstimate (4, the default) combines with the three
+    // opponents to a total of 12 — under 13, so this full set is valid.
+  });
+  test('opponent estimates are exposed as an immutable defensive copy', () {
+    final estimates = {PlayerSeat.north: TrickEstimate(2)};
+    final state = situation(opponentEstimates: estimates);
+    estimates.clear();
+    expect(state.opponentEstimates, hasLength(1));
+    expect(() => state.opponentEstimates.clear(), throwsUnsupportedError);
+  });
+  test('a complete four-seat estimate set combining South is validated '
+      'against the total-13 rule', () {
+    expect(
+      () => situation(
+        estimate: 4,
+        opponentEstimates: {
+          PlayerSeat.north: TrickEstimate(3),
+          PlayerSeat.east: TrickEstimate(3),
+          PlayerSeat.west: TrickEstimate(3),
+        },
+      ),
+      throwsA(
+        isA<ArgumentError>().having(
+          (e) => e.message,
+          'message',
+          contains('must not total 13'),
+        ),
+      ),
+    );
+  });
+  test(
+    'opponent estimates must not include the pending player\'s own seat',
+    () {
+      expect(
+        () => situation(
+          player: PlayerSeat.south,
+          opponentEstimates: {PlayerSeat.south: TrickEstimate(2)},
+        ),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('must not include the pending player'),
+          ),
+        ),
+      );
+    },
+  );
   final invalid = <String, void Function()>{
     'empty hand': () => situation(hand: []),
     'missing seat count': () => situation(taken: {PlayerSeat.south: 9}),

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:estimation_coach/core/cards/cards.dart';
+import 'package:estimation_coach/core/game_rules/play_situation.dart'
+    show TrickEstimate;
 import 'package:estimation_coach/core/game_rules/trick_winner.dart';
 import 'package:estimation_coach/core/game_rules/void_tracking.dart';
 import 'package:estimation_coach/scenarios/bidding_scenario.dart';
@@ -121,6 +123,25 @@ void main() {
       '9D',
     ]);
   });
+  test('opponent_estimates is optional and round-trips a partial or full '
+      'seat-keyed map, never duplicating South', () {
+    final d = playFixture();
+    expect(PlayScenario.fromJson(d).situation.opponentEstimates, isEmpty);
+    d['situation']['opponent_estimates'] = {'north': 2};
+    accepted(d);
+    expect(PlayScenario.fromJson(d).situation.opponentEstimates, {
+      PlayerSeat.north: TrickEstimate(2),
+    });
+    d['situation']['opponent_estimates'] = {'north': 2, 'east': 3, 'west': 3};
+    accepted(d);
+    final full = PlayScenario.fromJson(d).situation.opponentEstimates;
+    expect(full, {
+      PlayerSeat.north: TrickEstimate(2),
+      PlayerSeat.east: TrickEstimate(3),
+      PlayerSeat.west: TrickEstimate(3),
+    });
+    expect(full.containsKey(PlayerSeat.south), isFalse);
+  });
   test('all four ratings use authored feedback', () {
     for (final rating in DecisionRating.values) {
       final d = playFixture();
@@ -169,6 +190,14 @@ void main() {
     'negative taken': (d) => d['situation']['tricks_taken']['south'] = -1,
     'missing taken seat': (d) => d['situation']['tricks_taken'].remove('north'),
     'unknown situation key': (d) => d['situation']['bid'] = 4,
+    'opponent estimate south key': (d) =>
+        d['situation']['opponent_estimates'] = {'south': 2},
+    'opponent estimate unknown seat': (d) =>
+        d['situation']['opponent_estimates'] = {'center': 2},
+    'opponent estimate value above 13': (d) =>
+        d['situation']['opponent_estimates'] = {'north': 14},
+    'opponent estimate fractional value': (d) =>
+        d['situation']['opponent_estimates'] = {'north': 1.5},
     'low auction bid': (d) => d['situation']['auction_bid']['tricks'] = 3,
     'null auction bid': (d) => d['situation']['auction_bid'] = null,
     'bad current card': (d) =>
@@ -223,6 +252,12 @@ void main() {
         d['situation']['current_trick'][1]['player'] = 'south',
     'count total': (d) => d['situation']['tricks_taken']['north'] = 1,
     'trump mismatch': (d) => d['situation']['auction_bid']['trump'] = 'hearts',
+    'complete opponent estimates total 13 with South': (d) =>
+        d['situation']['opponent_estimates'] = {
+          'north': 4,
+          'east': 4,
+          'west': 4,
+        },
     'illegal evaluation': (d) => d['evaluations'][0]['decision']['card'] = 'AS',
     'duplicate evaluation': (d) => d['evaluations'].add(d['evaluations'][0]),
     'observed trick duplicate seat': (d) =>

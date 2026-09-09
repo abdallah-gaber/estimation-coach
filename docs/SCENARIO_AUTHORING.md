@@ -372,6 +372,7 @@ Required `situation` fields:
 | `trick_estimate` | This player's already assigned target, integer 0–13 |
 | `tricks_taken` | Object with north/east/south/west nonnegative integer counts |
 | `auction_bid` (optional) | Known winning `{tricks: 4–13, trump}`; omit if unknown |
+| `opponent_estimates` (optional) | Object with only `north`/`east`/`west` keys (never the player's own seat), each an exact 0–13 target; keys may be a subset |
 | `observed_tricks` (optional) | Array of prior tricks, each exactly four `{player, card}` objects, following the seats below |
 
 These fields map to the validated PlaySituation contract in
@@ -447,6 +448,35 @@ by a different seat than the one it named as leading next); catch it in
 review or a targeted test per scenario, not by assuming the general model
 will catch it, since it deliberately does not.
 
+#### Opponent estimates (EC-055/D-027)
+
+`opponent_estimates` makes the public table strategically complete: without
+it, an opponent's `tricks_taken` is shown with no target to compare it
+against, which is misleading whenever a scenario's coaching actually depends
+on what that seat still needs. It is additive and optional — omitting it
+entirely, or supplying only some of the three keys, is always valid; a
+missing seat renders as an honest "Target unknown" in the app, never an
+invented number.
+
+Only author a value here when it is a real fact already implied by the
+scenario, not a number chosen to make the total-13 math work. In practice
+this content model rarely provides one: it records the aggregate winning
+`auction_bid.tricks` and the player's own `trick_estimate`, but nothing about
+which seat bid what individually. Do not fill `opponent_estimates` just to
+populate it — doing so invents an auction outcome (a specific seat's bid)
+the scenario never actually authored, the same category of problem D-025 and
+D-026 found and fixed elsewhere. None of the bundled scenarios currently
+author this field, for exactly this reason (see D-027); add it only once a
+scenario's own narrative genuinely establishes a specific opponent's target
+(for example, an authored bidding-phase seat order feeding into a play
+scenario — not yet supported by this content model).
+
+If all three opponent seats are supplied, the combined four-seat set
+(opponents plus the player's own `trick_estimate`) is validated against the
+same total-must-not-equal-13 rule as a directly-authored complete set
+(`isValidEstimateTotal`, `estimate_totals.dart`); a partial set is never
+checked against this rule; it stays explicitly partial.
+
 #### Exact-target coaching (EC-043)
 
 The owner-confirmed estimate rules in
@@ -472,10 +502,13 @@ Distinguish avoiding a trick while exactly on target from avoiding another
 trick after already exceeding the target: the latter cannot restore exact
 success.
 
-A complete four-player estimate set, With and room-total Over/Under are not
-represented by this contract. Future support should author their observable
-inputs and derive classifications with the existing pure helpers, never
-redundant labels. No scoring, Risk, estimate ordering or simulator is implied.
+A complete four-player estimate set can now be represented via
+`opponent_estimates` (see above) when all three opponent seats are known,
+but With and room-total Over/Under classification are still not surfaced by
+this contract or the trainer UI. Future support should derive those with the
+existing pure helpers (`isWithCaller`, `classifyEstimateTotal`), never
+redundant authored labels. No scoring, Risk, opponent behavioral modeling or
+simulator is implied.
 
 **Check target feasibility before rating a card that gives up the current
 trick, and before choosing `tricks_taken` at all.** A real owner-review

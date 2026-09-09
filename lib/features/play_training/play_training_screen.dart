@@ -487,8 +487,20 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
     seatLabel(seat),
     seat == situation.leader
         ? 'Led ${situation.ledSuit!.label}'
-        : 'Taken: ${situation.tricksTaken[seat]}',
+        : _opponentTakenLabel(seat, situation),
   );
+
+  /// Honest public-state label for a non-leading opponent: their own
+  /// authored target alongside tricks taken when the target is known, or an
+  /// explicit "unknown" fallback rather than inventing one for scenarios
+  /// authored before opponent estimates existed (EC-055/D-027).
+  String _opponentTakenLabel(PlayerSeat seat, PlaySituation situation) {
+    final estimate = situation.opponentEstimates[seat];
+    final taken = situation.tricksTaken[seat];
+    return estimate == null
+        ? 'Target unknown · Taken $taken'
+        : 'Target ${estimate.tricks} · Taken $taken';
+  }
 
   Widget _seat(String name, String detail, {bool active = false}) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),

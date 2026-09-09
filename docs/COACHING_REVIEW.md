@@ -820,3 +820,60 @@ stays 45%, EC-055 is not marked DONE, checkpoint 4 not started. The
 owner's repeated-session review continues; the opponent-estimates contract
 extension is scoped as a separate, non-optional follow-up PR (D-026),
 starting only after this one is reviewed and merged.
+
+## EC-055 — Owner review follow-up: public opponent estimates (D-027)
+
+The follow-up scoped and queued by D-026 above. No coaching rating changes
+here — this is a table-completeness fix, reviewed as content-neutral rather
+than for correctness of any evaluation.
+
+### What changed
+
+An optional `opponent_estimates` field (north/east/west only) was added to
+the play situation contract, with a matching `PlaySituation.opponentEstimates`
+domain field and a `Target N · Taken M` (or `Target unknown · Taken M`)
+label on the play table's opponent seats. Full rationale, the own-seat and
+combined-total-13 validation, and why the field stays additive at schema
+version 1 are in [D-027](DECISIONS.md).
+
+### Content audit: why no scenario authors this field yet
+
+All 17 bundled play scenarios were reviewed against the new field, the same
+way the D-026 audit reviewed them against `classifyTargetFeasibility`.
+Every one was checked for what an opponent's estimate would need to be
+grounded in: `situation.auction_bid.tricks` (the aggregate winning bid, not
+per-seat) and `situation.trick_estimate` (South's own target) are the only
+estimate-related facts any of these files record. None records which
+opponent bid what individually. Authoring `opponent_estimates` for any of
+them would mean choosing three numbers with no basis in the file's own
+content beyond "some combination that doesn't total 13 with South's
+estimate" — the same category of invented, unsupported fact D-025 (a
+fabricated trick-winner relationship) and D-026 (a heuristic contradicting
+the player's own target math) each found and corrected. So all 17 stay
+without this field; the honest "Target unknown" fallback exists because this
+is the expected near-term state, not an edge case.
+
+### Regression coverage
+
+`test/core/game_rules/play_situation_test.dart` (+5): opponent estimates
+default to empty; accepted absent/partial/full; exposed as an immutable
+defensive copy; a complete four-seat set combining South's own estimate is
+checked against the total-13 rule; the pending player's own seat is rejected
+if present in the map. `test/scenarios/play_scenario_test.dart` (+6): the
+schema/parser round-trip for partial and full `opponent_estimates`, that the
+result never contains a South key; four rejection cases (an opponent-key
+attempt at `south`, an unknown seat name, a value above 13, a fractional
+value) plus one relational case (a schema-valid but domain-rejected
+four-seat set totaling 13 once South's own estimate is included).
+`test/play_training_test.dart` (+2): a real bundled scenario
+(`play_safe_probable_001`, unmodified) renders `Target unknown · Taken N`
+for its non-leading opponents; the same scenario with `opponent_estimates`
+added to a copy of its JSON renders `Target N · Taken M` instead.
+
+### Checkpoint verification boundary
+
+351 tests pass (13 more than the prior batch). Analysis is clean, strict
+validation accepts all 33 content files unchanged (no content was edited),
+and the web build succeeds. Coverage matrix stays 32/32, readiness stays
+45%, EC-055 is not marked DONE, checkpoint 4 not started. The owner's
+repeated-session review continues.

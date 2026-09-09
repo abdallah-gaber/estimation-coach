@@ -348,4 +348,50 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Observed play'), findsNothing);
   });
+
+  testWidgets(
+    'opponents without an authored estimate show an honest unknown-target '
+    'fallback rather than an invented one',
+    (tester) async {
+      // play_safe_probable_001 carries no opponent_estimates (EC-055/D-027
+      // audit: none of the bundled scenarios record which seat bid what, so
+      // none author this field yet). North (taken 2) and West (taken 3) are
+      // its non-leading opponents.
+      final scenario = playPack().firstWhere(
+        (s) => s.id == 'play_safe_probable_001',
+      );
+      expect(scenario.situation.opponentEstimates, isEmpty);
+      await tester.pumpWidget(
+        MaterialApp(home: PlayTrainingScreen(loader: () async => [scenario])),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Target unknown · Taken 2'), findsOneWidget);
+      expect(find.text('Target unknown · Taken 3'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'an authored opponent estimate renders as target alongside taken',
+    (tester) async {
+      final data =
+          jsonDecode(
+                File(
+                  'content/scenarios/v1/play/play_safe_probable_001.json',
+                ).readAsStringSync(),
+              )
+              as Map<String, dynamic>;
+      // North and West are this scenario's non-leading opponents (East
+      // leads). Values chosen only to exercise the label; not reviewed
+      // training content.
+      data['situation']['opponent_estimates'] = {'north': 3, 'west': 4};
+      final scenario = PlayScenario.fromJson(data);
+      await tester.pumpWidget(
+        MaterialApp(home: PlayTrainingScreen(loader: () async => [scenario])),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Target 3 · Taken 2'), findsOneWidget);
+      expect(find.text('Target 4 · Taken 3'), findsOneWidget);
+      expect(find.text('Target unknown · Taken 2'), findsNothing);
+    },
+  );
 }

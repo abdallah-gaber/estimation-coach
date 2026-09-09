@@ -860,6 +860,73 @@ bounded PR (public per-seat `trickEstimate` in the `PlayScenario`/domain
 contract, plus a compact `Target / Taken` display), to start only after this
 PR is reviewed and merged.
 
+## D-027 — Additive `opponent_estimates`; leave all 17 bundled scenarios without one
+
+**Status:** Accepted
+
+### Context
+
+D-026's audit found the public play table strategically incomplete: it
+showed each opponent's tricks taken but never their target, so a scenario
+that actually needs "West still needs both remaining tricks" couldn't say
+so. This is the promised follow-up ("B"), scoped separately per D-026's
+**Next** note and the owner's explicit instruction not to treat it as
+optional.
+
+### Decision
+
+Add an optional, additive `opponent_estimates` field to the play situation
+contract — an object with only `north`/`east`/`west` keys, each an exact
+0–13 trick estimate (`$defs/playCount`), `additionalProperties: false`, not
+in `required`. `schema.v1.schema.json`'s `scenario_version` stays `1`: every
+existing scenario is valid without this field, and the field cannot express
+anything the schema previously rejected.
+
+`PlaySituation` gains a matching `opponentEstimates` parameter
+(`Map<PlayerSeat, TrickEstimate>`, defaulting to `const {}`). It is
+domain-typed, not raw integers, for the same reason `trickEstimate` already
+is. Two checks, both new: the map must not contain `playerPosition`'s own
+seat (that estimate is `trickEstimate`, never duplicated); and only once all
+three opponents are present does completing the set with `trickEstimate`
+get checked against the existing `isValidEstimateTotal` total-13 rule
+(`estimate_totals.dart`) — a partial set is left explicitly partial, nothing
+is inferred to force that check early. `PlayScenario.fromJson` parses the
+object the same way it already parses `observed_tricks`: optional, and
+`opponent_estimates` added to the situation's field whitelist.
+
+The play table's opponent chip changes from a bare `Taken: N` to `Target N ·
+Taken M` when that seat's estimate is known, or an explicit `Target unknown
+· Taken M` when it is not — never inventing a number for old content. The
+leader's `Led <suit>` label and South's own two chips (`Your target: N` /
+`Taken: M`) are unchanged; South's chips already say "Your" and a public
+scenario audit test locks their exact text.
+
+**Content**: none of the 17 bundled play scenarios receive an authored
+`opponent_estimates`. Every one was audited (see the table above D-026's
+fix) and, beyond the aggregate winning `auction_bid.tricks` and South's own
+`trick_estimate`, none records anything about what an individual opponent
+seat bid — there is no per-seat auction history in this content model to
+draw a real number from. Assigning specific north/east/west targets here
+would not be "completing" data that exists elsewhere in the scenario; it
+would be inventing an auction outcome (a specific seat's bid) that was never
+authored, exactly the kind of unsupported fact this checkpoint's review has
+repeatedly flagged when found (D-025, D-026). The honest-fallback UI text
+above exists for precisely this case, not as a hypothetical. A future
+scenario that authors real per-seat bidding context (or a future variant of
+this checkpoint's content) can populate `opponent_estimates` once that
+context exists; this PR only makes the field structurally available.
+
+### Consequences
+
+Schema stays version 1; every existing scenario file, `PlaySituation` call
+site and test continues to parse unchanged (confirmed: full suite green,
+`--require-complete` scenario validation green, `flutter build web` green).
+No coaching rating changed, no opponent behavioral modeling or strategic
+objective ("make West fail") was added, and no multi-trick simulation was
+introduced — this stays local, tactical, exact-target-aware coaching for one
+pending decision, same as before. Checkpoint 3 remains **IN PROGRESS**; MVP
+Readiness stays 45%; checkpoint 4 not started.
+
 ## Decision template
 
 Copy this section for future decisions.
