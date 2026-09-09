@@ -1,0 +1,65 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_target_protection_004",
+  "title": "A trump is already on the table",
+  "difficulty": "intermediate",
+  "primary_skill": "exact_bid_protection",
+  "skills": ["exact_bid_protection", "card_tracking"],
+  "player_position": "south",
+  "hand": ["KS", "2S", "7C"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "9H"},
+      {"player": "north", "card": "JS"},
+      {"player": "west", "card": "QH"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 2, "east": 2, "south": 4, "west": 2}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "2S"},
+      "rating": "strong",
+      "feedback": {
+        "title": "A trump can be a losing card",
+        "summary": "You are exactly on four. The two of Spades loses beneath North's jack of trump, letting you shed a trump without taking an unwanted fifth trick.",
+        "points": [
+          "Hearts were led and your hand has none, so all three cards are legal. North has already trumped; the queen of Hearts is not winning.",
+          "You act last. The two cannot beat the jack of Spades, while your king would overtrump it and win.",
+          "The reviewed preference is to use this safe opportunity to shed a trump and retain the off-trump club. That does not prove the best remaining hand: future leads and unseen cards are unknown."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "KS"},
+      "rating": "weak",
+      "feedback": {
+        "title": "Overtrumping takes the trick you do not need",
+        "summary": "The king beats the jack of trump and takes a fifth trick when your estimate is four. Both the two of Spades and the club would avoid this extra trick.",
+        "points": [
+          "Having no Hearts allows you to trump; it does not require you to beat the trump already played.",
+          "No one acts after you, so no unseen response can rescue the king from winning this trick.",
+          "Keeping the king by losing now is not a guarantee of a final exact four; later tricks remain unresolved."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "7C"},
+      "rating": "reasonable",
+      "feedback": {
+        "title": "A safe discard, but a missed chance to shed trump",
+        "summary": "The club loses to North's jack of Spades and keeps you on four for this trick. It also leaves both of your trumps in hand.",
+        "points": [
+          "The club is neither the led suit nor trump, so it cannot win here.",
+          "Playing the two of Spades would also lose under the jack. The reviewed preference is to shed that trump while it is safely covered.",
+          "Discarding the club is still reasonable. Which retained hand will be easier to lose with depends on future leads and cards not shown."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-043 table-evidence case: the visible JS makes undertrumping with 2S safe. Without that higher trump, the two could win. All local outcomes are determined with South last; the 2S-versus-7C preference is authored judgment, not a simulated optimal continuation."
+}

@@ -1,8 +1,8 @@
 # MVP Roadmap Lock
 
 Updated 2026-09-09. **Runnable preview; not ready to ship.** Ten reviewed bidding
-hands and eight play scenarios are available. EC-048 is merged; EC-043 has three
-of its five exact-target scenarios. Progress storage, varied sessions, the hub
+hands and ten play scenarios are available. EC-048 is merged; EC-043 has all five
+reviewed exact-target scenarios. Progress storage, varied sessions, the hub
 and English/مصري switching remain unfinished.
 
 [Task tracker](../PROJECT_TRACKER.md) owns individual task statuses. This page
@@ -13,11 +13,11 @@ Historical milestone headings in the tracker do not define another roadmap.
 
 Complete these checkpoints **in this order**. A checkpoint may use bounded PRs
 to fit review/context limits; those PRs are not additional roadmap checkpoints.
-This documentation lock does not start checkpoint 1.
+Checkpoint 1 is complete. Next focus is checkpoint 2 (EC-049); it has not started.
 
 | # | Checkpoint | Tasks | Status | Exit criteria |
 | --- | --- | --- | --- | --- |
-| 1 | Finish EC-043 | EC-043 | IN PROGRESS — 3/5 scenarios | Add only the two remaining reviewed exact-bid-protection scenarios. Content-only, existing contract, complete legal-choice coaching and review rationale; strict validation passes. |
+| 1 | Finish EC-043 | EC-043 | DONE — 5/5 scenarios | Two final scenarios add undertrumping evidence and a choice between safe winners in Sans. Content-only, existing contract, complete legal-choice coaching and documented review. |
 | 2 | Anti-memorization sessions | EC-049 | BACKLOG | Shuffled selection, no immediate repeats, and session order independent of catalog/file order. Selector is reproducible under test and handles small/exhausted pools explicitly. |
 | 3 | Scenario Variants + Content Breadth | EC-055 | BACKLOG | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
 | 4 | Personal Coaching | EC-050/051/052 | BACKLOG | Decisions persist locally across restart, map to documented skills, aggregate deterministically, and drive targeted weak-area practice. |
@@ -91,8 +91,8 @@ is satisfied; otherwise it earns zero. No subjective partial percentages.
 | --- | ---: | ---: | --- |
 | Foundation / architecture | 15% | 15% | EC-001/002/010/012/020/021/022/023/026 and portable content/domain separation delivered; required CI exists. |
 | Bidding Coach | 15% | 15% | EC-030/031/032/033 delivered: ten reviewed hands, 53 evaluated choices, visual legal decisions and evidence-based feedback. Variety is assessed separately. |
-| Play Coach core | 15% | 15% | EC-040/041/044/045/046/047/042/048 delivered: legal card play, portable scenarios, reviewed feedback, void evidence and known auction-bound validation. The remaining EC-043 content belongs to the variety gate. |
-| Variety / anti-memorization | 20% | 0% | Checkpoints 1–3 closed: complete exact-target pack, independent session selection, validated variants and owner-reviewed content breadth. |
+| Play Coach core | 15% | 15% | EC-040/041/044/045/046/047/042/048 delivered: legal card play, portable scenarios, reviewed feedback, void evidence and known auction-bound validation. EC-043 content belongs to the variety gate. |
+| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoint 1 is complete; 2 and 3 remain open. No credit yet for session selection, validated variants or broader reviewed content. |
 | Personal coaching | 15% | 0% | Checkpoint 4 closed: persistence, skill aggregation and targeted weak-area practice. |
 | Training hub + localization/polish | 10% | 0% | Both checkpoints 5 and 6 closed. |
 | Acceptance / ship | 10% | 0% | Checkpoint 7's Definition of Done evidence, owner acceptance and release tag `v1.0.0-mvp` recorded. |

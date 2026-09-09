@@ -1,0 +1,65 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_target_protection_005",
+  "title": "One more trick in Sans",
+  "difficulty": "intermediate",
+  "primary_skill": "exact_bid_protection",
+  "skills": ["exact_bid_protection", "safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["AH", "QH", "3H", "2C"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "8H"},
+      {"player": "north", "card": "JH"},
+      {"player": "west", "card": "9H"}
+    ],
+    "trump": "no_trump",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 2, "east": 2, "south": 3, "west": 2}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "AH"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Take the needed trick and spend the ace",
+        "summary": "You need one more trick. The ace wins your fourth now and removes your highest Heart before further tricks become unwanted.",
+        "points": [
+          "You act last in Sans. Both your ace and queen beat the jack of Hearts, so either wins this specific trick.",
+          "Normally you might preserve the ace by winning with the queen. Here you only need one more: cashing the ace avoids retaining a card that cannot lose when Hearts are led.",
+          "The retained queen could still win later, or lose to the king if it is still available. Neither the king's availability nor future leads are known. The preference for spending the ace is reviewed judgment, not a promise of an exact finish."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "QH"},
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Enough to win, but the ace stays",
+        "summary": "The queen also takes your fourth trick. It leaves the ace in your hand just as your objective changes to avoiding further tricks.",
+        "points": [
+          "The queen beats every Heart already shown and you act last; this is a safe way to take the needed trick.",
+          "In Sans the retained ace cannot be beaten if Hearts are led later. That is an avoidable exposure, not a prediction that Hearts will be led.",
+          "A future off-suit discard could dispose of the ace safely, so this choice is reasonable rather than a certain overtrick. No continuation is modeled."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "3H"},
+      "rating": "risky",
+      "feedback": {
+        "title": "Delay the needed trick and keep both high Hearts",
+        "summary": "The three loses to the jack, leaving you below target at three of four. You pass up a certain needed trick while retaining both the ace and queen.",
+        "points": [
+          "You must follow Hearts; the club is locked. Either higher Heart would take this trick now.",
+          "Delaying may work, but it relies on later opportunities and leaves two high Hearts to manage when only one more trick is needed.",
+          "Do not treat this as guaranteed failure: the remaining tricks and other hands are not shown."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-043 competing-winners case in Sans: AH and QH both win now, so the decision concerns which winning card to spend before reaching the exact target. No unseen king, future lead, full-round success or scoring outcome is asserted."
+}
