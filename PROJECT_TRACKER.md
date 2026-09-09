@@ -3,6 +3,67 @@
 This file is the repository-level source of truth for planned and active work.
 For milestone status and the remaining release path, see [MVP_STATUS.md](docs/MVP_STATUS.md).
 
+## Frozen MVP finish order
+
+The remaining MVP has exactly **seven checkpoints**, in the order below.
+These supersede the historical milestone groupings later in this file.
+Bounded PRs may split a checkpoint's implementation, but cannot add an eighth
+checkpoint without explicit owner approval. Current focus is checkpoint 1;
+this docs-only roadmap lock does not begin its implementation.
+
+| Order | Checkpoint | Tasks | Status |
+| --- | --- | --- | --- |
+| 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | IN PROGRESS (3/5 scenarios) |
+| 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | BACKLOG |
+| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | BACKLOG |
+| 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
+| 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
+| 6 | Egyptian Arabic + UI polish — مصري terminology, localization/RTL, focused usability polish | EC-060 | READY (after checkpoint 5) |
+| 7 | MVP Acceptance — repeated owner playtesting, intended-device fixes, then v1.0.0-mvp | EC-054 | BACKLOG |
+
+### MVP Definition of Done
+
+- Bid and Play practice are both usable.
+- Repeated sessions do not expose a fixed memorized order.
+- Sufficient variety requires reasoning rather than answer recall.
+- Reviewed deterministic coaching explains the evidence behind decisions.
+- Progress persists locally.
+- Weak Areas can select targeted practice.
+- English and مصري work reliably.
+- The owner completes repeated real sessions on the intended device without an
+  MVP-blocking issue.
+
+### New discoveries and progress updates
+
+Every new discovery must be labelled **MVP BLOCKER** or **POST-MVP** (default).
+A blocker must cite the Definition of Done criterion it prevents, evidence or
+reproduction, and the existing checkpoint responsible. Everything else goes to
+Post-MVP; discoveries do not silently extend the roadmap. See the
+[scope policy](docs/MVP_STATUS.md#discovery-and-scope-policy).
+
+On checkpoint closure, update this table, the task status, MVP_STATUS gate
+evidence, README current focus and docs/assets/mvp-readiness.svg together.
+Readiness is currently **45%**, calculated from fixed gates in MVP_STATUS.
+If a blocker invalidates a completed gate, reopen it and remove its credit.
+
+## EC-056 — MVP Roadmap Lock & GitHub Landing Page
+**Status:** DONE
+**Scope:** Owner-requested documentation/governance; not an eighth implementation checkpoint.
+
+Completed the frozen plan, gate-based 45% readiness, README landing page and
+agent guardrails. Verified local links/heading anchors, unique IDs, seven ordered
+checkpoints, weights summing to 100 and SVG fill 270/600. SVG loads with its
+accessible description. Changes are Markdown/SVG only; no feature or checkpoint
+1 implementation. Latest main CI was successful at the lock's base commit.
+
+### Acceptance criteria
+- Freeze the seven ordered checkpoints and the explicit Definition of Done.
+- Document anti-memorization architecture and controlled-variant constraints.
+- Classify new discoveries without silently extending MVP scope.
+- Publish a concise README landing page with CI badge and locally owned,
+  arithmetically derived readiness SVG; keep detailed testing below it.
+- Add agent guardrails; do not implement features, start checkpoint 1 or merge.
+
 ## Status legend
 
 - `BACKLOG`
@@ -445,11 +506,10 @@ Minimal pure-domain modules implementing these already exist —
 `lib/core/game_rules/estimate_totals.dart` and
 `lib/core/game_rules/exact_bid_outcome.dart`.
 
-Still unresolved and blocking a *full* implementation: the post-auction
-estimate phase's own seat/order, Risk's point levels/scoring, the full
-scoring formula, Double/Quadruple multipliers, Mini/Micro round structures,
-and fixed-color/Super Call orchestration. Trick winners remain confirmed but
-have no resolver. None are needed for this single-decision checkpoint.
+Post-auction estimate ordering, Risk/complete scoring, multipliers, Mini/Micro
+and fixed-round orchestration are POST-MVP, not EC-043 release prerequisites.
+Trick winners are confirmed but have no resolver; none is needed to finish
+these reviewed single-decision scenarios using the existing contract.
 
 Implemented checkpoint: `play_target_protection_001`–`003` cover below,
 exactly on, and already above target (six reviewed choices). The first two
@@ -460,7 +520,8 @@ Review rationale: `docs/COACHING_REVIEW.md`; manual steps: README.
 
 Remaining: two more reviewed content-only scenarios to satisfy the existing
 five-scenario acceptance criterion. This umbrella task remains IN PROGRESS;
-the requested three-scenario checkpoint does not include scoring or simulation.
+frozen checkpoint 1 completes it without scoring or simulation. Do not extend
+the play contract or add application features for these two supported scenarios.
 
 Validation: 278 tests pass, Flutter analysis is clean, strict validation accepts
 all 18 production files with complete feedback, and the web build succeeds.
@@ -562,6 +623,43 @@ The contract is documented before coached UI integration in EC-041.
 
 ---
 
+## EC-049 — Anti-memorization sessions
+**Status:** BACKLOG
+**Roadmap:** Checkpoint 2; after completing EC-043.
+
+Replaying the current small fixed packs causes the player to remember scenario
+answers instead of reasoning from the table.
+
+### Acceptance criteria
+- Session Selector chooses a shuffled order independently of catalog/filename order.
+- No immediate repeats within or between sessions when another eligible scenario
+  exists; explicit behavior for empty, single-item and exhausted pools.
+- Controlled seeds make selection reproducible in tests; verify different valid
+  orders and preserve scenario legality/feedback unchanged.
+- Existing trainer UI consumes selected scenarios without randomizing cards or
+  owning generation logic. No runtime AI dependency.
+
+## EC-055 — Scenario Variants + Content Breadth
+**Status:** BACKLOG
+**Roadmap:** Checkpoint 3; after EC-049.
+
+Architecture: `Scenario Catalog → Session Selector → Optional Validated Variant
+Generator → existing trainer UI`.
+
+### Acceptance criteria
+- Deterministic variants are traceable to a reviewed base and seed/variant ID.
+- Each allowed transformation documents and preserves game/coaching invariants:
+  legality, public evidence, target state, seat order and rating rationale.
+- Validate generated content before display; test invariant preservation and
+  rejection of invalid variants. No arbitrary random card substitution or UI generation.
+- Establish and close a finite reviewed coverage matrix for bidding decisions
+  and safe/probable, void-tracking and exact-target play concepts. Distinct
+  tactical evidence counts as breadth; cosmetic variants alone do not.
+- Record owner repeated-session review showing reasoning rather than answer recall.
+- New scenarios using supported contracts remain content-only; no runtime AI.
+
+---
+
 # Egyptian Arabic
 
 ## EC-060 — English / مصري language switch and Egyptian game terminology
@@ -569,6 +667,7 @@ The contract is documented before coached UI integration in EC-041.
 
 Add an explicit language switch between English and Egyptian Arabic (مصري),
 including everyday Egyptian phrasing and the owner's preferred game terms.
+Checkpoint 6; follows the Training Hub. Includes focused UI/usability polish.
 
 ### Acceptance criteria
 - Both languages can be selected in-app; the choice survives restart.
@@ -582,6 +681,8 @@ including everyday Egyptian phrasing and the owner's preferred game terms.
 - Keep translations in portable content and define missing-translation behavior.
 - Test switching during training, saved preference, RTL, mixed numbers/card
   notation, small screens and large text. Include Arabic glyph rendering checks.
+- Complete focused visual/usability polish for the actual training and hub flows;
+  preserve suit/card identities, seat positions and canonical play order.
 
 Requested 2026-09-08. The feature is planned; it is not enabled in the table preview.
 Core glossary confirmed by the owner on 2026-09-08 in
@@ -591,6 +692,8 @@ Rank names and other unlisted vocabulary will be reviewed during implementation.
 ---
 
 # Milestone 5 — Personal Coaching
+
+Historical grouping; these three tasks form frozen checkpoint 4 and follow EC-055.
 
 ## EC-050 — Skill taxonomy
 **Status:** BACKLOG
@@ -643,6 +746,7 @@ Depends on play training and EC-051/052; avoid presenting invented progress.
 
 ### Acceptance criteria
 - Continue Training resumes a meaningful saved training position.
+- Quick Mix combines supported bidding/play scenarios through the session selector.
 - Bid Practice and Play Practice start their supported scenarios.
 - Weak Areas leads to practice recommended from real decisions.
 - Recent progress is visible and an empty-history state is honest and useful.
@@ -659,19 +763,33 @@ Validate the complete experience with the owner before declaring the MVP done.
 - Verify English/مصري switching, Arabic glyphs, RTL, accessibility and small screens.
 - Verify local training has no runtime AI dependency and required local assets work offline.
 - Fix acceptance-blocking defects; record tested flows and remaining limitations.
+- Owner completes repeated real sessions, not just one walkthrough, including
+  varied practice, weak-area selection, resume and both languages. Record device,
+  build, dates, issues and acceptance against every frozen Definition of Done criterion.
+- Verify scenario variety requires reasoning rather than recall of a fixed order
+  or answer; resolve MVP BLOCKER findings within the existing checkpoints.
+- Only after owner acceptance and no open MVP BLOCKER, release `v1.0.0-mvp`.
 
 ---
 
-# Icebox
+# Post-MVP
 
-These are ideas, not commitments.
+All items here are classified **POST-MVP**, not MVP commitments. Promotion
+requires evidence of blocking the frozen Definition of Done and explicit owner
+approval of the scope change; see MVP_STATUS. Already-delivered scenario
+validation tooling is not a remaining release prerequisite.
 
 - AI-generated explanation variants
 - AI-assisted scenario authoring
-- scenario validation tooling
+- additional scenario editor/authoring tooling
 - adaptive difficulty
 - daily challenge
 - full round simulator
 - opponent behavior profiles
 - replay timeline
 - cloud sync
+- runtime AI
+- backend/accounts
+- multiplayer
+- complete scoring and Risk scoring
+- Mini/Micro orchestration
