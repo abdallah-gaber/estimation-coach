@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/visual_tokens.dart';
 import '../../core/cards/cards.dart';
+import '../../core/game_rules/exact_bid_outcome.dart';
 import '../../core/game_rules/play_situation.dart';
 import '../../scenarios/bidding_scenario.dart' show PlayerSeat;
 import '../../scenarios/load_play_scenarios.dart';
@@ -206,6 +207,14 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
   Widget _exercise(PlayScenario scenario, int count) {
     final text = Theme.of(context).textTheme;
     final situation = scenario.situation;
+    final targetStatus = switch (classifyExactBid(
+      tricksTaken: situation.playerTricksTaken,
+      estimate: situation.trickEstimate,
+    )) {
+      ExactBidOutcome.tookFewer => 'Below target',
+      ExactBidOutcome.onTarget => 'Exactly on target',
+      ExactBidOutcome.tookMore => 'Already above target',
+    };
     _handKeys = {for (final card in situation.hand.cards) card: GlobalKey()};
     final evaluation = _played == null ? null : scenario.evaluate(_played!);
     return Column(
@@ -236,6 +245,7 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
             Chip(label: Text('Taken: ${situation.playerTricksTaken}')),
           ],
         ),
+        Text('Before this play: $targetStatus', style: text.labelLarge),
         const SizedBox(height: 16),
         Container(
           width: double.infinity,

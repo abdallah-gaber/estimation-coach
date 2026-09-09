@@ -1,0 +1,52 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_target_protection_003",
+  "title": "Already past four",
+  "difficulty": "beginner",
+  "primary_skill": "exact_bid_protection",
+  "skills": ["exact_bid_protection"],
+  "player_position": "south",
+  "hand": ["2S", "7C"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "8H"},
+      {"player": "north", "card": "QH"},
+      {"player": "west", "card": "6H"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 2, "east": 2, "south": 5, "west": 2}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "7C"},
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Avoid another trick, without undoing the extra one",
+        "summary": "You are already above target: 5 taken, 4 estimated. Discarding the club loses this trick, but leaves you at five; it cannot restore an exact four.",
+        "points": [
+          "You hold no Hearts, so either card is legal. The club is neither the led suit nor trump and cannot beat the queen of Hearts.",
+          "Avoiding another trick is a reasonable local choice, not recovery of the exact target. No scoring benefit is claimed.",
+          "Both choices receive Reasonable because exact-target success is already unreachable and no other objective or scoring rule is modeled."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "2S"},
+      "rating": "reasonable",
+      "feedback": {
+        "title": "Another win still leaves you above target",
+        "summary": "The spade trumps the Hearts and takes a sixth trick. You were already above your estimate of four; winning again cannot recover that exact target.",
+        "points": [
+          "You act last and no other trump has been played, so even the two of Spades wins this trick.",
+          "The club would avoid this extra trick, but neither choice can make five already-taken tricks become four.",
+          "This rating does not imply a scoring advantage over discarding. Comparing points or other objectives needs rules outside this checkpoint."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-043 already-above contrast. Equally rated choices intentionally avoid inventing a scoring preference when exact-target success is already impossible. Local loss versus local win is still explicit."
+}

@@ -389,6 +389,18 @@ authored ratings depended on anything specific to *which* seat besides "the
 one seat that plays after South," which is now East instead of West. No
 rating changed as a result of this correction.
 
+## D-020 — Exact-target practice uses the existing play contract
+
+**Status:** Accepted
+
+EC-043's first three scenarios use existing estimate/taken counts, hand, trump
+and current trick fields. No schema or parser extension is needed. The generic
+pre-play status calls `classifyExactBid`; authored feedback explains each card's
+local consequence. Submission does not update the snapshot or resolve winners.
+Further supported scenarios remain content-only. Already-above-target feedback
+does not claim that losing restores exact success or invent a scoring preference.
+Scoring, Risk and full-round orchestration remain outside this checkpoint.
+
 ## Decision template
 
 Copy this section for future decisions.

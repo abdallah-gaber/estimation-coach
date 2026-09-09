@@ -419,24 +419,31 @@ previous trick's winner, since that would require a winner resolver, which
 does not exist. A full round/deal turn order beyond one trick's seat
 succession remains undefined.
 
-#### Post-auction estimates (EC-043 preparation, not yet a supported field)
+#### Exact-target coaching (EC-043)
 
 The owner-confirmed estimate rules in
 [game_rules_v1](GAME_RULES_V1.md#post-auction-trick-estimates) — a
 non-Caller's estimate bounded by the Caller's, "With", the total-must-not-equal-13
 rule, "Over"/"Under" and the exact-target rule — are implemented as pure
 functions (`lib/core/game_rules/estimate_totals.dart`,
-`exact_bid_outcome.dart`), but **no scenario schema field exists for them
-yet** and no EC-043 content is authored in this repository. This section is
-forward guidance for whoever adds that field later, following this project's
-same content-only principle (see `AGENTS.md`'s content-only invariant):
-author the *observable* inputs a scenario actually shows the player — each
-seat's estimate as a plain number, the trump, tricks taken so far — never a
-derived label. Whether an estimate is "With", whether the room's total is
-Over/Under, and whether a player is currently on target, over, or under their
-own estimate are all computable from those inputs; do not add fields like
-`"with": true` or `"over": true` that could silently drift out of sync with
-what the numbers actually say.
+`exact_bid_outcome.dart`). The existing `situation.trick_estimate` and
+`tricks_taken` already support a single player's exact-target coaching;
+EC-043 requires **no schema change**. Play Practice derives its pre-play
+status with `classifyExactBid`, never with authored flags such as `on_target`,
+`over_target`, or `must_avoid_trick`. The displayed status remains a snapshot
+after submitting a card, because the app does not resolve or advance tricks.
+
+Add another supported scenario as a JSON file in the existing play directory;
+no registration or widget edit is needed. Supply feedback for every legal card
+and review its reasoning in `COACHING_REVIEW.md`. See
+`play_target_protection_001`–`003` for below/on/above examples. Distinguish
+avoiding a trick while exactly on target from avoiding another trick after
+already exceeding the target: the latter cannot restore exact success.
+
+A complete four-player estimate set, With and room-total Over/Under are not
+represented by this contract. Future support should author their observable
+inputs and derive classifications with the existing pure helpers, never
+redundant labels. No scoring, Risk, estimate ordering or simulator is implied.
 
 ### Choices and feedback
 
@@ -476,7 +483,7 @@ flutter test test/scenarios/play_scenario_test.dart
 
 Expected: the synthetic fixture passes strict checks. Default validation scans
 the production content directory, currently containing ten bidding hands and
-five reviewed play situations. Mixed bidding/play catalogs receive the same
+eight reviewed play situations. Mixed bidding/play catalogs receive the same
 schema, domain, duplicate-ID and coverage checks. Syntax errors include field
 paths; relational snapshot errors are reported under `$.situation`. Bidding
 compatibility remains tested.

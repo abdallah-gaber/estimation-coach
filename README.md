@@ -199,7 +199,7 @@ generated but unvalidated; use `flutter devices` to see available targets.
 2. Verify North above, West left, East right, and **You · South** below the
    current trick, with the leader's seat labelled **Led &lt;suit&gt;** and the
    other two opponents labelled with their taken-trick count.
-3. **Situation 1 of 5** ("A free trick with the ace of Hearts"): Hearts were
+3. **Situation 1 of 8** ("A free trick with the ace of Hearts"): Hearts were
    led; the 2 of Clubs and 5 of Diamonds are locked because you hold Hearts.
    Playing the ace is **Strong decision**; playing the three is **Weak
    decision**.
@@ -209,28 +209,39 @@ generated but unvalidated; use `flutter devices` to see available targets.
    the open trick outright since you act last. Try **Try another choice**,
    then play 7 of Clubs instead: expect **Weak decision** for giving away a
    needed trick.
-5. Situations 3–5 add an **Observed play** section above the current trick: a
+5. Situations 3–5 train the exact target:
+   - **One trick short of your target**: status **Below target**, taken 3,
+     target 4. King of Hearts is **Strong decision**; three is **Risky**.
+   - **Four is enough**: same cards, taken 4, target 4, **Exactly on target**.
+     Three of Hearts is **Strong decision** for deliberately losing; king is
+     **Weak decision** for taking an unwanted fifth trick.
+   - **Already past four**: **Already above target**, taken 5, target 4.
+     Club loses and spade wins. Both are **Reasonable**: neither restores
+     four, and no scoring preference is asserted. Read both explanations.
+   Use **Try another choice** to compare. Counts and **Before this play**
+   status remain the original snapshot after committing either card.
+6. Situations 6–8 add an **Observed play** section above the current trick: a
    compact, muted earlier trick, not labelled as "the last trick" since it is
-   only the evidence relevant to this decision. In situation 3 ("Save the king
+   only the evidence relevant to this decision. In situation 6 ("Save the king
    from a known void"), that trick shows East failing to follow Diamonds —
    playing the 3 (saving the now-unbeatable king) is **Strong decision**;
    playing the king is **Risky** because East's void means East decides
    whether it gets trumped. The pack does not compute this itself — voids are
    never authored, only derived from the shown history.
-6. Selecting a card moves it visually into the current trick with a short
+7. Selecting a card moves it visually into the current trick with a short
    flight animation and locks further play; reduced-motion settings skip the
    flight. Open **Why?** for the evidence, same as bidding feedback.
    **Outcome: not simulated** — no winner is resolved or scored yet.
-7. Finish all five situations, then **Practice again**: the first situation
+8. Finish all eight situations, then **Practice again**: the first situation
    resets.
-8. Back returns to the same bidding hand and any feedback already displayed.
-9. At 320px width and large text, scroll through the table and hand. Seat labels,
+9. Back returns to the same bidding hand and any feedback already displayed.
+10. At 320px width and large text, scroll through the table and hand. Seat labels,
    suit shapes, cards and selection controls should remain readable.
 
-This is a small reviewed pack (5 situations, 10 evaluated choices) connecting
+This is a small reviewed pack (8 situations, 16 evaluated choices) connecting
 the completed portable play contract (EC-046) to coached play (EC-047), plus
-derived void tracking (EC-042). Winner resolution, scoring and exact-bid-
-protection scenarios remain out of scope; see the confirmed
+derived void tracking (EC-042) and three exact-bid-protection scenarios (EC-043).
+Winner resolution and scoring remain out of scope; see the confirmed
 [trick-winner rules](docs/GAME_RULES_V1.md#trick-winners), not yet used by any
 resolver.
 
@@ -249,7 +260,7 @@ dart run tool/validate_scenarios.dart --require-complete
 flutter build web
 ```
 
-Strict validation should pass all fifteen scenario files (ten bidding, five play)
+Strict validation should pass all eighteen scenario files (ten bidding, eight play)
 with no missing evaluations. Tests cover cards, game rules, derived void
 tracking, parser/schema alignment, validator failure cases, authored
 evaluation, bundled loading, legal choice controls, feedback, session

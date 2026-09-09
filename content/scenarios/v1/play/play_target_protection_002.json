@@ -1,0 +1,51 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_target_protection_002",
+  "title": "Four is enough",
+  "difficulty": "beginner",
+  "primary_skill": "exact_bid_protection",
+  "skills": ["exact_bid_protection"],
+  "player_position": "south",
+  "hand": ["KH", "3H", "2C", "5D"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "7H"},
+      {"player": "north", "card": "QH"},
+      {"player": "west", "card": "8H"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 2, "east": 2, "south": 4, "west": 1}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "3H"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Deliberately lose this trick",
+        "summary": "You are exactly on target: 4 taken, 4 estimated. The three loses to the queen and avoids an unwanted fifth trick.",
+        "points": [
+          "You act last, so the queen wins this trick if you play the three. No unseen response can change this trick.",
+          "The king would win and put you above target. Exact means four, not at least four.",
+          "Keeping four now does not guarantee the final result. You still need to avoid tricks in the unresolved remainder."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "KH"},
+      "rating": "weak",
+      "feedback": {
+        "title": "A winning card can be the wrong decision",
+        "summary": "The king wins an unwanted fifth trick. You started exactly on target at 4 of 4; taking this trick would put you above it.",
+        "points": [
+          "All three other cards are lower Hearts and you act last, so the king cannot avoid winning here.",
+          "The legal three of Hearts would deliberately lose instead. Once you take five, later losses cannot reduce your taken count back to four."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-043 intentional-loss case. Same visible cards as _001 isolate how the exact target changes the decision. Ratings address this trick, not guaranteed success through the rest of the hand."
+}
