@@ -46,7 +46,7 @@ void main() {
   test(
     'low estimates and overtricks stay distinct from the winning auction bid',
     () {
-      for (final estimate in [0, 1, 2, 3, 4, 13]) {
+      for (final estimate in [0, 1, 2, 3, 4, 5]) {
         final state = situation(estimate: estimate, bid: Bid(5, Trump.spades));
         expect(state.trickEstimate.tricks, estimate);
         expect(state.auctionBid!.tricks, 5);
@@ -61,6 +61,49 @@ void main() {
       }
     },
   );
+  test('known auction bounds estimates for every seat and trump', () {
+    for (final trump in Trump.values) {
+      for (final seat in PlayerSeat.values) {
+        for (final bidCount in [4, 5, 13]) {
+          for (final estimate in [0, bidCount - 1, bidCount]) {
+            final state = situation(
+              player: seat,
+              leader: seat,
+              plays: [],
+              trump: trump,
+              bid: Bid(bidCount, trump),
+              estimate: estimate,
+            );
+            expect(state.trickEstimate.tricks, estimate);
+          }
+        }
+        expect(
+          () => situation(
+            player: seat,
+            leader: seat,
+            plays: [],
+            trump: trump,
+            bid: Bid(4, trump),
+            estimate: 5,
+          ),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              'message',
+              contains('must not exceed the known winning auction bid'),
+            ),
+          ),
+        );
+      }
+    }
+  });
+  test('without auction context the full estimate range remains supported', () {
+    for (var estimate = 0; estimate <= 13; estimate++) {
+      final state = situation(estimate: estimate);
+      expect(state.trickEstimate.tricks, estimate);
+      expect(state.auctionBid, isNull);
+    }
+  });
   test('following suit uses the first card for every trump including Sans', () {
     for (final trump in Trump.values) {
       final state = situation(trump: trump);

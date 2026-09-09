@@ -1,5 +1,6 @@
 import '../cards/cards.dart';
 import 'bidding.dart';
+import 'estimate_totals.dart' show isValidNonCallerEstimate;
 import 'legal_cards.dart' as rules;
 import 'seat_rotation.dart';
 
@@ -133,6 +134,17 @@ final class PlaySituation {
     if (auctionBid != null && auctionBid.trump != trump) {
       throw ArgumentError(
         'Known winning auction bid must match normal-round trump',
+      );
+    }
+    // The Caller estimates the winning bid; everyone else is bounded by it.
+    // Reuse that bound without identifying which seat is the Caller.
+    if (auctionBid != null &&
+        !isValidNonCallerEstimate(
+          estimate: trickEstimate,
+          callerEstimate: TrickEstimate(auctionBid.tricks),
+        )) {
+      throw ArgumentError(
+        'Trick estimate must not exceed the known winning auction bid',
       );
     }
     return PlaySituation._(

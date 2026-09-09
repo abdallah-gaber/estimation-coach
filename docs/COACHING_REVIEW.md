@@ -309,3 +309,25 @@ the UI never updates that count on submission. Tests cover the reversed
 preferred choice, all three labels, both submissions per scenario, unchanged
 pre-play counts, and catalog loading/session completion. Future supported
 scenarios require only portable content and review documentation.
+
+## EC-048 — Known auction bound correction (2026-09-09)
+
+Reviewed all production play scenarios, the JSON contract fixture, and inline
+play test setups against the confirmed estimate bound. The sole affected JSON
+file was `play_safe_probable_001`: its winning auction bid was 4 Clubs while
+South's estimate was 5. Corrected the auction bid to **5 Clubs**, retaining
+the estimate of 5, South's two taken tricks, all cards, and all feedback.
+
+Re-review: South still needs three of the four remaining tricks. Acting last,
+AH wins the current all-Hearts trick; 3H concedes it. The strong/weak ratings
+and their stated local rationale are unchanged. Raising the auction context
+does not reveal caller identity, hidden cards, or future winners, and no
+coaching depended on the former bid of four. Equal estimate/bid counts are
+permitted for either the Caller or another player.
+
+The inline domain test formerly accepting estimate 13 with bid 5 now uses
+valid bounded values. Separate regressions preserve estimate 13 with bid 13
+or without auction context. The contract JSON fixture (estimate 1, bid 4) and
+all other production scenarios needed no correction. Strict catalog regression
+restores the old 5-versus-4 mismatch in a temporary copy and verifies rejection
+with a file/path diagnostic while the valid file continues to be checked.

@@ -473,13 +473,27 @@ all 18 production files with complete feedback, and the web build succeeds.
 ---
 
 ## EC-048 — Enforce the known auction bound in play snapshots
-**Status:** READY
+**Status:** DONE
 
 Review found a pre-existing mismatch after the newly confirmed estimate rules:
 `play_safe_probable_001` has estimate 5 but winning auction bid 4. A Caller's
 estimate equals that bid and a non-Caller's cannot exceed it, so this combination
-is invalid regardless of caller identity. The current snapshot validator accepts
-it. Kept separate from EC-043's bounded content checkpoint.
+was invalid regardless of caller identity.
+
+`PlaySituation` now delegates this bound to `isValidNonCallerEstimate` when
+auction context is supplied. Existing parser/CLI propagation rejects invalid
+authored files under `$.situation`; no comparison was duplicated there.
+No auction context still permits estimates 0–13. No caller identity, estimate
+ordering or scoring was introduced, and EC-043 content was not expanded.
+
+Reviewed all production scenarios, the contract fixture and inline test setups.
+Corrected the sole affected JSON file's auction bid to 5 Clubs, preserving its
+target, visible cards and coaching; rationale is in `docs/COACHING_REVIEW.md`.
+Corrected the old estimate-13/bid-5 domain test and added domain, parser and
+strict catalog regressions, including restoration of the original invalid case.
+
+Validation: full Flutter tests and analysis pass; strict validation accepts all
+18 production files plus the contract fixture; formatting and web build pass.
 
 ### Acceptance criteria
 - Reject an estimate above a supplied winning auction bid using the owning rule helper.

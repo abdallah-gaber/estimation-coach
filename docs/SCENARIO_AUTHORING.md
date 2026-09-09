@@ -393,6 +393,15 @@ The estimate is **not** an auction bid. Values below four, including zero, are
 representable without declaring Dash. No estimate-assignment rule is
 introduced. Hidden hands and historical feasibility are not inferred.
 
+If `auction_bid` is supplied, `trick_estimate` must not exceed its `tricks`.
+For example, estimate 5 with winning bid 4 is rejected; estimate 4 with bid 4
+or estimate 1 with bid 4 is accepted. Omitting `auction_bid` preserves the
+full 0–13 estimate range without inventing auction context. `PlaySituation`
+delegates the bound to `isValidNonCallerEstimate`; the parser and standalone
+validator report violations under `$.situation`. This relational rule is
+checked by domain validation, not JSON Schema alone. No caller identity,
+estimate order, scoring or full four-player estimate set is inferred.
+
 #### Observed tricks and void tracking (EC-042)
 
 `observed_tricks` shows the player prior, completed tricks as visible
