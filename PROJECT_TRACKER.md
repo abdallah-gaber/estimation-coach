@@ -16,15 +16,16 @@ closed 6 of the 13 base-scenario gaps, its third closed the remaining 7
 mechanism into the product (D-024) and prepared the owner repeated-session
 review, its fifth fixed a trick-winner inconsistency the review found
 (D-025), its sixth fixed a target-feasibility contradiction the review found
-(D-026), and its seventh completed the public table with per-seat opponent
-estimates (D-027). That review, continuing, is the only item still open, so
-checkpoint 3 is not done.
+(D-026), its seventh completed the public table with per-seat opponent
+estimates (D-027), and its eighth made post-decision coaching concise by
+default with full detail on demand (D-028). That review, continuing, is the
+only item still open, so checkpoint 3 is not done.
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
 | 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
 | 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | DONE |
-| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant decided against wiring, D-024; three owner-review fixes landed, D-025/D-026/D-027; owner review continues) |
+| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant decided against wiring, D-024; four owner-review fixes landed, D-025/D-026/D-027/D-028; owner review continues) |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
 | 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
 | 6 | Egyptian Arabic + UI polish — مصري terminology, localization/RTL, focused usability polish | EC-060 | READY (after checkpoint 5) |
@@ -1035,6 +1036,58 @@ added — the trainer stays local, tactical and exact-target-aware. Coverage
 matrix stays 32/32 (edits to existing scenarios, not new ones), the Variety
 gate stays 0%, MVP Readiness stays 45%, EC-055 is not marked DONE, checkpoint
 4 was not started. The owner's repeated-session review continues.
+
+### Eighth bounded PR (this PR): concise coaching by default
+
+A small owner-review UX improvement, not new capability: the post-decision
+coaching was too verbose for the intended loop (*see table → decide → short
+useful feedback → continue*). Both trainers showed the authored `title` **and**
+the full `summary` immediately, with `points` behind a collapsed "Why?".
+
+**Reported mismatch**: the suggested mapping (`summary` as the default
+one-liner, first 1–2 `points` as default evidence) does not fit the existing
+content. Measured across all 109 authored evaluations, play summaries reach
+250 characters and three sentences (median 153) and first points reach 156
+characters — that default would have shown ~350 characters of prose, *more*
+verbose than before. Full measurements in [D-028](docs/DECISIONS.md).
+
+**Decision**: use the field that already is short. The authored feedback
+`title` (16–55 chars, median 33–40) is the default one-line verdict; the
+`summary` and **all** `points` sit behind one `More detail · N points`
+action. This required **no content change** — no new field, no parallel
+feedback model, no rewriting, and no truncating or sentence-splitting of
+authored prose in any widget. Only which authored field is shown when
+changed, and the default is strictly shorter than before.
+
+One shared `lib/shared/widgets/coaching_result_card.dart` renders this for
+both the Play and Bid trainers, so the interaction cannot drift between them;
+it takes resolved strings and knows nothing about scenario/evaluation types.
+Each trainer owns the disclosure state explicitly and resets it on next
+scenario, retry and Practice again.
+
+The "at most 1–2 short points" part of the target shape is deliberately
+satisfied as zero: no authored field is short enough to promote, and
+length-thresholding points inside the widget would be the scenario-specific
+truncation the task rules out. An evidence bullet in the compact view would
+need a dedicated short authored field (~109 strings) as its own content task.
+This also brings the implementation in line with what AGENTS.md section 5
+already prescribed ("Long-form explanation should never interrupt the default
+flow").
+
+**Tests** (+8, 366 total): a new `test/shared/widgets/coaching_result_card_test.dart`
+(5) covering the compact default, the point-count action label, expansion
+revealing the complete authored coaching unaltered, collapsing again, and
+singular/plural labelling; plus trainer-level tests for Play and Bid (3)
+proving the default is collapsed, that no evidence point renders by default,
+that expand/collapse works, and that expansion resets across next
+scenario/hand, retry and Practice again. Existing assertions that relied on
+the summary being visible now assert the headline instead and that the
+summary is *not* shown. Verified in a browser: the compact result reads
+rating → one-line verdict → `More detail · 3 points` → continue.
+
+No rating, strategic meaning or authored text changed. Readiness stays 45%,
+EC-055 is not closed, checkpoint 4 not started, and no trainer screen was
+redesigned beyond this one panel.
 
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)

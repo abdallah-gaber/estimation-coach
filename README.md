@@ -93,7 +93,8 @@ generated but unvalidated; use `flutter devices` to see available targets.
    **Normal bidding · Choose a legal raise** (a hand with prior bid history,
    Dash unavailable).
 2. On a Dash/enter hand, choose **Dash · 0 tricks**: expect **Weak decision**
-   and a fixed zero estimate. Open **Why?** for the evidence. Choose
+   and a fixed zero estimate. Open **More detail** for the explanation and
+   evidence. Choose
    **Try another choice**, then **Enter bidding**: expect **Strong decision**,
    with no target chosen yet.
 3. On a normal-bidding hand, choose **4**: only the suits legal at that trick
@@ -101,8 +102,9 @@ generated but unvalidated; use `flutter devices` to see available targets.
    then drop back to a trick count that no longer supports it: the suit
    clears and **Review bid** is disabled until a legal pair is chosen.
 4. Submit a legal raise and check the rating (**Strong**, **Reasonable**,
-   **Risky** or **Weak decision**) against its **Why?** explanation.
-   Outcomes are explicitly not simulated.
+   **Risky** or **Weak decision**) against its one-line verdict, then open
+   **More detail** for the full explanation. Outcomes are explicitly not
+   simulated.
 5. Choose **Next hand** repeatedly through all sixteen hands — five
    Dash/enter decisions and eleven normal-bidding situations, comparing
    balanced vs. singleton-heavy hands, trump-control targets, single-trump
@@ -158,8 +160,8 @@ generated but unvalidated; use `flutter devices` to see available targets.
    the visible JS for **Strong decision**; KS takes an unwanted fifth
    (**Weak decision**); 7C also loses (**Reasonable**).
    **"One more trick in Sans"**: below target in Sans, AH is **Strong**, QH
-   **Reasonable**, 3H **Risky**; 2C is locked. Compare **Why?**: both high
-   Hearts win now; future leads are not predicted.
+   **Reasonable**, 3H **Risky**; 2C is locked. Compare under **More
+   detail**: both high Hearts win now; future leads are not predicted.
    **"Either trump wins — save the stronger one"**: below target, no trump
    played yet, and both of your own trumps would currently win — the lower
    one is **Strong decision** (wins while preserving the stronger card for
@@ -183,7 +185,7 @@ generated but unvalidated; use `flutter devices` to see available targets.
    with no such evidence is **Strong decision**.
 7. **"Below target, and a known void backs the play"**: two signals in one
    decision — East's known trump void (from an observed trick) and South
-   being below target. **Why?** distinguishes them explicitly: the void is
+   being below target. **More detail** distinguishes them explicitly: the void is
    decisive (it means East cannot overtrump at all), being below target is
    supporting context (it is why taking the trick, rather than passing,
    matters here).
@@ -195,7 +197,9 @@ generated but unvalidated; use `flutter devices` to see available targets.
    opposite target, opposite correct action.
 8. Selecting a card moves it visually into the current trick with a short
    flight animation and locks further play; reduced-motion settings skip the
-   flight. Open **Why?** for the evidence, same as bidding feedback.
+   flight. Coaching opens compact — rating plus a one-line verdict — with
+   **More detail** revealing the full explanation and every evidence point,
+   same as bidding feedback.
    **Outcome: not simulated** — no winner is resolved or scored yet.
 9. Finish all seventeen situations, then **Practice again**: a freshly
    shuffled session order loads — not necessarily the same first situation

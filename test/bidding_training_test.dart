@@ -41,6 +41,15 @@ Future<void> tap(WidgetTester tester, String label) async {
   await tester.pumpAndSettle();
 }
 
+/// Reveals the collapsed coaching detail (EC-055/D-028). Matched loosely
+/// because the action names how many points are waiting.
+Future<void> openDetail(WidgetTester tester) async {
+  final target = find.textContaining('More detail');
+  await tester.ensureVisible(target);
+  await tester.tap(target);
+  await tester.pumpAndSettle();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -131,10 +140,11 @@ void main() {
                 : 'Enter bidding',
           );
         }
-        expect(
-          find.text(evaluateBid(scenario, choice)!.feedback.summary),
-          findsOneWidget,
-        );
+        final feedback = evaluateBid(scenario, choice)!.feedback;
+        // The concise headline is the default; the explanation stays behind
+        // the detail action.
+        expect(find.text(feedback.title), findsOneWidget);
+        expect(find.text(feedback.summary), findsNothing);
         await tap(
           tester,
           index == scenarios.length - 1 ? 'Finish session' : 'Next hand',
@@ -181,7 +191,7 @@ void main() {
     await tap(tester, 'Review bid');
     expect(find.text('Reasonable'), findsOneWidget);
     expect(find.text('Outcome: not simulated.'), findsOneWidget);
-    await tap(tester, 'Why?');
+    await openDetail(tester);
     expect(
       find.text(pack().last.evaluations.first.feedback.points.first),
       findsOneWidget,
@@ -332,4 +342,61 @@ void main() {
     expect(find.text('Reasonable'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'bid coaching is compact by default, expands on demand, and resets for '
+    'the next hand and a new session',
+    (tester) async {
+      final scenarios = pack();
+      await tester.pumpWidget(
+        MaterialApp(home: BiddingTrainingScreen(loader: () async => scenarios)),
+      );
+      await tester.pumpAndSettle();
+      await tap(tester, 'Enter bidding');
+      final feedback = scenarios.first.evaluations
+          .firstWhere((e) => e.decision.action == BiddingAction.enter)
+          .feedback;
+
+      // Default: rating and one concise headline, with the commitment and
+      // outcome facts, but no explanation prose and no evidence points.
+      expect(find.text('Strong decision'), findsOneWidget);
+      expect(find.text(feedback.title), findsOneWidget);
+      expect(
+        find.text('You stay in normal bidding; no trick target chosen yet.'),
+        findsOneWidget,
+      );
+      expect(find.text('Outcome: not simulated.'), findsOneWidget);
+      expect(find.text(feedback.summary), findsNothing);
+      for (final point in feedback.points) {
+        expect(find.text(point), findsNothing);
+      }
+
+      // Expanded: the complete authored coaching, then collapsed again.
+      await openDetail(tester);
+      expect(find.text(feedback.summary), findsOneWidget);
+      for (final point in feedback.points) {
+        expect(find.text(point), findsOneWidget);
+      }
+      await tap(tester, 'Hide detail');
+      expect(find.text(feedback.summary), findsNothing);
+
+      // Expanded, then advanced: the next hand's result starts collapsed.
+      await openDetail(tester);
+      await tap(tester, 'Next hand');
+      await tap(tester, '4');
+      await tap(tester, 'Spades');
+      await tap(tester, 'Review bid');
+      expect(find.textContaining('More detail'), findsOneWidget);
+      expect(find.text('Hide detail'), findsNothing);
+
+      // Expanded, then retried: the next attempt starts collapsed.
+      await openDetail(tester);
+      await tap(tester, 'Try another choice');
+      await tap(tester, '4');
+      await tap(tester, 'Sans');
+      await tap(tester, 'Review bid');
+      expect(find.textContaining('More detail'), findsOneWidget);
+      expect(find.text('Hide detail'), findsNothing);
+    },
+  );
 }

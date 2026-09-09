@@ -9,6 +9,7 @@ import '../../scenarios/load_play_scenarios.dart';
 import '../../scenarios/play_scenario.dart';
 import '../../scenarios/scenario_session.dart';
 import '../../shared/widgets/card_labels.dart';
+import '../../shared/widgets/coaching_result_card.dart';
 import '../../shared/widgets/playing_card.dart';
 import '../bidding_training/bidding_labels.dart';
 
@@ -30,6 +31,10 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
   GameCard? _selected;
   GameCard? _played;
   bool _busy = false;
+
+  /// Coaching detail is collapsed for each new decision; the player opts in
+  /// per result rather than carrying an earlier choice's expansion forward.
+  bool _detailOpen = false;
   OverlayEntry? _flight;
   Map<GameCard, GlobalKey> _handKeys = {};
 
@@ -126,6 +131,7 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
   void _retry() => setState(() {
     _played = null;
     _selected = null;
+    _detailOpen = false;
   });
 
   void _advance({bool restart = false}) {
@@ -140,6 +146,7 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
       _selected = null;
       _played = null;
       _busy = false;
+      _detailOpen = false;
     });
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
@@ -534,61 +541,26 @@ class _PlayTrainingScreenState extends State<PlayTrainingScreen> {
     ),
   );
 
-  Widget _feedbackPanel(PlayEvaluation result, int count) {
-    final text = Theme.of(context).textTheme;
-    return Card.filled(
-      key: _feedbackKey,
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Your choice · ${result.card.label}', style: text.labelLarge),
-            const SizedBox(height: 12),
-            Semantics(
-              liveRegion: true,
-              child: Text(result.rating.label, style: text.headlineSmall),
-            ),
-            const SizedBox(height: 8),
-            Text(result.feedback.title, style: text.titleMedium),
-            const SizedBox(height: 8),
-            Text(result.feedback.summary),
-            const SizedBox(height: 6),
-            const Text('Outcome: not simulated.'),
-            ExpansionTile(
-              title: const Text('Why?'),
-              tilePadding: EdgeInsets.zero,
-              children: [
-                for (final point in result.feedback.points)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(point),
-                    ),
-                  ),
-              ],
-            ),
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              children: [
-                FilledButton(
-                  onPressed: _advance,
-                  child: Text(
-                    _index + 1 == count ? 'Finish session' : 'Next situation',
-                  ),
-                ),
-                TextButton(
-                  onPressed: _retry,
-                  child: const Text('Try another choice'),
-                ),
-              ],
-            ),
-          ],
+  Widget _feedbackPanel(PlayEvaluation result, int count) => KeyedSubtree(
+    key: _feedbackKey,
+    child: CoachingResultCard(
+      choiceLabel: 'Your choice · ${result.card.label}',
+      ratingLabel: result.rating.label,
+      headline: result.feedback.title,
+      summary: result.feedback.summary,
+      points: result.feedback.points,
+      facts: const ['Outcome: not simulated.'],
+      detailOpen: _detailOpen,
+      onToggleDetail: () => setState(() => _detailOpen = !_detailOpen),
+      actions: [
+        FilledButton(
+          onPressed: _advance,
+          child: Text(
+            _index + 1 == count ? 'Finish session' : 'Next situation',
+          ),
         ),
-      ),
-    );
-  }
+        TextButton(onPressed: _retry, child: const Text('Try another choice')),
+      ],
+    ),
+  );
 }

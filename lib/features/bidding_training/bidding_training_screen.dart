@@ -5,6 +5,7 @@ import '../../core/coaching/evaluate_bid.dart';
 import '../../scenarios/bidding_scenario.dart';
 import '../../scenarios/load_bidding_scenarios.dart';
 import '../../scenarios/scenario_session.dart';
+import '../../shared/widgets/coaching_result_card.dart';
 import '../../shared/widgets/playing_card.dart';
 import 'bidding_labels.dart';
 import '../play_training/play_training_screen.dart';
@@ -26,6 +27,10 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
   int? _tricks;
   Trump? _trump;
   AuthoredEvaluation? _feedback;
+
+  /// Coaching detail is collapsed for each new decision; the player opts in
+  /// per result rather than carrying an earlier choice's expansion forward.
+  bool _detailOpen = false;
 
   @override
   void initState() {
@@ -75,6 +80,7 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
       _tricks = null;
       _trump = null;
       _feedback = null;
+      _detailOpen = false;
     });
     if (_scroll.hasClients) _scroll.jumpTo(0);
   }
@@ -325,7 +331,6 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
   }
 
   Widget _feedbackPanel(AuthoredEvaluation result, int count) {
-    final text = Theme.of(context).textTheme;
     final commitment = switch (result.decision.action) {
       BiddingAction.dash =>
         'Estimate fixed at 0; no normal bidding for this hand.',
@@ -334,63 +339,30 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
       BiddingAction.bid =>
         'Proposed target: ${result.decision.tricks} tricks with ${result.decision.trump!.label}.',
     };
-    return Card.filled(
+    return KeyedSubtree(
       key: _feedbackKey,
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Your choice · ${result.decision.label}',
-              style: text.labelLarge,
-            ),
-            const SizedBox(height: 12),
-            Semantics(
-              liveRegion: true,
-              child: Text(result.rating.label, style: text.headlineSmall),
-            ),
-            const SizedBox(height: 8),
-            Text(result.feedback.title, style: text.titleMedium),
-            const SizedBox(height: 8),
-            Text(result.feedback.summary),
-            const SizedBox(height: 12),
-            Text(commitment),
-            const SizedBox(height: 6),
-            const Text('Outcome: not simulated.'),
-            ExpansionTile(
-              title: const Text('Why?'),
-              tilePadding: EdgeInsets.zero,
-              children: [
-                for (final point in result.feedback.points)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(point),
-                    ),
-                  ),
-              ],
-            ),
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              children: [
-                FilledButton(
-                  onPressed: _advance,
-                  child: Text(
-                    _index + 1 == count ? 'Finish session' : 'Next hand',
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => setState(() => _feedback = null),
-                  child: const Text('Try another choice'),
-                ),
-              ],
-            ),
-          ],
-        ),
+      child: CoachingResultCard(
+        choiceLabel: 'Your choice · ${result.decision.label}',
+        ratingLabel: result.rating.label,
+        headline: result.feedback.title,
+        summary: result.feedback.summary,
+        points: result.feedback.points,
+        facts: [commitment, 'Outcome: not simulated.'],
+        detailOpen: _detailOpen,
+        onToggleDetail: () => setState(() => _detailOpen = !_detailOpen),
+        actions: [
+          FilledButton(
+            onPressed: _advance,
+            child: Text(_index + 1 == count ? 'Finish session' : 'Next hand'),
+          ),
+          TextButton(
+            onPressed: () => setState(() {
+              _feedback = null;
+              _detailOpen = false;
+            }),
+            child: const Text('Try another choice'),
+          ),
+        ],
       ),
     );
   }

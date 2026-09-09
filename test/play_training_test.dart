@@ -14,7 +14,7 @@ import 'package:estimation_coach/shared/widgets/playing_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'bidding_training_test.dart' show pack, tap;
+import 'bidding_training_test.dart' show openDetail, pack, tap;
 
 List<PlayScenario> playPack() {
   final files =
@@ -104,7 +104,10 @@ void main() {
       await tap(tester, 'Play card');
       final result = scenario.evaluate(choice)!;
       expect(find.text(result.rating.label), findsOneWidget);
-      expect(find.text(result.feedback.summary), findsOneWidget);
+      // The concise headline is the default; the explanation stays behind
+      // the detail action.
+      expect(find.text(result.feedback.title), findsOneWidget);
+      expect(find.text(result.feedback.summary), findsNothing);
       await tap(
         tester,
         index == scenarios.length - 1 ? 'Finish session' : 'Next situation',
@@ -173,7 +176,7 @@ void main() {
       expect(find.text('Weak decision'), findsOneWidget);
       expect(find.text('Giving away a guaranteed trick'), findsOneWidget);
       expect(find.text('Outcome: not simulated.'), findsOneWidget);
-      await tap(tester, 'Why?');
+      await openDetail(tester);
       expect(
         find.text(
           scenario.evaluate(GameCard.parse('3H'))!.feedback.points.first,
@@ -395,6 +398,98 @@ void main() {
         }
         expect(find.textContaining('Target unknown'), findsNothing);
       }
+    },
+  );
+
+  testWidgets(
+    'play coaching is compact by default and expands to the full reviewed '
+    'explanation on demand',
+    (tester) async {
+      final scenario = playPack().firstWhere(
+        (s) => s.id == 'play_void_tracking_001',
+      );
+      await tester.pumpWidget(
+        MaterialApp(home: PlayTrainingScreen(loader: () async => [scenario])),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(card('3D'));
+      await tester.tap(card('3D'));
+      await tester.pumpAndSettle();
+      await tap(tester, 'Play card');
+      final feedback = scenario.evaluate(GameCard.parse('3D'))!.feedback;
+      expect(feedback.points, hasLength(3), reason: 'fixture assumption');
+
+      // Default: rating and one concise headline, no explanation prose and
+      // none of the evidence points.
+      expect(find.text('Strong decision'), findsOneWidget);
+      expect(find.text(feedback.title), findsOneWidget);
+      expect(find.text(feedback.summary), findsNothing);
+      for (final point in feedback.points) {
+        expect(find.text(point), findsNothing);
+      }
+      expect(find.text('More detail · 3 points'), findsOneWidget);
+
+      // Expanded: every authored point plus the full summary, unaltered.
+      await openDetail(tester);
+      expect(find.text(feedback.summary), findsOneWidget);
+      for (final point in feedback.points) {
+        expect(find.text(point), findsOneWidget);
+      }
+
+      // Collapsing returns to the compact view.
+      await tap(tester, 'Hide detail');
+      expect(find.text(feedback.summary), findsNothing);
+      expect(find.text(feedback.points.first), findsNothing);
+    },
+  );
+
+  testWidgets(
+    'expansion resets for the next situation, a retry and Practice again',
+    (tester) async {
+      final scenarios = [
+        playPack().firstWhere((s) => s.id == 'play_safe_probable_001'),
+        playPack().firstWhere((s) => s.id == 'play_safe_probable_002'),
+      ];
+      var calls = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PlayTrainingScreen(
+            loader: () async => (++calls == 1) ? scenarios : scenarios,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      Future<void> commit(String notation) async {
+        await tester.ensureVisible(card(notation));
+        await tester.tap(card(notation));
+        await tester.pumpAndSettle();
+        await tap(tester, 'Play card');
+      }
+
+      // Expanded, then retried: the next attempt starts collapsed.
+      await commit('AH');
+      await openDetail(tester);
+      expect(find.textContaining('More detail'), findsNothing);
+      await tap(tester, 'Try another choice');
+      await commit('3H');
+      expect(find.textContaining('More detail'), findsOneWidget);
+      expect(find.text('Hide detail'), findsNothing);
+
+      // Expanded, then advanced: the next situation starts collapsed.
+      await openDetail(tester);
+      await tap(tester, 'Next situation');
+      await commit('2S');
+      expect(find.textContaining('More detail'), findsOneWidget);
+      expect(find.text('Hide detail'), findsNothing);
+
+      // Expanded, then a new session: the first result starts collapsed.
+      await openDetail(tester);
+      await tap(tester, 'Finish session');
+      await tap(tester, 'Practice again');
+      await commit('AH');
+      expect(find.textContaining('More detail'), findsOneWidget);
+      expect(find.text('Hide detail'), findsNothing);
     },
   );
 
