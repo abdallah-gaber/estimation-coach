@@ -310,6 +310,68 @@ preferred choice, all three labels, both submissions per scenario, unchanged
 pre-play counts, and catalog loading/session completion. Future supported
 scenarios require only portable content and review documentation.
 
+## EC-043 — Final two scenarios / frozen checkpoint 1
+
+Reviewed both new scenarios and all six legal choices against `game_rules_v1`.
+The pack now has five exact-target scenarios and twelve evaluated choices.
+No observed history is necessary: the current trick and hand contain the
+evidence used. No flags, hidden hands or assumed future cards are authored.
+South acts last in both (East → North → West → South); current-trick outcomes
+below follow the confirmed rules but are not computed or progressed by the app.
+
+### `play_target_protection_004` — A trump is already on the table
+
+South is on target at four, with KS/2S/7C. Hearts were led, and North played JS
+between East's 9H and West's QH. South has no Hearts, making all three choices
+legal. North's off-suit play also reveals North's Heart void, though the actual
+JS already on the table is sufficient evidence for this decision.
+
+- **2S — strong:** undertrumps JS and certainly loses. This is an opportunity
+  to shed trump while preserving the exact count for this trick.
+- **KS — weak:** overtrumps JS and certainly takes an unwanted fifth trick.
+- **7C — reasonable:** certainly loses too, but keeps both trumps. The preference
+  for shedding 2S while covered is an authored local judgment, not proof that
+  retaining KS/7C is always better than KS/2S through unknown future leads.
+
+**Non-decorative evidence check:** replace North's JS with a legal low Heart
+in a hypothetical alternative table. Then 2S would win as the only trump, while
+7C would still lose. The target is unchanged, but the safe trump disposal is
+gone: `Taken == Target` alone cannot select the right card. This hypothetical
+explains the review, not an additional authored scenario or runtime variant.
+No claim says the retained KS is guaranteed to lose later; higher trumps and
+future leads are unknown. The ten taken tricks match a three-card hand.
+
+### `play_target_protection_005` — One more trick in Sans
+
+South is below target at three of four, with AH/QH/3H/2C in Sans. East's 8H,
+North's JH and West's 9H make **both AH and QH certain current winners**.
+The three Hearts are legal; 2C is locked by follow-suit.
+
+- **AH — strong:** cash the highest Heart for the last needed trick. It avoids
+  retaining an ace that cannot be beaten if Hearts are led later.
+- **QH — reasonable:** also takes the needed trick, but preserves that ace just
+  as further tricks become unwanted. The retained ace might be discarded on
+  another suit later, so this is not graded as certain failure.
+- **3H — risky:** passes up a needed certain trick and leaves both high Hearts
+  to manage. Later success remains possible and is not simulated.
+
+**Strategic distinction:** unlike _001's take-versus-pass choice, there are two
+winning plays. Spending the ace rather than preserving it balances obtaining the
+needed trick against managing future unwanted winners. The queen might lose to
+KH if that card is still available, or might itself win; an unseen king is not
+assumed to remain unplayed. No future lead is asserted. Strong versus reasonable
+expresses reviewed judgment about this exposure, not an optimality proof over
+unseen deals. The nine taken tricks match the four-card hand.
+
+### Checkpoint verification boundary
+
+Strict validation checks complete legal-choice coverage and public-state legality.
+The existing catalog-driven session tests load and exercise new files without
+test/UI registration changes. Coaching quality is supported by the explicit
+review above, not inferred from passing automated checks. No rule or capability
+extension was needed. Checkpoint 1 closes; checkpoints 2 and 3 remain unfinished,
+so the Variety gate still earns zero and readiness stays 45%.
+
 ## EC-048 — Known auction bound correction (2026-09-09)
 
 Reviewed all production play scenarios, the JSON contract fixture, and inline

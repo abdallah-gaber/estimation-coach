@@ -445,7 +445,8 @@ after submitting a card, because the app does not resolve or advance tricks.
 Add another supported scenario as a JSON file in the existing play directory;
 no registration or widget edit is needed. Supply feedback for every legal card
 and review its reasoning in `COACHING_REVIEW.md`. See
-`play_target_protection_001`–`003` for below/on/above examples. Distinguish
+`play_target_protection_001`–`005` for below/on/above examples, including
+undertrumping and choosing which safe winner to spend. Distinguish
 avoiding a trick while exactly on target from avoiding another trick after
 already exceeding the target: the latter cannot restore exact success.
 
@@ -492,7 +493,7 @@ flutter test test/scenarios/play_scenario_test.dart
 
 Expected: the synthetic fixture passes strict checks. Default validation scans
 the production content directory, currently containing ten bidding hands and
-eight reviewed play situations. Mixed bidding/play catalogs receive the same
+ten reviewed play situations. Mixed bidding/play catalogs receive the same
 schema, domain, duplicate-ID and coverage checks. Syntax errors include field
 paths; relational snapshot errors are reported under `$.situation`. Bidding
 compatibility remains tested.

@@ -8,12 +8,12 @@ For milestone status and the remaining release path, see [MVP_STATUS.md](docs/MV
 The remaining MVP has exactly **seven checkpoints**, in the order below.
 These supersede the historical milestone groupings later in this file.
 Bounded PRs may split a checkpoint's implementation, but cannot add an eighth
-checkpoint without explicit owner approval. Current focus is checkpoint 1;
-this docs-only roadmap lock does not begin its implementation.
+checkpoint without explicit owner approval. Checkpoint 1 is complete;
+next focus is checkpoint 2 (EC-049), which has not started.
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
-| 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | IN PROGRESS (3/5 scenarios) |
+| 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
 | 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | BACKLOG |
 | 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | BACKLOG |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
@@ -488,11 +488,11 @@ their strategic ratings were re-reviewed and are unaffected in substance
 ---
 
 ## EC-043 — Exact bid protection scenarios
-**Status:** IN PROGRESS
+**Status:** DONE
 
-Bounded checkpoint: three reviewed single-decision scenarios using the existing
-PlayScenario contract, plus generic pre-play status from `classifyExactBid`.
-Remaining umbrella criteria stay open until the larger pack is complete.
+Frozen checkpoint 1 complete: five reviewed scenarios use the unchanged
+PlayScenario contract and existing `classifyExactBid` pre-play status.
+The final two files are content-only and introduce no capability changes.
 
 Create situations where the player must avoid unwanted tricks.
 
@@ -518,13 +518,17 @@ Play Practice loads these files automatically; its pre-play status calls
 `classifyExactBid` without adding schema fields or resolving a trick.
 Review rationale: `docs/COACHING_REVIEW.md`; manual steps: README.
 
-Remaining: two more reviewed content-only scenarios to satisfy the existing
-five-scenario acceptance criterion. This umbrella task remains IN PROGRESS;
-frozen checkpoint 1 completes it without scoring or simulation. Do not extend
-the play contract or add application features for these two supported scenarios.
+Completed: `play_target_protection_004` adds safe undertrumping beneath a visible
+higher trump while on target; `_005` weighs spending the ace versus a lower safe
+winner when one trick short in Sans. All twelve choices across five scenarios
+are reviewed; local certainty and future coaching judgments are distinguished.
+No schema, UI, selection, scoring, simulation or test registration changed.
+Checkpoint 2 remains BACKLOG. Readiness remains 45% because the Variety gate
+requires checkpoints 1–3 all closed.
 
-Validation: 278 tests pass, Flutter analysis is clean, strict validation accepts
-all 18 production files with complete feedback, and the web build succeeds.
+Validation: the full existing test suite and Flutter analysis pass, strict
+validation accepts all 20 production files with complete feedback, and the web
+build succeeds. Catalog-driven tests exercise the additions without code changes.
 
 ### Acceptance criteria
 - Target tricks are visible.
