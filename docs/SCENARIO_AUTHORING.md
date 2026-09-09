@@ -421,12 +421,31 @@ fact your coaching text relies on, keeping content and reasoning from
 silently drifting apart.
 
 Each observed trick's four seats must follow the same confirmed rotation as
-`current_trick` (validated structurally — see above), but do not use
-`observed_tricks` to encode a trick winner or a continuation across tricks:
-the model does not check that one trick's leader plausibly follows from a
-previous trick's winner, since that would require a winner resolver, which
-does not exist. A full round/deal turn order beyond one trick's seat
-succession remains undefined.
+`current_trick` (validated structurally — see above). Do not use
+`observed_tricks` to encode a continuation across tricks, including between
+the last observed trick and the current one: the model does not check that
+one trick's leader plausibly follows from another trick's winner (that would
+require a resolver, which does not exist), **even when you author an empty
+`current_trick`** (the player is leading). `observed_tricks` is curated,
+visible evidence, never a claim that it is the immediately previous trick —
+a scenario may legitimately show the player leading now while its last
+observed trick is older evidence someone else won, with unshown tricks in
+between.
+
+If your scenario's own intent genuinely is "the player just won this shown
+trick and is now leading" (as in `play_void_tracking_005`), nothing enforces
+that automatically — check it yourself with
+`lib/core/game_rules/trick_winner.dart`'s `trickWinner`, which applies the
+confirmed [trick-winner rule](GAME_RULES_V1.md#trick-winners) (led suit wins
+unless trumped, highest trump wins, Sans only led-suit wins) to one
+already-complete trick, and add a targeted test asserting
+`trickWinner(observedTricks.last, trump) == leader` for that specific file
+(see `test/scenarios/play_scenario_test.dart`'s `play_void_tracking_005`
+check for the pattern to copy). This was a real bug once
+(EC-055/D-025 — `play_void_tracking_005` originally had its shown trick won
+by a different seat than the one it named as leading next); catch it in
+review or a targeted test per scenario, not by assuming the general model
+will catch it, since it deliberately does not.
 
 #### Exact-target coaching (EC-043)
 

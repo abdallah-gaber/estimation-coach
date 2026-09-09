@@ -2,7 +2,10 @@ import '../cards/cards.dart';
 import 'bidding.dart';
 import 'estimate_totals.dart' show isValidNonCallerEstimate;
 import 'legal_cards.dart' as rules;
+import 'seat_play.dart';
 import 'seat_rotation.dart';
+
+export 'seat_play.dart' show ObservedTrick, SeatPlay;
 
 /// An already assigned exact-trick target, not an auction bid or Dash declaration.
 /// 0–13 is a physical bound; this does not define how estimates are assigned.
@@ -20,42 +23,6 @@ final class TrickEstimate {
       other is TrickEstimate && tricks == other.tricks;
   @override
   int get hashCode => tricks.hashCode;
-}
-
-/// One visible card belonging to a seat in a trick.
-final class SeatPlay {
-  const SeatPlay(this.seat, this.card);
-  final PlayerSeat seat;
-  final GameCard card;
-}
-
-/// One prior trick the player can see, offered as visible evidence for this
-/// decision — not a claim that it is the most recent trick, or that it is
-/// the complete history of the round. An author may show only the tricks
-/// relevant to the lesson; nothing infers who is void from an *absence* of
-/// shown history, only from an actual observed off-suit play.
-final class ObservedTrick {
-  factory ObservedTrick(Iterable<SeatPlay> plays) {
-    final list = List<SeatPlay>.unmodifiable(plays);
-    if (list.length != PlayerSeat.values.length) {
-      throw ArgumentError('An observed trick has all four seats, once each');
-    }
-    final order = rotationFrom(list.first.seat);
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].seat != order[i]) {
-        throw ArgumentError(
-          'An observed trick must follow the canonical seat rotation from '
-          'its leader (see game_rules_v1)',
-        );
-      }
-    }
-    return ObservedTrick._(list);
-  }
-
-  const ObservedTrick._(this.plays);
-
-  /// Supplied order, beginning with that trick's own leader.
-  final List<SeatPlay> plays;
 }
 
 /// Public information immediately before [playerPosition] chooses a card.
@@ -131,6 +98,16 @@ final class PlaySituation {
         }
       }
     }
+    // Deliberately not checked here: whether `leader` is the winner of
+    // `history.last`. `observedTricks` is curated, visible evidence, not
+    // guaranteed to be a contiguous sequence ending at the immediately
+    // previous trick — one or more unshown tricks may sit between the last
+    // observed trick and this one, even when the pending player is leading.
+    // Enforcing winner-leads-next here would reject valid content whenever
+    // that gap is real. See docs/DECISIONS.md D-025 and
+    // lib/core/game_rules/trick_winner.dart, which content authors and
+    // tests can use directly when a scenario *does* intend the observed
+    // trick to be immediately previous.
     if (auctionBid != null && auctionBid.trump != trump) {
       throw ArgumentError(
         'Known winning auction bid must match normal-round trump',

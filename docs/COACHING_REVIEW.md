@@ -662,3 +662,76 @@ checkpoint 3 itself remains in progress: deciding whether to wire the
 domain-tested variant mechanism (D-023) into the product, and an owner
 repeated-session review, are still open, so the Variety gate still earns
 zero and readiness stays 45%.
+
+## EC-055 — Owner review finding: `play_void_tracking_005` trick-winner inconsistency (D-025)
+
+The owner's first checkpoint 3 repeated-session review pass found a real
+game-state inconsistency, not a coaching-wording issue: the scenario's single
+observed trick (East 7C, North 8C, West 5H, South 2C, trump Hearts) is won by
+**West**, who trumped the led Club with 5H — not South. The scenario's
+current, empty trick then authored `"leader": "south"`, contradicting the
+standard rule that the winner of a trick leads the next one.
+
+### Fix and re-review
+
+Changed the observed trick's West and South plays only: West's discard is now
+`3D` (off-suit, non-trump — still establishes the Club void this scenario
+trains) instead of `5H` (a trump), and South's card is now `KC` (South's own
+King of Clubs — not the Ace South still holds now) instead of `2C`. With no
+trump played, South's King is the highest Club shown and legitimately wins,
+making `"leader": "south"` correct.
+
+Re-reviewed both evaluations against the new data:
+
+- **AC — risky** (unchanged): the reasoning is entirely about the *current*
+  trick South is about to lead, and West's Club void — both untouched by this
+  fix. One point named the suit of West's historical discard ("a Heart");
+  corrected to "a Diamond" to match. No other claim in this evaluation
+  referenced the changed cards.
+- **4D — strong** (unchanged): its central claim — that no void evidence
+  exists for Diamonds — is, if anything, better supported now: West's
+  historical discard being itself a Diamond is direct (if not conclusive)
+  evidence West was not void in Diamonds at that point. Reworded one point to
+  say so explicitly, without overclaiming that West still holds one now.
+
+No rating changed. `author_notes` documents the correction in full, including
+why the smallest possible change (two cards, not a redesign) preserves the
+scenario's intended lesson: leading around a known void, still the first and
+only leading (not responding) scenario in the pack.
+
+### Audit and the resulting fix
+
+Checked every production play scenario with `observed_tricks`
+(`play_void_tracking_001/002/003/004/005`, `play_mixed_tactical_001`) for the
+same class of bug: does the scenario's `leader` field assert something a
+computed trick winner would contradict? `play_void_tracking_005` was the only
+one with an empty current trick — the only situation where `leader` is
+asserted with no other visible evidence (an already-shown first play) backing
+it up. The other five were not touched: their current tricks are already in
+progress with independently-visible leaders, and game_rules_v1's existing
+"no claim of recency" principle for observed tricks means they never assert
+their shown trick is the immediately preceding one.
+
+Added `trickWinner` (`lib/core/game_rules/trick_winner.dart`, 9 tests)
+implementing the already-confirmed game_rules_v1 rule for one
+already-complete trick — but **not** a generic `PlaySituation` check
+requiring every empty-current-trick leader to equal that helper's answer for
+the last observed trick. `observed_tricks` is curated evidence, not
+guaranteed contiguous with the current trick; a generic check would reject a
+valid future scenario with an unshown trick between the last observed one
+and the current empty one. Instead, `test/scenarios/play_scenario_test.dart`
+gained one targeted regression test asserting this specific property for
+`play_void_tracking_005` only, the one scenario whose own authored intent
+(and title, "Leading around a known void") requires it. `SeatPlay` and
+`ObservedTrick` moved to their own file, `lib/core/game_rules/seat_play.dart`,
+so `trick_winner.dart` never imports `play_situation.dart` and no circular
+dependency exists. Full rationale in [D-025](DECISIONS.md).
+
+### Checkpoint verification boundary
+
+324 tests pass. Analysis is clean, strict validation accepts all 33 content
+files (unchanged count — this was a correction, not new content), and the web
+build succeeds. This is a bounded correctness fix discovered during owner
+review, not checkpoint 3 acceptance work: the coverage matrix stays 32/32,
+readiness stays 45%, EC-055 is not marked DONE, and the owner's
+repeated-session review continues.

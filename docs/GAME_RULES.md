@@ -97,21 +97,41 @@ connects a reviewed pack of these to the Play practice screen.
 
 The model checks internal public-snapshot consistency, not whether hidden hands
 or a full historical round could produce it. It does not validate opponents'
-follow-suit compliance without their hands, resolve a winner, progress turns,
-assign estimates, infer the winning bidder's identity, or grade decisions.
-Completed tricks/hands beyond what `observedTricks` explicitly shows are
-outside this pending-decision model — in particular, one observed trick's
-leader is never checked against a previous trick's winner, since that would
-require a winner resolver this project does not have.
+follow-suit compliance without their hands, progress turns, assign estimates,
+infer the winning bidder's identity, or grade decisions. Completed tricks/hands
+beyond what `observedTricks` explicitly shows are outside this pending-decision
+model — in particular, no observed trick's leader is ever checked against
+another trick's winner, whether that other trick is a different observed trick
+or the pending, current one — even when `currentTrick` is empty (the pending
+player is leading). `observedTricks` is curated, visible evidence, not
+guaranteed to be a contiguous sequence ending at the immediately previous
+trick, so nothing may assume the last observed trick's winner is who leads
+next (EC-055/D-025, after a real authored-content bug this exact gap allowed
+through — see below).
+
+A pure implementation of the confirmed [trick-winner
+rule](GAME_RULES_V1.md#trick-winners) for one already-complete trick does
+exist — [`trickWinner`](GAME_RULES_V1.md#trick-winners),
+`lib/core/game_rules/trick_winner.dart` — but it is **not** wired into this
+validation. It is available for content authors and tests to call directly
+for one specific scenario whose own authored intent already establishes an
+observed trick as immediately previous (see
+`test/scenarios/play_scenario_test.dart`'s `play_void_tracking_005` check for
+an example), without the domain model asserting that intent generically.
 
 ```sh
 flutter test test/core/game_rules/play_situation_test.dart
+flutter test test/core/game_rules/trick_winner_test.dart
 ```
 
-The 32 tests cover boundaries, low estimates, overtricks, all trump
-categories, all leading seats, voids, defensive copies, rotation validation
-for every leader and rejected seat sequences, observed-trick validation, and
-invalid snapshots.
+The 34 `PlaySituation` tests cover boundaries, low estimates, overtricks, all
+trump categories, all leading seats, voids, defensive copies, rotation
+validation for every leader and rejected seat sequences, observed-trick
+validation (including that leading with observed history shown does **not**
+require the leader to be that history's winner), and invalid snapshots. The
+9 `trickWinner` tests cover led-suit wins, trump wins, multiple trumps, Sans,
+every leader/winner combination, and that the same cards can
+resolve differently depending only on trump.
 
 ## EC-042: void tracking
 

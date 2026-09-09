@@ -216,6 +216,23 @@ void main() {
       expect(trick.plays.map((p) => p.seat), order);
     }
   });
+  test('leading with observed history shown does not require the leader to '
+      'be that history\'s winner — observedTricks is not guaranteed '
+      'contiguous with the current trick', () {
+    // observedTrick() is West-led Diamonds (8D, JD, 4C, 9D); under Spades
+    // no one trumps, so South's JD is the highest Diamond and South wins
+    // it — yet North, not South, is accepted as leader here, standing in
+    // for a scenario where one or more unshown tricks happened between
+    // the observed trick and this one. See docs/DECISIONS.md D-025.
+    final state = situation(
+      leader: PlayerSeat.north,
+      plays: [],
+      player: PlayerSeat.north,
+      observed: [observedTrick()],
+    );
+    expect(state.leader, PlayerSeat.north);
+    expect(state.currentTrick, isEmpty);
+  });
   test('ObservedTrick rejects too few seats', () {
     expect(
       () => ObservedTrick([

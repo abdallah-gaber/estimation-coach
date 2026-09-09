@@ -6,9 +6,11 @@ are available. EC-048 is merged; EC-043 has all five reviewed exact-target
 scenarios. EC-049's Session Selector shuffles both practice sessions. EC-055
 (checkpoint 3) has frozen a 32-scenario coverage target and reached it
 (32/32) across three bounded PRs, and decided not to wire its domain-tested
-variant mechanism into the product for the MVP (D-024). Progress storage,
-the hub and English/مصري switching remain unfinished; the owner's
-repeated-session review is the only item left to close checkpoint 3 itself.
+variant mechanism into the product for the MVP (D-024). The owner's
+repeated-session review is now in progress and already found and fixed one
+genuine game-state inconsistency (D-025). Progress storage, the hub and
+English/مصري switching remain unfinished; the owner's review continuing to a
+pass is the only item left to close checkpoint 3 itself.
 
 [Task tracker](../PROJECT_TRACKER.md) owns individual task statuses. This page
 owns the frozen finish order, release Definition of Done and readiness formula.
@@ -23,14 +25,15 @@ first bounded PR froze the coverage target and proved the variant mechanism
 at the domain level; its second bounded PR closed 6 of the 13 base-scenario
 gaps; its third closed the remaining 7 (32/32, matrix complete); its fourth
 decided not to wire the variant mechanism into the product (D-024) and
-prepared the owner repeated-session review. That review is the only item
-still open.
+prepared the owner repeated-session review; its fifth fixed a real
+game-state inconsistency the owner's review found in its first pass
+(D-025). That review, continuing to a pass, is the only item still open.
 
 | # | Checkpoint | Tasks | Status | Exit criteria |
 | --- | --- | --- | --- | --- |
 | 1 | Finish EC-043 | EC-043 | DONE — 5/5 scenarios | Two final scenarios add undertrumping evidence and a choice between safe winners in Sans. Content-only, existing contract, complete legal-choice coaching and documented review. |
 | 2 | Anti-memorization sessions | EC-049 | DONE | A pure `selectSession` shuffles the eligible pool with an injected `Random`; `ScenarioSession` composes it with catalog loading, caching and previous-session-last tracking. Both trainers consume one `nextSession` call; "Practice again" requests a new order. Reproducible under test with controlled seeds; empty/single-item/exhausted pools have explicit behavior. |
-| 3 | Scenario Variants + Content Breadth | EC-055 | IN PROGRESS — awaiting owner review | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
+| 3 | Scenario Variants + Content Breadth | EC-055 | IN PROGRESS — owner review underway | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
 | 4 | Personal Coaching | EC-050/051/052 | BACKLOG | Decisions persist locally across restart, map to documented skills, aggregate deterministically, and drive targeted weak-area practice. |
 | 5 | Training Hub | EC-053 | BACKLOG | Quick Mix, Bid Practice, Play Practice, Weak Areas and Continue are usable, including honest empty states and meaningful saved-session resume. |
 | 6 | Egyptian Arabic + UI polish | EC-060 | READY — after checkpoint 5 | English and مصري navigation/coaching, persisted preference, RTL and confirmed terminology work reliably. Focused visual, accessibility and usability polish preserves card identities and canonical seat order. |
@@ -233,10 +236,25 @@ look-alike scenarios) once the owner completes it. A "pass" on all five
 closes checkpoint 3 and the Variety gate; a "fail" on any of them is
 specific, actionable feedback — likely a coverage-matrix gap (an additional
 distinct scenario needed) rather than a defect in what already exists. Test
-success alone does not satisfy this criterion, and this criterion is not
-satisfied by this PR: it is prepared, not completed. The Variety gate stays
-at 0% and MVP Readiness stays at 45% until the owner explicitly records a
-pass here.
+success alone does not satisfy this criterion.
+
+**Review log** (append an entry per pass; do not overwrite prior entries):
+
+- **Pass 1, 2026-09-09** — In progress. Found one genuine game-state
+  inconsistency, not a coaching-wording issue: `play_void_tracking_005`'s
+  observed trick was actually won by West (a trump), not South, contradicting
+  the authored leader. Fixed with the smallest content change that preserves
+  the lesson, plus a small pure `trickWinner` helper for content authors and
+  a targeted regression test for that one scenario — deliberately not a
+  generic validation rule, since `observed_tricks` is not guaranteed
+  contiguous with the current trick (see [D-025](DECISIONS.md) for why). The
+  five questions above have not yet been answered end-to-end; the review
+  continues.
+
+This criterion is not satisfied by the PR that added this log: it remains
+prepared and in progress, not completed. The Variety gate stays at 0% and
+MVP Readiness stays at 45% until the owner explicitly records a pass on all
+five questions here.
 
 ## Fixed weighted readiness gates
 

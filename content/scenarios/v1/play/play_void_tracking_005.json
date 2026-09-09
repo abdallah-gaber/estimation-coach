@@ -20,8 +20,8 @@
       [
         {"player": "east", "card": "7C"},
         {"player": "north", "card": "8C"},
-        {"player": "west", "card": "5H"},
-        {"player": "south", "card": "2C"}
+        {"player": "west", "card": "3D"},
+        {"player": "south", "card": "KC"}
       ]
     ]
   },
@@ -33,7 +33,7 @@
         "title": "Leading your ace into a known void",
         "summary": "You lead this trick, and West acts last in it. The earlier trick shows West already void in Clubs, so leading the ace of Clubs offers West a free chance to trump it with any Heart.",
         "points": [
-          "The earlier trick shows West playing a Heart when Clubs were led, so West holds no more Clubs this hand.",
+          "The earlier trick shows West playing a Diamond when Clubs were led, so West holds no more Clubs this hand.",
           "West acts last in this new trick too, so nothing you lead is safe from a seat you already know is void in it, if West chooses to trump.",
           "A different lead avoids this specific, already-confirmed exposure; the ace is not required to win this trick to make progress elsewhere."
         ]
@@ -47,11 +47,11 @@
         "summary": "Leading Diamonds instead avoids West's known Club void entirely. Nothing shown here confirms Diamonds carry any comparable exposure.",
         "points": [
           "West's void is specifically in Clubs; leading a different suit does not hand West a free, already-confirmed opportunity to trump.",
-          "This does not prove Diamonds are safe in every sense — no evidence about Diamonds is shown either way — only that the one identified risk is avoided.",
+          "West's discard in the earlier trick was itself a Diamond, so West held at least one at that point — this does not guarantee West still holds one now, but it is not the confirmed exposure that Clubs are.",
           "The ace of Clubs is not spent here; it remains available for a later trick where the known void does not apply."
         ]
       }
     }
   ],
-  "author_notes": "EC-055 checkpoint-3 coverage: a fifth void-tracking scenario, and the first where South leads (current_trick is empty) rather than responds. play_void_tracking_001/002/004 are all about playing into an already-started trick; the tactical question here is different in kind: which suit to lead, given a known void for the seat that will act last in the new trick. Rotation from South leading is South-East-North-West, so West (the known void seat) is last to act, mirroring the structural risk in play_void_tracking_001 but at the leading decision rather than the following one. No claim is made that Diamonds are safe beyond the absence of contrary evidence."
+  "author_notes": "EC-055 checkpoint-3 coverage: a fifth void-tracking scenario, and the first where South leads (current_trick is empty) rather than responds. play_void_tracking_001/002/004 are all about playing into an already-started trick; the tactical question here is different in kind: which suit to lead, given a known void for the seat that will act last in the new trick. Rotation from South leading is South-East-North-West, so West (the known void seat) is last to act, mirroring the structural risk in play_void_tracking_001 but at the leading decision rather than the following one. No claim is made that Diamonds are safe beyond the absence of contrary evidence. Corrected during owner review (checkpoint 3 closure): the observed trick originally had West trump the led Club with 5H and South follow low with 2C, which per the confirmed trick-winner rule (game_rules_v1) means West actually won that trick, contradicting the authored leader of South for this one. Changed West's discard to a non-trump 3D and South's card to the winning KC (South's own Ace of Clubs, still held now, was never played there) so South legitimately wins the shown trick and leading it next is game-consistent, while West's Club void — the evidence this scenario trains — is unchanged. See lib/core/game_rules/trick_winner.dart, the pure helper added to check this class of error, and this file's own targeted regression test in test/scenarios/play_scenario_test.dart proving the shown trick's winner matches the authored leader here — this is not enforced generically by PlaySituation, since observed_tricks is not guaranteed to be the immediately previous trick (see docs/DECISIONS.md D-025)."
 }

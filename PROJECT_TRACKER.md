@@ -828,6 +828,66 @@ variant-mechanism code changes.
 313 tests pass, analysis is clean, strict validation accepts all 33 content
 files unchanged, and the web build succeeds. Checkpoint 4 was not started.
 
+### Fifth bounded PR (this PR): fix a trick-winner inconsistency found in owner review
+
+The owner's repeated-session review (prepared by the fourth bounded PR) is now
+**in progress** and found a real game-state inconsistency, not a wording
+issue, in its first pass: `play_void_tracking_005`'s single observed trick
+(East 7C, North 8C, West 5H, South 2C, trump Hearts) is won by **West**
+(trumping with 5H), but the scenario's empty current trick authored
+`"leader": "south"` — contradicting the rule that the trick's winner leads
+next.
+
+**Content fix** (smallest change preserving the lesson): West's discard
+changed from `5H` (a trump) to `3D` (non-trump — the Club void this scenario
+trains is unchanged); South's card changed from `2C` to `KC` (South's own
+King, not the Ace still held now). With no trump played, South's King
+legitimately wins, making the authored leader correct. Both evaluations'
+ratings are unchanged; one feedback point's named suit was corrected
+("Heart" → "Diamond") and one was strengthened with the new evidence, without
+overclaiming. Full re-review: [docs/COACHING_REVIEW.md](docs/COACHING_REVIEW.md).
+
+**Audited the same bug class** across every play scenario with
+`observed_tricks` (`play_void_tracking_001/002/003/004/005`,
+`play_mixed_tactical_001`). Only `_005` has an empty current trick — the only
+case where `leader` is asserted with no other visible evidence to check it
+against — so it was the only file needing a fix.
+
+**Added the pure `trickWinner` helper; deliberately did not add a generic
+validation rule** ([D-025](docs/DECISIONS.md)): `trickWinner`
+(`lib/core/game_rules/trick_winner.dart`, 9 tests) applies the
+already-confirmed game_rules_v1 trick-winner rule to one already-complete
+trick. An earlier version of this fix also added a `PlaySituation` check —
+leading with observed history shown required the leader to equal that
+helper's answer for the last observed trick — and that check is what caught
+the bug initially, but it assumed `observedTricks.last` is always the
+immediately previous trick, which the `observed_tricks` contract does not
+promise (it is curated, visible evidence, not a claim of recency). **That
+check was removed before merge**, since it would reject a valid future
+scenario with an unshown trick between the last observed one and the
+current empty one. In its place, `test/scenarios/play_scenario_test.dart`
+gained one targeted regression test proving specifically that
+`play_void_tracking_005`'s authored leader matches its shown trick's actual
+winner — the one file whose own intent requires that property, without
+asserting it for every scenario. `SeatPlay`/`ObservedTrick` moved to a new
+`lib/core/game_rules/seat_play.dart` so `trick_winner.dart` never imports
+`play_situation.dart`, avoiding the circular dependency the first version
+of this fix introduced.
+
+`docs/GAME_RULES.md`, `docs/GAME_RULES_V1.md` and `docs/SCENARIO_AUTHORING.md`
+document `trickWinner` as an available pure helper, explain why it is not
+wired into `PlaySituation`'s validation, and tell future content authors to
+add their own targeted test when a scenario's intent requires continuity —
+without weakening any "no resolver, no round, no scoring" statement, which
+remain true everywhere else.
+
+324 tests pass, analysis is clean, strict validation accepts all 33 content
+files (unchanged count — a correction, not new content), and the web build
+succeeds. This is a bounded correctness fix, not checkpoint 3 acceptance work:
+the coverage matrix stays 32/32, the Variety gate stays 0%, MVP Readiness
+stays 45%, EC-055 is not marked DONE, and checkpoint 4 was not started. The
+owner's repeated-session review continues.
+
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
 - Each allowed transformation documents and preserves game/coaching invariants:
@@ -839,8 +899,9 @@ files unchanged, and the web build succeeds. Checkpoint 4 was not started.
   tactical evidence counts as breadth; cosmetic variants alone do not. **Matrix
   complete: 32/32 scenarios authored.** ✅
 - Record owner repeated-session review showing reasoning rather than answer recall.
-  **Checklist prepared** (docs/MVP_STATUS.md); owner has not yet run it — this
-  is the only open acceptance criterion for EC-055.
+  **In progress**: the owner's review found and this PR fixed one genuine
+  game-state inconsistency (`play_void_tracking_005`, see D-025); the review
+  itself continues — this is the only open acceptance criterion for EC-055.
 - New scenarios using supported contracts remain content-only; no runtime AI. ✅
 
 ---
