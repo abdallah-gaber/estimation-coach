@@ -12,8 +12,11 @@ evidence behind the decision.
 scenarios work with deterministic feedback, presented in a shuffled session
 order. Saved personal coaching, scenario variety, the hub and English/مصري
 switching are still ahead.
-**Current focus:** checkpoints 1 and 2 are complete; next is
-**EC-055 — Scenario Variants + Content Breadth** (not started).
+**Current focus:** checkpoints 1 and 2 are complete; checkpoint 3
+(**EC-055 — Scenario Variants + Content Breadth**) is in progress. Its first
+bounded PR froze a 32-scenario coverage target (13 base scenarios still
+needed) and proved a variant mechanism at the domain level, not yet wired
+into either trainer.
 
 Readiness is calculated from [fixed weighted gates](docs/MVP_STATUS.md#fixed-weighted-readiness-gates):
 **15 + 15 + 15 = 45%**. Session selection (checkpoint 2) earns no Variety gate
@@ -25,8 +28,9 @@ scenario validation and web build separately.
 1. **Finish EC-043 — DONE** — five reviewed exact-bid-protection scenarios.
 2. **Anti-memorization sessions — DONE** — a Session Selector shuffles both
    practice sessions, independent of catalog/file order.
-3. **Scenario Variants + Content Breadth** — validated deterministic variants
-   and reviewed variety that requires reasoning.
+3. **Scenario Variants + Content Breadth — IN PROGRESS** — coverage matrix
+   frozen (32-scenario target, 13 gap) and variant mechanism v1 domain-tested;
+   validated deterministic variants and reviewed content breadth remain.
 4. **Personal Coaching** — local decisions, skill aggregation and weak areas.
 5. **Training Hub** — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue.
 6. **Egyptian Arabic + UI polish** — مصري terms, localization/RTL and usability.
@@ -197,7 +201,11 @@ both the bidding and play trainers. The Session Selector (EC-049) is tested
 separately for reproducible seeded order, permutation/no-duplicate guarantees
 and previous-session-last avoidance; both trainers are tested to request a
 new session order on "Practice again" rather than resetting to the first
-loaded scenario.
+loaded scenario. The variant mechanism v1 (EC-055) is tested separately for
+same-seed reproducibility, source-scenario immutability, unchanged
+rating/evaluation mapping and rejection of an invalid taken-trick
+redistribution; it is domain-tested only and not yet reachable from either
+trainer's UI.
 The older card specimen remains independently tested.
 
 Canonical rules: [game_rules_v1](docs/GAME_RULES_V1.md).

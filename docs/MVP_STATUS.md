@@ -77,13 +77,77 @@ preserves: legality, visible evidence, target state, seat order and the rational
 for every rating. **No arbitrary random card substitution.** The UI must neither
 randomize cards nor contain scenario-generation logic.
 
-Checkpoint 3 must record a finite reviewed coverage matrix of bidding decisions
-and the MVP play concepts (safe/probable tricks, void tracking, exact-target
-protection). Distinct evidence and tactical contrasts count as breadth; cosmetic
-suit changes alone do not. Identify recall-prone gaps, close that matrix, and
-record the owner's repeated-session review before closing the checkpoint.
-Any new capability is implemented once; new scenarios using supported contracts
-remain content-only. No runtime AI is needed for selection, variants or coaching.
+Variant mechanism v1 is implemented and domain-tested, not yet wired into
+either trainer (EC-055 first bounded PR,
+[D-023](DECISIONS.md)):
+`generateTricksTakenVariant` (`lib/scenarios/scenario_variant.dart`)
+redistributes the three non-player seats' shares of the completed-trick
+total, the only field checked to be both schema-validated and never quoted
+by exact value in any of the 20 production scenarios' feedback text. Card,
+rank, suit and seat substitution were all found unsafe against the current
+free-text feedback contract — see D-023 for the full audit. UI integration
+waits for either a second, independent transformation or a move toward
+structured feedback content.
+
+### Checkpoint 3 coverage matrix (EC-055)
+
+Frozen MVP target, owner-set 2026-09-09: **32 reviewed base scenarios**
+(16 bidding + 16 play), not an open-ended backlog. Do not raise these numbers
+without explicit owner approval. A scenario counts toward a category only
+where it genuinely covers a distinct reasoning case — matching content to a
+category name is not sufficient by itself.
+
+**Bidding — 16 target, 10 distinct existing, 6 gap**
+
+| Category | Target | Existing (distinct) | Scenario IDs | Gap |
+| --- | ---: | ---: | --- | ---: |
+| Dash / Enter | 5 | 4 | `bid_enter_controls_001`, `bid_training_003`, `_004`, `_005` | 1 |
+| Bid sizing | 4 | 1 | `bid_safe_probable_001` | 3 |
+| Trump selection/control | 4 | 4 | `bid_training_006`, `_007`, `_008`, `_010` | 0 |
+| Mixed/ambiguous bidding judgment | 3 | 1 | `bid_training_009` | 2 |
+
+`bid_training_009` ("Three Aces without a long strong suit") is reclassified
+from `trump_selection` (its authored `primary_skill` tag) into this new
+Mixed/ambiguous category: it is the only one of the five `trump_selection`
+scenarios with no Strong-rated option at all — every legal bid is
+Reasonable at best — which is a genuinely different, judgment-under-uncertainty
+lesson from the other four's clear-best-answer pattern. That reclassification
+is what keeps Trump selection/control at exactly its target of 4 rather than
+5; without it, Trump selection/control would be over target while Mixed/
+ambiguous stayed empty.
+
+**Play — 16 target, 9 distinct existing, 7 gap**
+
+| Category | Target | Existing (distinct) | Scenario IDs | Gap |
+| --- | ---: | ---: | --- | ---: |
+| Safe vs probable | 4 | 2 | `play_safe_probable_001`, `_002` | 2 |
+| Void tracking / table reading | 4 | 2 | `play_void_tracking_001`, `_002` | 2 |
+| Exact-target protection | 6 | 5 | `play_target_protection_001`–`_005` | 1 |
+| Mixed tactical reading | 2 | 0 | — | 2 |
+
+`play_void_tracking_003` ("The same trap in a different suit") does **not**
+count as a third distinct void-tracking case. Its own `author_notes` say it
+is "a second, independent example of the same... pattern... to reinforce
+pattern recognition" as `play_void_tracking_001` — same lesson, same
+structure, only the suit and seat-irrelevant details changed by hand. See
+[D-023](DECISIONS.md)
+for the full finding; it is exactly the kind of manual duplication a mature
+variant mechanism should replace.
+
+**Total: 32 target, 19 distinct existing, 13 gap** — not the 12 a flat
+20-files-counted-as-20-cases reading would suggest. The 13 remaining base
+scenarios (content authoring, out of scope for this bounded PR): 1 more
+Dash/Enter hand, 3 more Bid sizing hands, 2 more Mixed/ambiguous bidding
+hands, 2 more Safe-vs-probable play situations, 2 more genuinely distinct
+Void-tracking/table-reading situations, 1 more Exact-target-protection
+facet, and 2 new Mixed-tactical-reading situations (a category with no
+existing content at all — its shape, e.g. combining void tracking with
+exact-target protection in one decision, is not yet defined).
+
+Identify recall-prone gaps, close this matrix, and record the owner's
+repeated-session review before closing the checkpoint. Any new capability is
+implemented once; new scenarios using supported contracts remain
+content-only. No runtime AI is needed for selection, variants or coaching.
 
 ## Fixed weighted readiness gates
 

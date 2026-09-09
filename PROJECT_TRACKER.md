@@ -9,13 +9,14 @@ The remaining MVP has exactly **seven checkpoints**, in the order below.
 These supersede the historical milestone groupings later in this file.
 Bounded PRs may split a checkpoint's implementation, but cannot add an eighth
 checkpoint without explicit owner approval. Checkpoints 1 and 2 are complete;
-next focus is checkpoint 3 (EC-055), which has not started.
+checkpoint 3 (EC-055) is in progress — its first bounded PR froze the coverage
+target and proved the variant mechanism at the domain level.
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
 | 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
 | 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | DONE |
-| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | BACKLOG |
+| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (coverage matrix frozen, variant mechanism v1 domain-tested; 13 base scenarios and UI wiring remain) |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
 | 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
 | 6 | Egyptian Arabic + UI polish — مصري terminology, localization/RTL, focused usability polish | EC-060 | READY (after checkpoint 5) |
@@ -665,23 +666,59 @@ evaluation logic changed.
   owning generation logic. No runtime AI dependency. ✅
 
 ## EC-055 — Scenario Variants + Content Breadth
-**Status:** BACKLOG
+**Status:** IN PROGRESS
 **Roadmap:** Checkpoint 3; after EC-049.
 
 Architecture: `Scenario Catalog → Session Selector → Optional Validated Variant
 Generator → existing trainer UI`.
 
+### First bounded PR (this PR): coverage target + variant mechanism v1
+
+Froze the finite MVP coverage target at **32 reviewed base scenarios**
+(16 bidding + 16 play) and audited all 20 existing scenarios against it; see
+the [coverage matrix](docs/MVP_STATUS.md#checkpoint-3-coverage-matrix-ec-055).
+Result: **19 of 20 files count as distinct reasoning cases** —
+`play_void_tracking_003` is a hand-authored suit-relabeled duplicate of
+`play_void_tracking_001`, by its own `author_notes` — leaving **13 base
+scenarios** still to author (not 12, which a flat 20-files-in reading would
+suggest), plus `bid_training_009` reclassified from `trump_selection` into a
+new Mixed/ambiguous bidding judgment category to keep Trump selection/control
+at its 4-scenario target.
+
+Implemented and domain-tested variant mechanism v1: `generateTricksTakenVariant`
+(`lib/scenarios/scenario_variant.dart`) deterministically redistributes the
+completed-trick total among the three non-player seats — the only field
+audited and confirmed to be schema-validated yet never quoted by exact value
+in any of the 20 scenarios' feedback text. `PlayScenario.withTricksTaken`
+(`lib/scenarios/play_scenario.dart`) is the fail-closed apply step, reusing
+`PlaySituation`'s own validation. Card/rank/suit substitution and seat
+relabeling were both audited and found unsafe against the current free-text
+feedback contract; see
+[D-023](docs/DECISIONS.md) for the full audit and why UI integration waits for
+a future PR. 10 new tests
+(`test/scenarios/scenario_variant_test.dart`) prove: same base + seed → same
+output; different seeds can differ; the source scenario is never mutated;
+every production play scenario accepts the transformation; rating/evaluation
+mapping and all referenced public evidence stay byte-identical; and invalid
+`tricksTaken` maps are rejected (wrong sum, missing seat, out-of-range count).
+
+313 tests pass, analysis is clean, strict validation still accepts all 20
+content files unchanged (no scenario content, schema or evaluation logic
+changed), and the web build succeeds. Readiness stays 45%; the Variety gate
+stays 0% (checkpoint 3 is not closed). Checkpoint 4 was not started.
+
 ### Acceptance criteria
-- Deterministic variants are traceable to a reviewed base and seed/variant ID.
+- Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
 - Each allowed transformation documents and preserves game/coaching invariants:
-  legality, public evidence, target state, seat order and rating rationale.
+  legality, public evidence, target state, seat order and rating rationale. ✅ (v1 mechanism; see D-023 for what remains out of reach)
 - Validate generated content before display; test invariant preservation and
-  rejection of invalid variants. No arbitrary random card substitution or UI generation.
+  rejection of invalid variants. No arbitrary random card substitution or UI generation. ✅
 - Establish and close a finite reviewed coverage matrix for bidding decisions
   and safe/probable, void-tracking and exact-target play concepts. Distinct
-  tactical evidence counts as breadth; cosmetic variants alone do not.
-- Record owner repeated-session review showing reasoning rather than answer recall.
-- New scenarios using supported contracts remain content-only; no runtime AI.
+  tactical evidence counts as breadth; cosmetic variants alone do not. Matrix frozen
+  and audited (✅); 13 base scenarios still needed to close it.
+- Record owner repeated-session review showing reasoning rather than answer recall. Not started.
+- New scenarios using supported contracts remain content-only; no runtime AI. ✅
 
 ---
 
