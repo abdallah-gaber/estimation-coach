@@ -166,6 +166,30 @@ void main() {
     File('${root.path}/notes.txt').writeAsStringSync('notes');
     expect(run(['notes.txt']), 1);
   });
+  test('strict catalog rejects the old auction mismatch and keeps scanning', () {
+    final data = jsonDecode(
+      File(
+        'content/scenarios/v1/play/play_safe_probable_001.json',
+      ).readAsStringSync(),
+    );
+    write('corrected', data);
+    expect(run(['--require-complete']), 0);
+
+    data['id'] = 'auction_bound_regression';
+    data['situation']['auction_bid']['tricks'] = 4;
+    write('regression', data);
+    output.clear();
+    expect(run(['--require-complete']), 1);
+    expect(errors.toString(), contains('regression.json'));
+    expect(
+      errors.toString(),
+      contains(
+        r'$.situation: Trick estimate must not exceed the known winning auction bid',
+      ),
+    );
+    expect(output.toString(), contains('Checked 2 file(s); 1 failure(s)'));
+    expect(output.toString(), contains('VALID'));
+  });
 
   test(
     'explicit paths work and overlapping input does not double-count files',

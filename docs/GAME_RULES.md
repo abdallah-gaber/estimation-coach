@@ -76,6 +76,10 @@ connects a reviewed pack of these to the Play practice screen.
   has not played into the current trick. Current-trick cards cannot also be held.
 - `trump` is fixed public context for this normal-round snapshot. Optional
   `auctionBid` is the known winning auction bid, whose trump must match it.
+  When supplied, its trick count bounds `trickEstimate` via the owning
+  `isValidNonCallerEstimate` helper. The Caller's estimate equals that count,
+  and no other player can exceed it; this check does not infer caller identity.
+  Without `auctionBid`, no auction bound is inferred.
 - `trickEstimate` is the pending player's separately assigned target. Its 0–13
   bounds express physical trick counts, not a new rule for assigning estimates.
   Zero does not imply that Dash was declared; the type carries no Dash history.

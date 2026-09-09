@@ -262,7 +262,10 @@ flutter build web
 
 Strict validation should pass all eighteen scenario files (ten bidding, eight play)
 with no missing evaluations. Tests cover cards, game rules, derived void
-tracking, parser/schema alignment, validator failure cases, authored
+tracking and the known winning auction bound: a supplied bid of 4 cannot
+accompany estimate 5; absent auction context stays supported. Regression tests
+exercise domain, parser and strict catalog rejection. Tests also cover
+parser/schema alignment, validator failure cases, authored
 evaluation, bundled loading, legal choice controls, feedback, session
 restart, load retry, card-commit animation (including reduced motion and
 route disposal mid-flight), and a 320px layout with double text scaling for

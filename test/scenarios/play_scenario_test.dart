@@ -58,6 +58,37 @@ void main() {
       expect(PlayScenario.fromJson(d).missingEvaluationCount, 4);
     }
   });
+  test(
+    'auction bound allows low/equal estimates and absent auction context',
+    () {
+      for (final estimate in [0, 1, 3, 4]) {
+        final data = playFixture();
+        data['situation']['trick_estimate'] = estimate;
+        accepted(data);
+      }
+      final data = playFixture();
+      data['situation']['trick_estimate'] = 13;
+      data['situation'].remove('auction_bid');
+      accepted(data);
+      data['situation']['auction_bid'] = {'tricks': 13, 'trump': 'spades'};
+      accepted(data);
+    },
+  );
+  test('estimate above supplied auction bid reports the snapshot path', () {
+    final data = playFixture();
+    data['situation']['trick_estimate'] = 5;
+    expect(schema.validate(data).isValid, isTrue);
+    expect(
+      () => PlayScenario.fromJson(data),
+      throwsA(
+        isA<FormatException>().having(
+          (e) => e.message,
+          'message',
+          r'$.situation: Trick estimate must not exceed the known winning auction bid',
+        ),
+      ),
+    );
+  });
   test('lookup never invents feedback or grades an illegal card', () {
     final d = playFixture();
     d['evaluations'].removeLast();
