@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:estimation_coach/core/cards/cards.dart';
+import 'package:estimation_coach/core/game_rules/play_situation.dart'
+    show TrickEstimate;
 import 'package:estimation_coach/core/game_rules/trick_winner.dart';
 import 'package:estimation_coach/core/game_rules/void_tracking.dart';
 import 'package:estimation_coach/scenarios/bidding_scenario.dart';
@@ -121,6 +123,49 @@ void main() {
       '9D',
     ]);
   });
+  test('opponent_estimates is optional and round-trips a partial or full '
+      'seat-keyed map, never duplicating South', () {
+    final d = playFixture();
+    expect(PlayScenario.fromJson(d).situation.opponentEstimates, isEmpty);
+    d['situation']['opponent_estimates'] = {'north': 2};
+    accepted(d);
+    expect(PlayScenario.fromJson(d).situation.opponentEstimates, {
+      PlayerSeat.north: TrickEstimate(2),
+    });
+    // North estimates the fixture's winning bid of 4, so some seat can be the
+    // Caller; the four-seat total is 11, not 13.
+    d['situation']['opponent_estimates'] = {'north': 4, 'east': 3, 'west': 3};
+    accepted(d);
+    final full = PlayScenario.fromJson(d).situation.opponentEstimates;
+    expect(full, {
+      PlayerSeat.north: TrickEstimate(4),
+      PlayerSeat.east: TrickEstimate(3),
+      PlayerSeat.west: TrickEstimate(3),
+    });
+    expect(full.containsKey(PlayerSeat.south), isFalse);
+  });
+  test('a complete estimate set is accepted with several seats "With" the '
+      'winning bid, and without any auction context at all', () {
+    final withCaller = playFixture();
+    withCaller['situation']['trick_estimate'] = 4;
+    withCaller['situation']['opponent_estimates'] = {
+      'north': 4,
+      'east': 4,
+      'west': 4,
+    };
+    accepted(withCaller);
+    // Without a known auction bid neither the per-seat bound nor the
+    // "some seat is the Caller" rule can be checked, exactly as the existing
+    // trick_estimate bound is not checked without one.
+    final noAuction = playFixture();
+    noAuction['situation'].remove('auction_bid');
+    noAuction['situation']['opponent_estimates'] = {
+      'north': 4,
+      'east': 3,
+      'west': 3,
+    };
+    accepted(noAuction);
+  });
   test('all four ratings use authored feedback', () {
     for (final rating in DecisionRating.values) {
       final d = playFixture();
@@ -169,6 +214,12 @@ void main() {
     'negative taken': (d) => d['situation']['tricks_taken']['south'] = -1,
     'missing taken seat': (d) => d['situation']['tricks_taken'].remove('north'),
     'unknown situation key': (d) => d['situation']['bid'] = 4,
+    'opponent estimate unknown seat': (d) =>
+        d['situation']['opponent_estimates'] = {'center': 2},
+    'opponent estimate value above 13': (d) =>
+        d['situation']['opponent_estimates'] = {'north': 14},
+    'opponent estimate fractional value': (d) =>
+        d['situation']['opponent_estimates'] = {'north': 1.5},
     'low auction bid': (d) => d['situation']['auction_bid']['tricks'] = 3,
     'null auction bid': (d) => d['situation']['auction_bid'] = null,
     'bad current card': (d) =>
@@ -223,6 +274,23 @@ void main() {
         d['situation']['current_trick'][1]['player'] = 'south',
     'count total': (d) => d['situation']['tricks_taken']['north'] = 1,
     'trump mismatch': (d) => d['situation']['auction_bid']['trump'] = 'hearts',
+    // The schema allows every seat name so the contract is not South-specific;
+    // the domain rejects whichever seat is the pending player.
+    'opponent estimates naming the pending player\'s own seat': (d) =>
+        d['situation']['opponent_estimates'] = {'south': 2},
+    'complete opponent estimates total 13 with South': (d) =>
+        d['situation']['opponent_estimates'] = {
+          'north': 4,
+          'east': 4,
+          'west': 4,
+        },
+    'opponent estimate above the known winning auction bid': (d) =>
+        d['situation']['opponent_estimates'] = {'north': 5},
+    'complete opponent estimates with no seat at the winning bid': (d) {
+      // Fixture bid is 4 and South estimates 1, so without an opponent at 4
+      // no seat could be the Caller.
+      d['situation']['opponent_estimates'] = {'north': 3, 'east': 3, 'west': 3};
+    },
     'illegal evaluation': (d) => d['evaluations'][0]['decision']['card'] = 'AS',
     'duplicate evaluation': (d) => d['evaluations'].add(d['evaluations'][0]),
     'observed trick duplicate seat': (d) =>

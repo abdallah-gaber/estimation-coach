@@ -19,7 +19,8 @@
     "trump": "clubs",
     "trick_estimate": 4,
     "tricks_taken": {"north": 3, "east": 2, "south": 3, "west": 3},
-    "auction_bid": {"tricks": 4, "trump": "clubs"}
+    "auction_bid": {"tricks": 4, "trump": "clubs"},
+    "opponent_estimates": {"north": 4, "east": 3, "west": 4}
   },
   "evaluations": [
     {

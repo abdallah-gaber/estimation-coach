@@ -419,6 +419,24 @@
         "auction_bid": {
           "$ref": "#/$defs/auctionBid"
         },
+        "opponent_estimates": {
+          "type": "object",
+          "properties": {
+            "north": {
+              "$ref": "#/$defs/playCount"
+            },
+            "east": {
+              "$ref": "#/$defs/playCount"
+            },
+            "south": {
+              "$ref": "#/$defs/playCount"
+            },
+            "west": {
+              "$ref": "#/$defs/playCount"
+            }
+          },
+          "additionalProperties": false
+        },
         "observed_tricks": {
           "type": "array",
           "items": {

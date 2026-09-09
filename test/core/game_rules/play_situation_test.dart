@@ -18,6 +18,7 @@ void main() {
     Trump trump = Trump.spades,
     Bid? bid,
     List<ObservedTrick> observed = const [],
+    Map<PlayerSeat, TrickEstimate> opponentEstimates = const {},
   }) => PlaySituation(
     playerPosition: player,
     hand: Hand(hand.map(GameCard.parse)),
@@ -41,6 +42,7 @@ void main() {
         },
     auctionBid: bid,
     observedTricks: observed,
+    opponentEstimates: opponentEstimates,
   );
 
   test(
@@ -263,6 +265,214 @@ void main() {
       throwsArgumentError,
     );
   });
+  test('opponent estimates default to empty and stay backward compatible', () {
+    expect(situation().opponentEstimates, isEmpty);
+  });
+  test('opponent estimates are accepted absent, partial and full', () {
+    expect(
+      situation(
+        opponentEstimates: {PlayerSeat.north: TrickEstimate(2)},
+      ).opponentEstimates,
+      {PlayerSeat.north: TrickEstimate(2)},
+    );
+    expect(
+      situation(
+        opponentEstimates: {
+          PlayerSeat.north: TrickEstimate(2),
+          PlayerSeat.east: TrickEstimate(3),
+        },
+      ).opponentEstimates,
+      hasLength(2),
+    );
+    final full = situation(
+      opponentEstimates: {
+        PlayerSeat.north: TrickEstimate(2),
+        PlayerSeat.east: TrickEstimate(3),
+        PlayerSeat.west: TrickEstimate(3),
+      },
+    );
+    expect(full.opponentEstimates, hasLength(3));
+    // South's own trickEstimate (4, the default) combines with the three
+    // opponents to a total of 12 — under 13, so this full set is valid.
+  });
+  test('opponent estimates are exposed as an immutable defensive copy', () {
+    final estimates = {PlayerSeat.north: TrickEstimate(2)};
+    final state = situation(opponentEstimates: estimates);
+    estimates.clear();
+    expect(state.opponentEstimates, hasLength(1));
+    expect(() => state.opponentEstimates.clear(), throwsUnsupportedError);
+  });
+  test('a complete four-seat estimate set combining South is validated '
+      'against the total-13 rule', () {
+    expect(
+      () => situation(
+        estimate: 4,
+        opponentEstimates: {
+          PlayerSeat.north: TrickEstimate(3),
+          PlayerSeat.east: TrickEstimate(3),
+          PlayerSeat.west: TrickEstimate(3),
+        },
+      ),
+      throwsA(
+        isA<ArgumentError>().having(
+          (e) => e.message,
+          'message',
+          contains('must not total 13'),
+        ),
+      ),
+    );
+  });
+  test('the excluded seat follows the pending player, not a hardcoded '
+      'South — every seat works as the pending player', () {
+    for (final player in PlayerSeat.values) {
+      final opponents = PlayerSeat.values.where((seat) => seat != player);
+      final state = situation(
+        player: player,
+        leader: player,
+        plays: [],
+        estimate: 4,
+        opponentEstimates: {
+          for (final seat in opponents) seat: TrickEstimate(2),
+        },
+      );
+      expect(state.opponentEstimates.keys, unorderedEquals(opponents));
+      expect(state.opponentEstimates.containsKey(player), isFalse);
+      // The same map is rejected the moment it names the pending player's
+      // own seat, whichever seat that is.
+      expect(
+        () => situation(
+          player: player,
+          leader: player,
+          plays: [],
+          opponentEstimates: {player: TrickEstimate(2)},
+        ),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('must not include the pending player'),
+          ),
+        ),
+      );
+    }
+  });
+  test('opponent estimates are bounded by the known winning auction bid', () {
+    expect(
+      situation(
+        estimate: 4,
+        bid: Bid(4, Trump.spades),
+        opponentEstimates: {PlayerSeat.north: TrickEstimate(4)},
+      ).opponentEstimates,
+      hasLength(1),
+      reason: 'estimating exactly the winning bid is "With", and allowed',
+    );
+    expect(
+      () => situation(
+        estimate: 4,
+        bid: Bid(4, Trump.spades),
+        opponentEstimates: {PlayerSeat.north: TrickEstimate(5)},
+      ),
+      throwsA(
+        isA<ArgumentError>().having(
+          (e) => e.message,
+          'message',
+          contains('must not exceed the known winning auction bid'),
+        ),
+      ),
+    );
+    // Without auction context no bound is inferred, exactly as for the
+    // pending player's own estimate.
+    expect(
+      situation(
+        opponentEstimates: {PlayerSeat.north: TrickEstimate(13)},
+      ).opponentEstimates,
+      hasLength(1),
+    );
+  });
+  test(
+    'a complete estimate set must leave some seat able to be the Caller',
+    () {
+      // The Caller's estimate *is* the winning bid, so with a bid of 4 and
+      // nobody estimating 4, no seat could be the Caller.
+      expect(
+        () => situation(
+          estimate: 3,
+          bid: Bid(4, Trump.spades),
+          opponentEstimates: {
+            PlayerSeat.north: TrickEstimate(3),
+            PlayerSeat.east: TrickEstimate(2),
+            PlayerSeat.west: TrickEstimate(3),
+          },
+        ),
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            contains('must include one seat estimating the known winning'),
+          ),
+        ),
+      );
+      // Satisfied by an opponent, or by several seats at once ("With").
+      for (final estimates in [
+        {
+          PlayerSeat.north: TrickEstimate(3),
+          PlayerSeat.east: TrickEstimate(2),
+          PlayerSeat.west: TrickEstimate(4),
+        },
+        {
+          PlayerSeat.north: TrickEstimate(4),
+          PlayerSeat.east: TrickEstimate(4),
+          PlayerSeat.west: TrickEstimate(4),
+        },
+      ]) {
+        expect(
+          situation(
+            estimate: 3,
+            bid: Bid(4, Trump.spades),
+            opponentEstimates: estimates,
+          ).opponentEstimates,
+          hasLength(3),
+        );
+      }
+      expect(
+        situation(
+          estimate: 4,
+          bid: Bid(4, Trump.spades),
+          opponentEstimates: {
+            PlayerSeat.north: TrickEstimate(3),
+            PlayerSeat.east: TrickEstimate(2),
+            PlayerSeat.west: TrickEstimate(3),
+          },
+        ).opponentEstimates,
+        hasLength(3),
+        reason: 'the pending player can be the Caller',
+      );
+      // A partial set is never measured against a whole-set rule.
+      expect(
+        situation(
+          estimate: 3,
+          bid: Bid(4, Trump.spades),
+          opponentEstimates: {
+            PlayerSeat.north: TrickEstimate(3),
+            PlayerSeat.east: TrickEstimate(2),
+          },
+        ).opponentEstimates,
+        hasLength(2),
+      );
+      // With no auction context, a complete set has no bid to match.
+      expect(
+        situation(
+          estimate: 3,
+          opponentEstimates: {
+            PlayerSeat.north: TrickEstimate(3),
+            PlayerSeat.east: TrickEstimate(2),
+            PlayerSeat.west: TrickEstimate(3),
+          },
+        ).opponentEstimates,
+        hasLength(3),
+      );
+    },
+  );
   final invalid = <String, void Function()>{
     'empty hand': () => situation(hand: []),
     'missing seat count': () => situation(taken: {PlayerSeat.south: 9}),

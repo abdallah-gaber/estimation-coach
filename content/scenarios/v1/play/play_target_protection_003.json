@@ -18,7 +18,8 @@
     ],
     "trump": "spades",
     "trick_estimate": 4,
-    "tricks_taken": {"north": 2, "east": 2, "south": 5, "west": 2}
+    "tricks_taken": {"north": 2, "east": 2, "south": 5, "west": 2},
+    "opponent_estimates": {"north": 1, "east": 3, "west": 3}
   },
   "evaluations": [
     {
@@ -48,5 +49,5 @@
       }
     }
   ],
-  "author_notes": "EC-043 already-above contrast. Equally rated choices intentionally avoid inventing a scoring preference when exact-target success is already impossible. Local loss versus local win is still explicit."
+  "author_notes": "EC-043 already-above contrast. Equally rated choices intentionally avoid inventing a scoring preference when exact-target success is already impossible. Local loss versus local win is still explicit. Opponent estimates (EC-055/D-027) keep this scenario's point intact: North, who wins this trick whenever South discards, estimates 1 with 2 already taken, so North's exact target is already missed no matter what South does. With South also past four, neither choice can change any seat's exact-target outcome, which is exactly why both are Reasonable. The four estimates total 11, so two tricks beyond the room's estimates must land somewhere — North's and South's overshoots are that surplus."
 }

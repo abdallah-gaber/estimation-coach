@@ -9,6 +9,7 @@ import 'package:estimation_coach/scenarios/bidding_scenario.dart'
     show DecisionRating;
 import 'package:estimation_coach/scenarios/load_play_scenarios.dart';
 import 'package:estimation_coach/scenarios/play_scenario.dart';
+import 'package:estimation_coach/shared/widgets/card_labels.dart';
 import 'package:estimation_coach/shared/widgets/playing_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -348,4 +349,77 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Observed play'), findsNothing);
   });
+
+  testWidgets(
+    'every bundled scenario shows a real target and taken count for all '
+    'three opponents, including the seat that led',
+    (tester) async {
+      for (final scenario in playPack()) {
+        final situation = scenario.situation;
+        expect(
+          situation.opponentEstimates,
+          hasLength(3),
+          reason: '${scenario.id} should author a complete opponent set',
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            // A distinct key forces a fresh State per scenario; without it
+            // the screen keeps showing the first one it loaded.
+            home: PlayTrainingScreen(
+              key: ValueKey(scenario.id),
+              loader: () async => [scenario],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        // Seats can legitimately share a label (same target, same taken), so
+        // count expected occurrences rather than assuming each is unique.
+        final expected = <String, int>{};
+        for (final entry in situation.opponentEstimates.entries) {
+          final label =
+              'Target ${entry.value.tricks} · '
+              'Taken ${situation.tricksTaken[entry.key]}';
+          // The leading seat keeps its led-suit line above the same
+          // target/taken line instead of replacing it.
+          final chip = entry.key == situation.leader
+              ? 'Led ${situation.ledSuit!.label}\n$label'
+              : label;
+          expected.update(chip, (count) => count + 1, ifAbsent: () => 1);
+        }
+        for (final entry in expected.entries) {
+          expect(
+            find.text(entry.key),
+            findsNWidgets(entry.value),
+            reason: '${scenario.id} should show "${entry.key}"',
+          );
+        }
+        expect(find.textContaining('Target unknown'), findsNothing);
+      }
+    },
+  );
+
+  testWidgets(
+    'an opponent left without an authored estimate falls back to an honest '
+    'unknown target rather than an invented one',
+    (tester) async {
+      final data =
+          jsonDecode(
+                File(
+                  'content/scenarios/v1/play/play_safe_probable_001.json',
+                ).readAsStringSync(),
+              )
+              as Map<String, dynamic>;
+      // Drop North's authored estimate only. North (taken 2) is a
+      // non-leading opponent here; East leads and West keeps its estimate.
+      (data['situation']['opponent_estimates'] as Map).remove('north');
+      final scenario = PlayScenario.fromJson(data);
+      expect(scenario.situation.opponentEstimates, hasLength(2));
+      await tester.pumpWidget(
+        MaterialApp(home: PlayTrainingScreen(loader: () async => [scenario])),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Target unknown · Taken 2'), findsOneWidget);
+      expect(find.text('Target 4 · Taken 3'), findsOneWidget);
+    },
+  );
 }

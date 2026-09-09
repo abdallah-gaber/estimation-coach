@@ -80,6 +80,7 @@ final class PlayScenario {
       'trick_estimate',
       'tricks_taken',
       'auction_bid',
+      'opponent_estimates',
       'observed_tricks',
     ], r'$.situation');
     final plays = _seatPlays(
@@ -125,6 +126,25 @@ final class PlayScenario {
         _trump(b['trump'], '$path.trump'),
       );
     }
+    final opponentEstimates = <PlayerSeat, TrickEstimate>{};
+    if (raw.containsKey('opponent_estimates')) {
+      final path = r'$.situation.opponent_estimates';
+      final rawOpponents = _object(raw['opponent_estimates'], path);
+      // Every seat name is structurally allowed; `PlaySituation` rejects
+      // whichever one equals `player_position`, so the contract does not
+      // assume the pending player is always South.
+      _keys(
+        rawOpponents,
+        PlayerSeat.values.map((seat) => seat.name).toList(),
+        path,
+      );
+      for (final entry in rawOpponents.entries) {
+        final seat = _enum(entry.key, PlayerSeat.values, '$path.${entry.key}');
+        opponentEstimates[seat] = TrickEstimate(
+          _count(entry.value, '$path.${entry.key}'),
+        );
+      }
+    }
     late final PlaySituation situation;
     try {
       situation = PlaySituation(
@@ -143,6 +163,7 @@ final class PlayScenario {
         tricksTaken: taken,
         auctionBid: bid,
         observedTricks: history,
+        opponentEstimates: opponentEstimates,
       );
     } on ArgumentError catch (error) {
       _fail(r'$.situation', '${error.message}');
@@ -219,6 +240,7 @@ final class PlayScenario {
       tricksTaken: tricksTaken,
       auctionBid: situation.auctionBid,
       observedTricks: situation.observedTricks,
+      opponentEstimates: situation.opponentEstimates,
     );
     return PlayScenario._(
       id,

@@ -820,3 +820,139 @@ stays 45%, EC-055 is not marked DONE, checkpoint 4 not started. The
 owner's repeated-session review continues; the opponent-estimates contract
 extension is scoped as a separate, non-optional follow-up PR (D-026),
 starting only after this one is reviewed and merged.
+
+## EC-055 — Owner review follow-up: public opponent estimates (D-027)
+
+The follow-up scoped and queued by D-026 above, revised after owner review
+rejected a first version that added the field but left every scenario empty.
+All 17 bundled play scenarios now author a complete three-seat estimate set.
+**No rating changed**; every evaluation was re-reviewed with the targets
+visible, and this entry records that review.
+
+### What changed
+
+An `opponent_estimates` field (any seat except `player_position`), a matching
+`PlaySituation.opponentEstimates` domain field enforcing three previously
+unchecked game_rules_v1 estimate rules, and a `Target N · Taken M` label on
+every opponent seat — including the seat that led, which previously showed
+only `Led <suit>`. Contract details and the seat-generality and auction-bid
+rules are in [D-027](DECISIONS.md).
+
+### Authored sets, and why each is neutral
+
+`R` is the remaining trick count (the player's hand size, including the
+pending trick). "Needs" is `estimate - taken` for that seat.
+
+| Scenario | Bid | R | N | E | W | S | Total | Opponent states |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| play_mixed_tactical_001 | 4 | 2 | 4 | 4 | 4 | 4 | 16 | all need 1 (forced) |
+| play_mixed_tactical_002 | 4 | 2 | 4 | 3 | 4 | 4 | 15 | all need 1 |
+| play_safe_probable_001 | 5 | 4 | 3 | 3 | 4 | 5 | 15 | all need 1 |
+| play_safe_probable_002 | 4 | 2 | 4 | 4 | 3 | 4 | 15 | all need 1 |
+| play_safe_probable_003 | 4 | 2 | 4 | 4 | 4 | 4 | 16 | all need 1 (forced) |
+| play_safe_probable_004 | 4 | 2 | 4 | 4 | 4 | 4 | 16 | all need 1 (forced) |
+| play_target_protection_001 | — | 4 | 4 | 3 | 3 | 4 | 14 | N needs 2, E/W need 1 |
+| play_target_protection_002 | — | 4 | 4 | 3 | 3 | 4 | 14 | N needs 2, E needs 1, W needs 2 |
+| play_target_protection_003 | — | 2 | 1 | 3 | 3 | 4 | 11 | **N already over**, E/W need 1 |
+| play_target_protection_004 | — | 3 | 4 | 3 | 3 | 4 | 14 | N needs 2, E/W need 1 |
+| play_target_protection_005 | — | 4 | 4 | 3 | 3 | 4 | 14 | N needs 2, E/W need 1 |
+| play_target_protection_006 | 4 | 2 | 4 | 4 | 4 | 4 | 16 | all need 1 (forced) |
+| play_void_tracking_001 | 4 | 2 | 4 | 4 | 3 | 4 | 15 | all need 1 |
+| play_void_tracking_002 | 4 | 2 | 4 | 4 | 4 | 4 | 16 | all need 1 (forced) |
+| play_void_tracking_003 | 4 | 2 | 4 | 3 | 4 | 4 | 15 | all need 1 |
+| play_void_tracking_004 | 4 | 2 | 4 | 3 | 4 | 4 | 15 | all need 1 |
+| play_void_tracking_005 | 4 | 2 | 3 | 4 | 4 | 4 | 15 | all need 1 |
+
+Every set is rule-valid: no seat exceeds a supplied bid, every complete set
+with a bid has some seat at exactly the bid (so a Caller is possible), no
+total is 13, every set's maximum is at least 4 (the auction minimum, so a
+Caller's bid exists even where `auction_bid` is absent), and no opponent is
+authored at 0, which would be a Dash declaration this content cannot carry.
+
+**No opponent is exactly on target in any scenario.** That is the one state
+that would hand the player a reason to give a seat a trick specifically to
+break it — opponent-punishing play this MVP does not teach. "Forced" above
+marks seats on 3 taken under a 4-trick bid, where 4 is the only value that
+keeps them below target at all; that is stated rather than resolved by
+choosing an on-target value.
+
+### Re-review with targets visible
+
+**Twelve scenarios: no interaction with the decision.** In
+`play_mixed_tactical_001/002`, `play_safe_probable_001/002/003/004`,
+`play_target_protection_006` and `play_void_tracking_002/004`, the reviewed
+line *takes* the trick. An opponent's target cannot change whether the
+recommended card wins, and denying a below-target opponent aligns with the
+existing Strong rating rather than competing with it. In
+`play_void_tracking_004` South acts last with the winning card, so no
+opponent state is even reachable by the decision.
+
+**Three void-tracking scenarios: the targets reinforce the existing split.**
+In `play_void_tracking_001`, `_003` and `_005`, the reviewed line concedes
+the trick to protect a high card from a seat whose void is already confirmed.
+That seat is now visibly below target, which makes it *more* evidently
+motivated to trump — exactly the risk the Risky rating already cites. This
+strengthens the authored reasoning without changing it; no feedback text was
+edited, since the coaching already argues from the confirmed void rather than
+from motive.
+
+**Five target-protection scenarios: the estimates were chosen deliberately.**
+These are the scenarios whose reviewed line concedes the current trick to
+North, so North's target is the one state that could compete with the lesson:
+
+- `play_target_protection_001` (take the needed trick), `_002` (deliberately
+  lose at exactly four), `_004` (shed a trump under North's jack) and `_005`
+  (spend the ace for the needed trick): North estimates 4 having taken 2, so
+  it needs two more tricks. The trick North collects in the conceding line
+  does **not** complete North's target, so no "am I finishing their contract?"
+  question competes with South's own exact-target reasoning. In `_004` the
+  choice under review is *which* losing card to play — both concede to the
+  same seat, so opponent targets cannot separate them either way.
+- `play_target_protection_003` (already past four, both choices Reasonable):
+  North estimates 1 having taken 2, so North's exact target is already missed
+  no matter what South does. With South also past four, neither choice can
+  change any seat's exact-target outcome — which is precisely why both remain
+  Reasonable, and the existing "no other objective or scoring rule is
+  modeled" wording still carries. The four estimates total 11, so two tricks
+  beyond the room's estimates must land somewhere; North's and South's
+  overshoots are exactly that surplus, making the set internally coherent
+  rather than arbitrary.
+
+Each of these five choices is also recorded in its own file's
+`author_notes`, so a future author editing `tricks_taken` sees why the
+estimate was picked.
+
+**Nothing was added to any coaching text about opponents' targets.** The
+ratings are unchanged and still argue from the player's own exact target, the
+cards on the table and derived voids. No scenario was found ambiguous enough
+to need flagging for owner review.
+
+### Regression coverage
+
+`test/core/game_rules/estimate_totals_test.dart` (+2) covers
+`includesCallerEstimate` directly: satisfied by any of the four seats or by
+several at once ("With"), unsatisfied when nobody is at the bid, and
+rejecting an incomplete set. `test/core/game_rules/play_situation_test.dart`
+(+4) covers default empty, absent/partial/full acceptance, immutable
+exposure, the excluded seat following `playerPosition` across all four
+possible pending seats, the auction-bid bound (including no bound without a
+bid), and both whole-set rules with proof that neither fires on a partial
+set. `test/scenarios/play_scenario_test.dart` (+8) covers the schema/parser
+round trip, no duplication of the pending player's seat, and rejections for
+an unknown seat name, an out-of-range value, a fractional value, naming the
+pending player's own seat, exceeding the bid, a complete set totalling 13,
+and a complete set with no seat at the bid. `test/play_training_test.dart`
+(+2) asserts every one of the 17 bundled scenarios renders a real
+`Target · Taken` for all three opponents — including the leading seat, above
+its `Led <suit>` line — with no `Target unknown` anywhere, and that a seat
+whose estimate is removed falls back to the honest unknown label.
+
+### Checkpoint verification boundary
+
+358 tests pass (20 more than the prior batch). Analysis is clean, strict
+validation accepts all 33 content files, and the web build succeeds. The
+table was also checked in a browser at desktop and 375px widths, with no
+overflow and no console errors. Coverage matrix stays 32/32 (these are edits
+to existing scenarios, not new ones), readiness stays 45%, EC-055 is not
+marked DONE, checkpoint 4 not started. The owner's repeated-session review
+continues.

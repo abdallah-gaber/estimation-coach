@@ -372,6 +372,7 @@ Required `situation` fields:
 | `trick_estimate` | This player's already assigned target, integer 0–13 |
 | `tricks_taken` | Object with north/east/south/west nonnegative integer counts |
 | `auction_bid` (optional) | Known winning `{tricks: 4–13, trump}`; omit if unknown |
+| `opponent_estimates` (author for every new scenario) | Object keyed by seat, excluding `player_position`'s own seat, each an exact 0–13 target. Author all three; see the rules below |
 | `observed_tricks` (optional) | Array of prior tricks, each exactly four `{player, card}` objects, following the seats below |
 
 These fields map to the validated PlaySituation contract in
@@ -447,6 +448,63 @@ by a different seat than the one it named as leading next); catch it in
 review or a targeted test per scenario, not by assuming the general model
 will catch it, since it deliberately does not.
 
+#### Opponent estimates (EC-055/D-027)
+
+`opponent_estimates` completes the public table: without it, an opponent's
+`tricks_taken` is displayed with no target to compare it against, which is
+what a real player reads to know whether that seat still wants tricks.
+**Author a complete set (all three other seats) for every new play
+scenario.** All 17 bundled scenarios do. These are authored synthetic table
+states — an opponent's target is missing public state to supply, exactly like
+the cards, taken counts and observed tricks already authored, not an external
+historical fact being invented.
+
+The field is still structurally optional, and a seat left out renders as an
+honest `Target unknown` rather than an invented number — but that is a
+fallback for partial content, not the normal case.
+
+**Rules the set must satisfy** (all enforced; violations are rejected at
+`$.situation`):
+
+| Rule | Constraint |
+| --- | --- |
+| Own seat | Never include `player_position`'s own seat — its target is `trick_estimate`. Every other seat name is structurally allowed, so a scenario pending on any seat works |
+| Bound (rule 2) | With `auction_bid`, no seat may estimate more than its `tricks`. Equalling it is fine — that is "With" (rule 3) |
+| Caller (rule 1) | A complete set with `auction_bid` must have **some** seat at exactly `auction_bid.tricks`, because the Caller is one of the four and their estimate *is* the winning bid |
+| Total (rule 4) | A complete set's four estimates must not total 13 |
+| Implied auction | Even without `auction_bid`, the highest estimate in a complete set is the Caller's, and auction bids start at 4 — so keep the maximum at 4 or more. Not machine-checked without a bid, same as `trick_estimate`'s bound |
+| Dash | Avoid 0 for an opponent: an estimate of exactly 0 is a Dash declaration (game_rules_v1), and a play scenario carries no Dash history to justify one |
+
+**Choose values that do not compete with the lesson.** Opponent targets are
+not decorative once visible — they can give the player a reason to win or
+lose the current trick. Check each seat's state (`taken` vs. `estimate`)
+against the decision being taught:
+
+- **Below target** (estimate above taken) is the neutral default: it is what
+  every scenario's coaching already assumes, that opponents contest tricks.
+  Prefer it for all three seats.
+- **Exactly on target** gives the player a reason to *hand* that seat a trick
+  to break it. That is opponent-punishing strategy, which this MVP
+  deliberately does not teach. **Avoid it.**
+- **Already over** (estimate below taken) makes that seat's outcome fixed and
+  therefore inert. Use it deliberately when inertness is what a scenario
+  needs, not by accident.
+- In a scenario whose reviewed line **concedes** the current trick, check
+  which seat collects it, and prefer a value where that trick is *not* the
+  one completing their target — otherwise "am I finishing their contract?"
+  competes with the exact-target lesson. See
+  `play_target_protection_001`–`005` for authored examples of this choice,
+  each explained in its own `author_notes`.
+- Where the arithmetic leaves no neutral option (an opponent on `taken` 3
+  under a 4-trick bid can only be at 4 to stay below target), say so in the
+  review entry rather than picking an on-target value.
+
+Adding opponent estimates must not change any existing rating. Re-review each
+evaluation with the targets visible and record the result in
+`COACHING_REVIEW.md`; if a scenario becomes genuinely ambiguous at this
+tactical scope, pick a more neutral valid set or flag it for owner review
+instead of adding higher-level strategy to the coaching text.
+
 #### Exact-target coaching (EC-043)
 
 The owner-confirmed estimate rules in
@@ -472,10 +530,14 @@ Distinguish avoiding a trick while exactly on target from avoiding another
 trick after already exceeding the target: the latter cannot restore exact
 success.
 
-A complete four-player estimate set, With and room-total Over/Under are not
-represented by this contract. Future support should author their observable
-inputs and derive classifications with the existing pure helpers, never
-redundant labels. No scoring, Risk, estimate ordering or simulator is implied.
+A complete four-player estimate set is represented via `opponent_estimates`
+(see above), and rules 1, 2 and 4 are enforced against it. "With" and
+room-total Over/Under are still not *surfaced* by the trainer UI; future
+support should derive them with the existing pure helpers (`isWithCaller`,
+`classifyEstimateTotal`), never redundant authored labels. No scoring, Risk,
+opponent behavioral modeling or simulator is implied: the trainer stays local
+and tactical, coaching one card decision against the player's own exact
+target, not optimizing against the opponents' targets.
 
 **Check target feasibility before rating a card that gives up the current
 trick, and before choosing `tricks_taken` at all.** A real owner-review

@@ -1,6 +1,7 @@
 import '../cards/cards.dart';
 import 'bidding.dart';
-import 'estimate_totals.dart' show isValidNonCallerEstimate;
+import 'estimate_totals.dart'
+    show includesCallerEstimate, isValidEstimateTotal, isValidNonCallerEstimate;
 import 'legal_cards.dart' as rules;
 import 'seat_play.dart';
 import 'seat_rotation.dart';
@@ -38,10 +39,14 @@ final class PlaySituation {
     required Map<PlayerSeat, int> tricksTaken,
     Bid? auctionBid,
     Iterable<ObservedTrick> observedTricks = const [],
+    Map<PlayerSeat, TrickEstimate> opponentEstimates = const {},
   }) {
     final plays = List<SeatPlay>.unmodifiable(currentTrick);
     final taken = Map<PlayerSeat, int>.unmodifiable(tricksTaken);
     final history = List<ObservedTrick>.unmodifiable(observedTricks);
+    final opponents = Map<PlayerSeat, TrickEstimate>.unmodifiable(
+      opponentEstimates,
+    );
     if (hand.isEmpty) {
       throw ArgumentError('A pending card decision requires a nonempty hand');
     }
@@ -124,6 +129,58 @@ final class PlaySituation {
         'Trick estimate must not exceed the known winning auction bid',
       );
     }
+    // opponentEstimates is additive public context (EC-055/D-027): each
+    // opponent's own exact-trick target, keyed by seat. Which seats count as
+    // opponents follows playerPosition, not a hardcoded South: only that
+    // seat is excluded, so a scenario pending on any seat works the same way.
+    // Partial sets stay explicitly partial — nothing is inferred.
+    if (opponents.containsKey(playerPosition)) {
+      throw ArgumentError(
+        'opponentEstimates must not include the pending player\'s own seat',
+      );
+    }
+    // The Caller's estimate equals the winning bid and bounds everyone
+    // else's, so the same bound already applied to trickEstimate applies to
+    // every authored opponent estimate. Reuses the owning helper rather than
+    // re-deriving the comparison; still infers no caller identity.
+    if (auctionBid != null) {
+      final callerEstimate = TrickEstimate(auctionBid.tricks);
+      for (final estimate in opponents.values) {
+        if (!isValidNonCallerEstimate(
+          estimate: estimate,
+          callerEstimate: callerEstimate,
+        )) {
+          throw ArgumentError(
+            'Opponent estimates must not exceed the known winning auction bid',
+          );
+        }
+      }
+    }
+    // Only once all three opponents are known is the four-seat set complete,
+    // and only then do the whole-set rules apply: the total must not equal 13,
+    // and some seat must estimate exactly the winning bid, because the
+    // Caller is one of these four and their estimate *is* that bid.
+    if (opponents.length == PlayerSeat.values.length - 1) {
+      final allEstimates = <PlayerSeat, TrickEstimate>{
+        ...opponents,
+        playerPosition: trickEstimate,
+      };
+      if (!isValidEstimateTotal(allEstimates)) {
+        throw ArgumentError(
+          'Combined four-seat trick estimates must not total 13',
+        );
+      }
+      if (auctionBid != null &&
+          !includesCallerEstimate(
+            allEstimates,
+            callerEstimate: TrickEstimate(auctionBid.tricks),
+          )) {
+        throw ArgumentError(
+          'A complete estimate set must include one seat estimating the '
+          'known winning auction bid',
+        );
+      }
+    }
     return PlaySituation._(
       playerPosition,
       hand,
@@ -134,6 +191,7 @@ final class PlaySituation {
       taken,
       auctionBid,
       history,
+      opponents,
     );
   }
 
@@ -147,6 +205,7 @@ final class PlaySituation {
     this.tricksTaken,
     this.auctionBid,
     this.observedTricks,
+    this.opponentEstimates,
   );
 
   final PlayerSeat playerPosition;
@@ -165,6 +224,12 @@ final class PlaySituation {
   /// Prior tricks visible to the player for this decision. See [ObservedTrick]
   /// for what this does and does not claim about the round's full history.
   final List<ObservedTrick> observedTricks;
+
+  /// Each opponent's own exact-trick target, keyed by seat. Never contains
+  /// [playerPosition] (that seat's target is [trickEstimate]). May be empty,
+  /// partial, or complete for all three opponents — a missing seat is not a
+  /// claim that no estimate exists, only that it is not shown here.
+  final Map<PlayerSeat, TrickEstimate> opponentEstimates;
 
   Suit? get ledSuit =>
       currentTrick.isEmpty ? null : currentTrick.first.card.suit;

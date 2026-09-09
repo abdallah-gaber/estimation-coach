@@ -18,7 +18,8 @@
     ],
     "trump": "spades",
     "trick_estimate": 4,
-    "tricks_taken": {"north": 2, "east": 2, "south": 4, "west": 2}
+    "tricks_taken": {"north": 2, "east": 2, "south": 4, "west": 2},
+    "opponent_estimates": {"north": 4, "east": 3, "west": 3}
   },
   "evaluations": [
     {
@@ -61,5 +62,5 @@
       }
     }
   ],
-  "author_notes": "EC-043 table-evidence case: the visible JS makes undertrumping with 2S safe. Without that higher trump, the two could win. All local outcomes are determined with South last; the 2S-versus-7C preference is authored judgment, not a simulated optimal continuation."
+  "author_notes": "EC-043 table-evidence case: the visible JS makes undertrumping with 2S safe. Without that higher trump, the two could win. All local outcomes are determined with South last; the 2S-versus-7C preference is authored judgment, not a simulated optimal continuation. Opponent estimates (EC-055/D-027) leave North needing two of the three remaining tricks (estimate 4, 2 taken), so the trick North wins under both reviewed losing lines does not complete North's target. The 2S-versus-7C preference is unaffected by opponent targets either way: both concede this trick to the same seat."
 }

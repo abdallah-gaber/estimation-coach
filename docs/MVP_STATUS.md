@@ -268,6 +268,27 @@ success alone does not satisfy this criterion.
   scenarios. The five questions above have not yet been answered
   end-to-end; the review continues, and the opponent-estimates contract
   extension is queued as a separate bounded PR next.
+- **Pass 1 continued, 2026-09-09** — Delivered the queued opponent-estimates
+  follow-up, then corrected it in the same review round. The first version
+  added an optional `opponent_estimates` field but authored it in none of the
+  17 scenarios, so the trainer still showed `Target unknown` for every
+  opponent — the same incomplete table the review had flagged. Owner review
+  rejected that reasoning: these are authored synthetic game states, and an
+  opponent's target is missing public state to author, like the cards and
+  taken counts already authored. **All 17 scenarios now carry a complete
+  three-seat estimate set**, each re-reviewed against its own lesson with the
+  targets visible; no rating changed, and no opponent is authored exactly on
+  target (the one state that would invite opponent-punishing play). The
+  contract was also generalized: the schema accepts any seat name and the
+  domain excludes whichever seat is `player_position`, rather than assuming
+  South, and three previously unchecked game_rules_v1 estimate rules (the
+  per-seat bid bound, some seat matching the winning bid in a complete set,
+  and the total-13 rule) are now enforced. See [D-027](DECISIONS.md) and the
+  per-scenario table in [COACHING_REVIEW.md](COACHING_REVIEW.md). Question 2
+  above ("do I need to read the actual table state?") can now genuinely be
+  judged, since the table finally shows the full public state. The five
+  questions above still have not been answered end-to-end; the review
+  continues.
 
 This criterion is not satisfied by the PR that added this log: it remains
 prepared and in progress, not completed. The Variety gate stays at 0% and
