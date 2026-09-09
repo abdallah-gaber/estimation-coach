@@ -419,6 +419,25 @@ previous trick's winner, since that would require a winner resolver, which
 does not exist. A full round/deal turn order beyond one trick's seat
 succession remains undefined.
 
+#### Post-auction estimates (EC-043 preparation, not yet a supported field)
+
+The owner-confirmed estimate rules in
+[game_rules_v1](GAME_RULES_V1.md#post-auction-trick-estimates) — a
+non-Caller's estimate bounded by the Caller's, "With", the total-must-not-equal-13
+rule, "Over"/"Under" and the exact-target rule — are implemented as pure
+functions (`lib/core/game_rules/estimate_totals.dart`,
+`exact_bid_outcome.dart`), but **no scenario schema field exists for them
+yet** and no EC-043 content is authored in this repository. This section is
+forward guidance for whoever adds that field later, following this project's
+same content-only principle (see `AGENTS.md`'s content-only invariant):
+author the *observable* inputs a scenario actually shows the player — each
+seat's estimate as a plain number, the trump, tricks taken so far — never a
+derived label. Whether an estimate is "With", whether the room's total is
+Over/Under, and whether a player is currently on target, over, or under their
+own estimate are all computable from those inputs; do not add fields like
+`"with": true` or `"over": true` that could silently drift out of sync with
+what the numbers actually say.
+
 ### Choices and feedback
 
 There is no authored `allowed_decisions`: every card permitted by follow-suit

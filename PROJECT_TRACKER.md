@@ -431,6 +431,26 @@ their strategic ratings were re-reviewed and are unaffected in substance
 
 Create situations where the player must avoid unwanted tricks.
 
+A rule-domain audit (`docs/GAME_RULES_V1.md#rule-domain-status-audit-2026-09-08`)
+reviewed what this depends on. The owner has since confirmed the core
+estimate rules needed for exact-bid coaching: a non-Caller's estimate must
+not exceed the Caller's, "With" (equal to the Caller's), the total of four
+estimates must never equal 13, "Over"/"Under" (total ≥14 / ≤12), and the
+exact-target rule itself (success is exact tricks taken, not "at least").
+Minimal pure-domain modules implementing these already exist —
+`lib/core/game_rules/estimate_totals.dart` and
+`lib/core/game_rules/exact_bid_outcome.dart` — with no scenario content, UI,
+or scoring wired up yet.
+
+Still unresolved and blocking a *full* implementation: the post-auction
+estimate phase's own seat/order, Risk's point levels/scoring, the full
+scoring formula, Double/Quadruple multipliers, Mini/Micro round structures,
+and fixed-color/Super Call orchestration. Trick winners remain confirmed but
+have no resolver. None of these are needed to *author* a single-decision
+mid-hand play scenario (the same EC-042 pattern), so a small first content
+checkpoint may be feasible before all of them are resolved — that is a scope
+call for a future checkpoint, not decided here.
+
 ### Acceptance criteria
 - Target tricks are visible.
 - Scenario changes coaching after the target is reached.
