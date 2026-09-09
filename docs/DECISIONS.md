@@ -455,6 +455,109 @@ No variant generation, weak-area weighting, decision persistence, Training
 Hub or runtime AI is introduced. Cards are never randomized — only the
 scenario pool's order.
 
+## D-023 — Variant mechanism v1: redistribute opponents' taken counts only
+
+**Status:** Accepted — first bounded PR inside checkpoint 3 (EC-055)
+
+### Contract limitation discovered
+
+Before choosing a transformation, every evaluation's `feedback.summary` and
+`feedback.points` across all 20 production scenarios were read in full (not
+sampled). The free-text feedback contract is tightly coupled to almost every
+visible fact:
+
+- **Play scenarios** name specific cards and suits directly in prose —
+  `"the ace of Diamonds is already out"`, `"North's jack of trump"`,
+  `"the two of Spades loses beneath..."` — for every card a rating discusses,
+  including cards mentioned only to explain why another card is locked.
+  Swapping a card's suit or rank would silently leave the sentence
+  describing the old card, since nothing re-derives or re-checks that prose
+  against the data it describes.
+- **Bidding scenarios** are the same or worse: dash/enter feedback quotes
+  exact rank groups (`"three Aces and a strong Spade sequence"`,
+  `"Ace-King-Queen-Jack of Hearts"`, `"7-4-2 of Clubs"`), so almost the
+  entire 13-card hand is referenced by exact identity somewhere in its own
+  feedback.
+- Seat identity cannot be relabeled either, independent of the feedback
+  problem: the table has a fixed topology (the player is always South; the
+  canonical rotation North → West → South → East → North is a fixed game
+  rule, not scenario data), so "the seat after South" is always East — there
+  is no seat-identity axis to vary at all.
+
+Given this, **no card, rank, suit or seat substitution is safe** without
+either rewriting prose per-transformation (out of scope: it would need
+natural-language understanding of what each sentence claims, which this
+checkpoint explicitly does not build) or moving feedback from free text to a
+structured, re-renderable template (a schema change, which the task
+instructed against doing prematurely).
+
+### What is safe: opponents' taken-trick counts
+
+Every play scenario's `situation.tricks_taken` map was checked against its
+own feedback text (see the generator's doc comment and
+`test/scenarios/scenario_variant_test.dart`): **no scenario's feedback
+quotes an opponent's exact taken-trick count.** Feedback only ever discusses
+the *player's own* count relative to the estimate (e.g. "You are exactly on
+four"), which this transformation never touches. `PlaySituation`'s own
+validation (`lib/core/game_rules/play_situation.dart`) requires only that
+all four seats are present, each count is in `[0, 13]`, and the total equals
+`13 - hand.length` — nothing ties an individual opponent's count to the
+current trick, observed history, or any other field. Redistributing the
+three non-player seats' shares of the (fixed) completed-trick total is
+therefore mechanically provable safe, not just safe by inspection of the
+current 20 files.
+
+`generateTricksTakenVariant` (`lib/scenarios/scenario_variant.dart`) does
+exactly this, seeded by an injected `Random` for determinism.
+`PlayScenario.withTricksTaken` (`lib/scenarios/play_scenario.dart`) is the
+fail-closed apply step: it rebuilds `PlaySituation` with the proposed map,
+so a map that violates the domain contract throws `ArgumentError` — the same
+error an authored scenario's bad JSON would produce — rather than presenting
+something unvalidated.
+
+This mechanism does not apply to bidding scenarios: normal-phase bidding
+scenarios have no field comparable to "opponents' taken counts" that is both
+schema-validated and never quoted in feedback (their only substantial data
+is the 13-card hand, which is quoted almost everywhere; `previous_actions`
+is empty in every current normal-phase scenario, so there is nothing there
+to redistribute either).
+
+### UI integration deferred
+
+The mechanism is domain-tested only in this PR; it is not wired into either
+trainer. Two reasons, both explicit per this checkpoint's scope:
+
+1. **Not generic enough yet.** It applies to play scenarios only, and only
+   to one field. Wiring "the Variant Generator" into the architecture now
+   would present a single-field, play-only transformation as if it were the
+   general mechanism the architecture diagram implies.
+2. **Low standalone anti-memorization value.** Opponents' taken-trick counts
+   are shown as small chip labels a player is not reasoning from; varying
+   them does not meaningfully disrupt memorizing "always play the 3H here."
+   Shipping it as *the* proof of the Variety gate would overstate progress
+   the Variety gate is explicitly meant to still deny (it stays at 0% until
+   checkpoints 1–3 all close).
+
+A future PR inside checkpoint 3 should revisit UI wiring once either (a) a
+second, independent transformation exists (so the stage is demonstrably
+generic across more than one field/scenario type), or (b) feedback moves
+toward structured, re-renderable content that makes card/suit substitution
+safe.
+
+### Also discovered during the coverage audit
+
+`play_void_tracking_003` ("The same trap in a different suit") is a
+suit-relabeled duplicate of `play_void_tracking_001`, authored by hand
+before this checkpoint — its own `author_notes` says so directly ("a second,
+independent example of the same... pattern... to reinforce pattern
+recognition rather than a single memorized case"). It does not count as a
+distinct reasoning case in the checkpoint 3 coverage matrix
+([MVP_STATUS.md](MVP_STATUS.md#checkpoint-3-coverage-matrix-ec-055)); the
+gap count to reach 32 base scenarios is 13, not the 12 that a flat
+20-files-in/20-files-count reading would suggest. This is exactly the kind
+of manual duplication the variant mechanism exists to replace once it can
+safely vary something more visible than an opponent's trick count.
+
 ## Decision template
 
 Copy this section for future decisions.

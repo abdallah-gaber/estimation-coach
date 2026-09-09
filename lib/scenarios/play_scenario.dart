@@ -195,6 +195,42 @@ final class PlayScenario {
     }
     return null;
   }
+
+  /// Returns a copy of this scenario with [tricksTaken] replacing the
+  /// situation's taken counts, re-running the exact [PlaySituation]
+  /// validation any authored scenario goes through — the fail-closed path
+  /// for an invalid or unsupported map (throws [ArgumentError], same as
+  /// [PlaySituation] itself). Every other field — hand, current trick,
+  /// trump, estimate, auction bound, observed history, id, title,
+  /// evaluations and feedback — is carried over unchanged, so callers that
+  /// only vary taken counts cannot alter anything a rating or feedback
+  /// string depends on. Never mutates this instance.
+  ///
+  /// Used by the scenario variant generator (EC-055); see
+  /// `lib/scenarios/scenario_variant.dart`.
+  PlayScenario withTricksTaken(Map<PlayerSeat, int> tricksTaken) {
+    final rebuilt = PlaySituation(
+      playerPosition: situation.playerPosition,
+      hand: situation.hand,
+      leader: situation.leader,
+      currentTrick: situation.currentTrick,
+      trump: situation.trump,
+      trickEstimate: situation.trickEstimate,
+      tricksTaken: tricksTaken,
+      auctionBid: situation.auctionBid,
+      observedTricks: situation.observedTricks,
+    );
+    return PlayScenario._(
+      id,
+      title,
+      difficulty,
+      primarySkill,
+      skills,
+      rebuilt,
+      evaluations,
+      authorNotes,
+    );
+  }
 }
 
 final class PlayEvaluation {
