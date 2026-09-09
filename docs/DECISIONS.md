@@ -740,6 +740,126 @@ change the coverage matrix (still 32/32), does not touch readiness (still
 45%), and does not mark EC-055 done. The owner's repeated-session review
 continues.
 
+## D-026 — Target-feasibility audit; fix `play_void_tracking_005`'s must-win-all contradiction
+
+**Status:** Accepted — second finding from the owner's checkpoint 3 repeated-session review
+
+### The finding
+
+The owner's review identified a systemic gap, not just a single bad rating:
+Play Practice shows each opponent's `tricksTaken` but never their
+`trickEstimate`, and no module anywhere checked whether an authored rating
+was even *compatible* with the player's own exact-target math. Concretely,
+in `play_void_tracking_005`, South held exactly 2 cards (2 tricks remain,
+inclusive of the pending decision) with target 4 and 2 already taken — so
+South needed **both** remaining tricks (a `mustWinAll` state). The scenario
+nonetheless rated **4D** (a low Diamond with no evidence it wins at all)
+**Strong** over **AC** (an Ace — the highest possible card in its suit,
+beaten only by one specific, named risk) rated **Risky**, purely because 4D
+avoided that one known risk. The void-avoidance heuristic was evaluated in
+isolation from whether the recommended card could plausibly still let South
+reach an exact target it could not afford to fall short of. Nothing in the
+contract or the test suite could have caught this: `ExactBidOutcome`
+(`exact_bid_outcome.dart`) classifies an already-*completed* trick count
+against an estimate, with no notion of tricks still to come.
+
+### The audit
+
+Every one of the 17 production play scenarios was checked: South's target,
+taken count, and remaining hand size (= remaining tricks, inclusive of the
+pending decision), classified against a new feasibility helper (below), then
+each `mustWinAll` scenario's ratings were individually re-read against that
+classification. Full table in
+`test/scenarios/play_target_feasibility_test.dart`. Result: **six**
+scenarios were `mustWinAll` (`play_mixed_tactical_001`,
+`play_safe_probable_003`, `play_safe_probable_004`,
+`play_target_protection_006`, `play_void_tracking_002`,
+`play_void_tracking_005`); **five** of them already correctly recommend a
+card that wins (either a confirmed-certain win, or an honestly-hedged best
+chance, never a card with no case for winning at all) — `play_void_tracking_005`
+was the sole exception. Separately, every scenario's feedback text was
+checked for a claim that would require knowing an *opponent's* estimate
+specifically (as opposed to the player's own target, a derived void, or a
+visible card): **zero** such claims exist in current content. The
+opponent-estimate contract gap is real architecturally (see "Next" below),
+but it has not yet produced a false claim in authored content — this PR does
+not touch it.
+
+### `TargetFeasibility`: a fourth pure module in the estimate-rules family
+
+`lib/core/game_rules/target_feasibility.dart` adds
+`classifyTargetFeasibility({taken, target, remainingTricks})` →
+`TargetFeasibility.{alreadyOver, onTarget, mustWinAll, slack, unreachable}`.
+Deliberately two "impossible" states, not one: `alreadyOver` (`taken >
+target` — too many already taken) and `unreachable` (`target - taken >
+remainingTricks` — too few tricks left, even winning everything) are
+different failure modes and must not collapse into the same label or
+(worse) silently read as ordinary `slack`. This resolves nothing beyond one
+classification — no trick winner, no round, no score — and sits alongside
+`exact_bid_outcome.dart`/`estimate_totals.dart` as the same shape of small,
+independent, pure module, answering a genuinely different question
+(*reachability* given what remains, not just the current count's relation
+to the target).
+
+### The content fix
+
+Smallest change that preserves the lesson (leading around a known void):
+rebalanced `tricks_taken` from South 2 / North 3 to South 3 / North 2 (East
+and West unchanged at 3 each; sum stays 11, matching `13 - hand.length` for
+the unchanged 2-card hand). This moves the scenario from `mustWinAll` (need
+2 of 2) to `slack` (need 1 of 2) without touching a single card, the void
+evidence, or either rating. Neither evaluation's feedback referenced North's
+specific taken count (confirmed by re-reading both in full), so the
+rebalance is strategically neutral — the requirement from the task that
+authorized this fix. Under `slack`, the existing recommendation becomes
+coherent: losing this specific trick no longer eliminates the target, it
+shifts the requirement onto the final trick and the ace still in hand — the
+same shape `play_void_tracking_001` already uses successfully. Both
+evaluations' feedback now say this explicitly (they previously implied it
+without the numbers); `author_notes` documents the before/after. Full
+re-review in `docs/COACHING_REVIEW.md`.
+
+### Regression coverage, and its honest limit
+
+`test/scenarios/play_target_feasibility_test.dart` (1) classifies all 17
+scenarios against a reviewed table — a scenario added or edited without
+updating that table fails the test, forcing conscious review, not silent
+drift; (2) proves `play_void_tracking_005` is now `slack`; (3) for the
+*mechanically checkable* subset of `mustWinAll` scenarios — South acting
+last, so `trick_winner.dart`'s `trickWinner` can resolve a hypothetical
+completed trick from public information alone — asserts every Strong-rated
+card actually wins. Only `play_target_protection_006` currently qualifies.
+
+The other four `mustWinAll` scenarios (`play_mixed_tactical_001`,
+`play_safe_probable_003`, `play_safe_probable_004`,
+`play_void_tracking_002`) are **not** mechanically checkable this way: South
+either does not act last (an opponent's still-pending card could beat the
+candidate — genuinely unknown from public information) or, in
+`play_void_tracking_002`'s case, winning is only provable by combining
+`trickWinner`-style comparison with a *derived void* — which would mean
+reimplementing the same reasoning the coaching itself uses, as a second,
+parallel engine liable to drift from the first rather than an independent
+check of it. Per this checkpoint's explicit instruction, this limit is
+documented, not papered over with an invented heuristic: those four
+scenarios' Strong ratings remain reviewed content, same as before this PR,
+proven by the audit above but not provable by test assertion.
+
+### Consequence
+
+Content-only plus one new pure module and its tests; no schema change, no
+UI change, no simulator. Coverage matrix stays 32/32 (this is a correctness
+fix to existing content, not new scenarios). Checkpoint 3 remains
+**IN PROGRESS**; the Variety gate stays 0%, MVP Readiness stays 45%, EC-055
+is not marked DONE, checkpoint 4 not started. The owner's repeated-session
+review continues; `docs/MVP_STATUS.md`'s review log gets a second entry for
+this finding.
+
+**Next**: the opponent-estimates contract gap identified during this audit
+is real and explicitly not post-MVP — it is scoped as its own, separate
+bounded PR (public per-seat `trickEstimate` in the `PlayScenario`/domain
+contract, plus a compact `Target / Taken` display), to start only after this
+PR is reviewed and merged.
+
 ## Decision template
 
 Copy this section for future decisions.

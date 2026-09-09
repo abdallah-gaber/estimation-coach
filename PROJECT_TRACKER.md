@@ -12,15 +12,18 @@ checkpoint without explicit owner approval. Checkpoints 1 and 2 are complete;
 checkpoint 3 (EC-055) is in progress — its first bounded PR froze the coverage
 target and proved the variant mechanism at the domain level, its second
 closed 6 of the 13 base-scenario gaps, its third closed the remaining 7
-(32/32, matrix complete), and its fourth decided against wiring the variant
+(32/32, matrix complete), its fourth decided against wiring the variant
 mechanism into the product (D-024) and prepared the owner repeated-session
-review. That review is the only item still open, so checkpoint 3 is not done.
+review, its fifth fixed a trick-winner inconsistency the review found
+(D-025), and its sixth fixed a target-feasibility contradiction the review
+found (D-026). That review, continuing, plus a queued opponent-estimates
+contract PR are the only items still open, so checkpoint 3 is not done.
 
 | Order | Checkpoint | Tasks | Status |
 | --- | --- | --- | --- |
 | 1 | Finish EC-043 — two remaining reviewed exact-bid-protection scenarios; content-only | EC-043 | DONE (5/5 scenarios) |
 | 2 | Anti-memorization sessions — shuffled selection, no immediate repeats, order independent of catalog/files | EC-049 | DONE |
-| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant decided against wiring, D-024; awaiting owner repeated-session review) |
+| 3 | Scenario Variants + Content Breadth — controlled deterministic variants and sufficient reviewed reasoning variety | EC-055 | IN PROGRESS (32/32 base scenarios; variant decided against wiring, D-024; two owner-review correctness fixes landed, D-025/D-026; opponent-estimates PR queued; owner review continues) |
 | 4 | Personal Coaching — persist decisions locally, aggregate skills, prioritize weak areas | EC-050/051/052 | BACKLOG |
 | 5 | Training Hub — Quick Mix, Bid Practice, Play Practice, Weak Areas, Continue | EC-053 | BACKLOG |
 | 6 | Egyptian Arabic + UI polish — مصري terminology, localization/RTL, focused usability polish | EC-060 | READY (after checkpoint 5) |
@@ -888,6 +891,78 @@ the coverage matrix stays 32/32, the Variety gate stays 0%, MVP Readiness
 stays 45%, EC-055 is not marked DONE, and checkpoint 4 was not started. The
 owner's repeated-session review continues.
 
+### Sixth bounded PR (this PR): fix a target-feasibility contradiction found in owner review
+
+The owner's repeated-session review found a second, systemic issue: a
+coaching heuristic (void avoidance) was evaluated in isolation from whether
+its recommendation was even compatible with the player's own exact-target
+math for the current trick.
+
+**Audit** (all 17 production play scenarios, full table and per-scenario
+review in [D-026](docs/DECISIONS.md)): classified each by taken/target/
+remaining-hand-size. **6 of 17 are `mustWinAll`** (every remaining trick,
+including the current one, must be won); **5 of those 6 already correctly
+recommend a winning card**. `play_void_tracking_005` was the sole exception:
+with South needing both remaining tricks, it rated a bare low card (4D, no
+case for winning at all) Strong over an Ace (AC, wins outright except for
+one named, confirmed risk) Risky — the void-avoidance heuristic overriding
+basic card-strength logic in a spot where losing wasn't affordable.
+Separately, **0 of 17** scenarios' feedback text makes a claim that requires
+knowing an opponent's specific estimate (as opposed to their derived void,
+visible cards, or acting order) — the opponent-estimates contract gap is
+real (see "Not started" below) but has not produced a false claim in current
+content.
+
+**Added `TargetFeasibility`** (`lib/core/game_rules/target_feasibility.dart`,
+10 tests): `classifyTargetFeasibility({taken, target, remainingTricks})` →
+`alreadyOver` / `onTarget` / `mustWinAll` / `slack` / `unreachable` — two
+distinct "impossible" states (too many taken vs. too few tricks left), per
+the requirement not to silently fold either into ordinary `slack`. Sits
+alongside `exact_bid_outcome.dart`/`estimate_totals.dart` as the same shape
+of small, pure module.
+
+**Content fix**: rebalanced `play_void_tracking_005`'s `tricks_taken` —
+South 2→3, North 3→2 (East/West unchanged; sum stays 11, matching
+`13 - hand.length` for the unchanged 2-card hand). No card, void evidence,
+or rating changed; confirmed no evaluation referenced North's specific taken
+count, so the rebalance is strategically neutral. This moves the scenario
+from `mustWinAll` to `slack` (need 1 of 2, not both), making the existing
+recommendation coherent — losing this trick no longer eliminates the
+target, it shifts the requirement to the final trick and the ace still in
+hand, the same shape `play_void_tracking_001` already uses successfully.
+Both evaluations' feedback now say this explicitly. Full re-review:
+[docs/COACHING_REVIEW.md](docs/COACHING_REVIEW.md).
+
+**Regression coverage, and its documented limit**:
+`test/scenarios/play_target_feasibility_test.dart` classifies all 17
+scenarios against a reviewed table (forces conscious review on any future
+add/edit), proves `_005` is now `slack`, and — for the *mechanically
+checkable* subset of `mustWinAll` scenarios where South acts last, so
+`trickWinner` can resolve a hypothetical completed trick from public
+information alone — asserts every Strong-rated card actually wins (only
+`play_target_protection_006` currently qualifies). The other 4 `mustWinAll`
+scenarios cannot be checked this way without reimplementing the coaching's
+own reasoning as a second engine; that limit is documented in the test file
+and D-026 rather than papered over with an invented heuristic validator.
+
+`docs/GAME_RULES.md`, `docs/GAME_RULES_V1.md` and `docs/SCENARIO_AUTHORING.md`
+document the new module and tell future authors to check feasibility before
+rating a card that concedes the current trick, and to rebalance a *different*
+seat's `tricks_taken` (never referenced by feedback text) when one seat's
+count needs to change.
+
+**Not started**: the opponent-estimates contract extension (public per-seat
+`trickEstimate` in the `PlayScenario`/domain contract, plus a compact
+`Target / Taken` display) is a separate, non-optional bounded PR, to start
+only after this one is reviewed and merged.
+
+338 tests pass, analysis is clean, strict validation accepts all 33 content
+files (unchanged count — a correction, not new content), and the web build
+succeeds. This is a bounded correctness fix, not checkpoint 3 acceptance
+work: the coverage matrix stays 32/32, the Variety gate stays 0%, MVP
+Readiness stays 45%, EC-055 is not marked DONE, checkpoint 4 was not
+started. The owner's repeated-session review continues.
+
 ### Acceptance criteria
 - Deterministic variants are traceable to a reviewed base and seed/variant ID. ✅ (v1 mechanism)
 - Each allowed transformation documents and preserves game/coaching invariants:
@@ -899,9 +974,12 @@ owner's repeated-session review continues.
   tactical evidence counts as breadth; cosmetic variants alone do not. **Matrix
   complete: 32/32 scenarios authored.** ✅
 - Record owner repeated-session review showing reasoning rather than answer recall.
-  **In progress**: the owner's review found and this PR fixed one genuine
-  game-state inconsistency (`play_void_tracking_005`, see D-025); the review
-  itself continues — this is the only open acceptance criterion for EC-055.
+  **In progress**: the owner's review has found and this project has fixed two
+  genuine correctness issues so far (`play_void_tracking_005`'s trick-winner
+  inconsistency, D-025; its target-feasibility contradiction, D-026); the
+  review itself continues — this is the only open acceptance criterion for
+  EC-055. A separate, non-optional opponent-estimates contract PR is queued
+  next, not yet started.
 - New scenarios using supported contracts remain content-only; no runtime AI. ✅
 
 ---

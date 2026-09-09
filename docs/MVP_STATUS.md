@@ -7,10 +7,13 @@ scenarios. EC-049's Session Selector shuffles both practice sessions. EC-055
 (checkpoint 3) has frozen a 32-scenario coverage target and reached it
 (32/32) across three bounded PRs, and decided not to wire its domain-tested
 variant mechanism into the product for the MVP (D-024). The owner's
-repeated-session review is now in progress and already found and fixed one
-genuine game-state inconsistency (D-025). Progress storage, the hub and
-English/مصري switching remain unfinished; the owner's review continuing to a
-pass is the only item left to close checkpoint 3 itself.
+repeated-session review is in progress and has found and fixed two genuine
+correctness issues so far: a trick-winner inconsistency (D-025) and a
+target-feasibility contradiction (D-026). A separate, non-optional
+opponent-estimates contract PR is queued next. Progress storage, the hub
+and English/مصري switching remain unfinished; the owner's review continuing
+to a pass, plus that queued PR, are what's left to close checkpoint 3
+itself.
 
 [Task tracker](../PROJECT_TRACKER.md) owns individual task statuses. This page
 owns the frozen finish order, release Definition of Done and readiness formula.
@@ -26,8 +29,10 @@ at the domain level; its second bounded PR closed 6 of the 13 base-scenario
 gaps; its third closed the remaining 7 (32/32, matrix complete); its fourth
 decided not to wire the variant mechanism into the product (D-024) and
 prepared the owner repeated-session review; its fifth fixed a real
-game-state inconsistency the owner's review found in its first pass
-(D-025). That review, continuing to a pass, is the only item still open.
+game-state inconsistency the owner's review found (D-025); its sixth fixed
+a target-feasibility contradiction the same review found (D-026). That
+review, continuing to a pass, plus a queued opponent-estimates contract PR,
+are what's still open.
 
 | # | Checkpoint | Tasks | Status | Exit criteria |
 | --- | --- | --- | --- | --- |
@@ -247,9 +252,22 @@ success alone does not satisfy this criterion.
   the lesson, plus a small pure `trickWinner` helper for content authors and
   a targeted regression test for that one scenario — deliberately not a
   generic validation rule, since `observed_tricks` is not guaranteed
-  contiguous with the current trick (see [D-025](DECISIONS.md) for why). The
-  five questions above have not yet been answered end-to-end; the review
-  continues.
+  contiguous with the current trick (see [D-025](DECISIONS.md) for why).
+- **Pass 1 continued, 2026-09-09** — Found a second, systemic issue: opponent
+  estimates are not shown at all (question 2's "sufficiently varied" is hard
+  to fully judge without them — scoped as its own required follow-up, not
+  post-MVP), and — the correctness blocker fixed in this pass —
+  `play_void_tracking_005` again: its void-avoidance heuristic recommended a
+  card (4D) with no case for winning at all over the Ace, in a state where
+  South needed *both* remaining tricks. Audited all 17 scenarios; 5 of 6
+  `mustWinAll` scenarios were already correct, this was the one exception.
+  Fixed by rebalancing `tricks_taken` (South 2→3, North 3→2, sum unchanged)
+  so the scenario genuinely has slack instead of needing every remaining
+  trick — no card or rating changed. Added `classifyTargetFeasibility`
+  (see [D-026](DECISIONS.md)) plus regression coverage across all 17
+  scenarios. The five questions above have not yet been answered
+  end-to-end; the review continues, and the opponent-estimates contract
+  extension is queued as a separate bounded PR next.
 
 This criterion is not satisfied by the PR that added this log: it remains
 prepared and in progress, not completed. The Variety gate stays at 0% and
@@ -267,7 +285,7 @@ is satisfied; otherwise it earns zero. No subjective partial percentages.
 | Foundation / architecture | 15% | 15% | EC-001/002/010/012/020/021/022/023/026 and portable content/domain separation delivered; required CI exists. |
 | Bidding Coach | 15% | 15% | EC-030/031/032/033 delivered: the original ten reviewed hands, 53 evaluated choices, visual legal decisions and evidence-based feedback. Content added since (EC-055) belongs to the variety gate. |
 | Play Coach core | 15% | 15% | EC-040/041/044/045/046/047/042/048 delivered: legal card play, portable scenarios, reviewed feedback, void evidence and known auction-bound validation. EC-043 content belongs to the variety gate. |
-| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoints 1 and 2 are complete; 3 remains open. Session selection is delivered, the 32/32 coverage matrix is complete, and the variant mechanism decision is made (D-024, not wired); only the owner's repeated-session review still gates closing checkpoint 3. |
+| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoints 1 and 2 are complete; 3 remains open. Session selection is delivered, the 32/32 coverage matrix is complete, and the variant mechanism decision is made (D-024, not wired); the owner's repeated-session review (two correctness fixes landed so far, D-025/D-026) and a queued opponent-estimates contract PR still gate closing checkpoint 3. |
 | Personal coaching | 15% | 0% | Checkpoint 4 closed: persistence, skill aggregation and targeted weak-area practice. |
 | Training hub + localization/polish | 10% | 0% | Both checkpoints 5 and 6 closed. |
 | Acceptance / ship | 10% | 0% | Checkpoint 7's Definition of Done evidence, owner acceptance and release tag `v1.0.0-mvp` recorded. |
