@@ -1,0 +1,51 @@
+{
+  "scenario_version": 1,
+  "rules_version": "game_rules_v1",
+  "type": "play",
+  "id": "play_target_protection_001",
+  "title": "One trick short of your target",
+  "difficulty": "beginner",
+  "primary_skill": "exact_bid_protection",
+  "skills": ["exact_bid_protection", "safe_vs_probable"],
+  "player_position": "south",
+  "hand": ["KH", "3H", "2C", "5D"],
+  "situation": {
+    "leader": "east",
+    "current_trick": [
+      {"player": "east", "card": "7H"},
+      {"player": "north", "card": "QH"},
+      {"player": "west", "card": "8H"}
+    ],
+    "trump": "spades",
+    "trick_estimate": 4,
+    "tricks_taken": {"north": 2, "east": 2, "south": 3, "west": 2}
+  },
+  "evaluations": [
+    {
+      "decision": {"action": "play", "card": "KH"},
+      "rating": "strong",
+      "feedback": {
+        "title": "Take the trick you still need",
+        "summary": "You are below target: 3 taken, 4 estimated. The king beats the queen and takes your fourth trick. After that, further tricks would be unwanted.",
+        "points": [
+          "You act last after East, North and West. Everyone has played Hearts, so no trump can beat your king in this trick.",
+          "Both Hearts are legal; the Club and Diamond are locked by follow-suit.",
+          "Taking this known opportunity is the reviewed preference. It does not guarantee finishing on four: the remaining three tricks are unresolved."
+        ]
+      }
+    },
+    {
+      "decision": {"action": "play", "card": "3H"},
+      "rating": "risky",
+      "feedback": {
+        "title": "Still short, with a safe trick passed up",
+        "summary": "The three loses to the queen, leaving you below target at 3 of 4. You pass up a certain needed trick and rely on a later opportunity.",
+        "points": [
+          "Saving the king may work later, but the unseen cards and future leads are unknown.",
+          "Avoiding a trick is not automatically good: you have not reached your estimate yet."
+        ]
+      }
+    }
+  ],
+  "author_notes": "EC-043 contrast pair with _002: identical hand and current trick, different visible taken counts. No hidden-card or final-round guarantee. No auction context is needed for this decision."
+}

@@ -243,7 +243,7 @@ file, testable on its own, so a future rule change invalidates dependent
 content through validation rather than requiring scattered manual updates
 (see AGENTS.md's content-only invariant).
 
-When EC-043 scenario content is eventually authored, author the *observable*
+When authoring EC-043 scenario content, author the *observable*
 inputs (each seat's estimate, the trump, the trick count taken so far) — not
 derived labels. Whether an estimate is "With", whether the room's total is
 Over/Under, and whether a player is currently onTarget/tookMore/tookFewer are

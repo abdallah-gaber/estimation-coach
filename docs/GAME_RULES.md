@@ -171,6 +171,11 @@ named apart from `EstimateTotalBalance` to keep "the room's total vs 13" and
 comparison; they are unrelated except for both having a higher/lower/equal
 shape.
 
+Play Practice uses this function for its **Before this play** status from the
+existing `PlaySituation.trickEstimate` and `playerTricksTaken`. EC-043's three
+authored scenarios require no contract extension. The count and classification
+remain the original snapshot after submission; no winner or round is advanced.
+
 ```sh
 flutter test test/core/game_rules/exact_bid_outcome_test.dart
 ```

@@ -427,7 +427,11 @@ their strategic ratings were re-reviewed and are unaffected in substance
 ---
 
 ## EC-043 — Exact bid protection scenarios
-**Status:** BACKLOG
+**Status:** IN PROGRESS
+
+Bounded checkpoint: three reviewed single-decision scenarios using the existing
+PlayScenario contract, plus generic pre-play status from `classifyExactBid`.
+Remaining umbrella criteria stay open until the larger pack is complete.
 
 Create situations where the player must avoid unwanted tricks.
 
@@ -439,22 +443,50 @@ estimates must never equal 13, "Over"/"Under" (total ≥14 / ≤12), and the
 exact-target rule itself (success is exact tricks taken, not "at least").
 Minimal pure-domain modules implementing these already exist —
 `lib/core/game_rules/estimate_totals.dart` and
-`lib/core/game_rules/exact_bid_outcome.dart` — with no scenario content, UI,
-or scoring wired up yet.
+`lib/core/game_rules/exact_bid_outcome.dart`.
 
 Still unresolved and blocking a *full* implementation: the post-auction
 estimate phase's own seat/order, Risk's point levels/scoring, the full
 scoring formula, Double/Quadruple multipliers, Mini/Micro round structures,
 and fixed-color/Super Call orchestration. Trick winners remain confirmed but
-have no resolver. None of these are needed to *author* a single-decision
-mid-hand play scenario (the same EC-042 pattern), so a small first content
-checkpoint may be feasible before all of them are resolved — that is a scope
-call for a future checkpoint, not decided here.
+have no resolver. None are needed for this single-decision checkpoint.
+
+Implemented checkpoint: `play_target_protection_001`–`003` cover below,
+exactly on, and already above target (six reviewed choices). The first two
+use identical cards and reverse the preferred choice after reaching the target.
+Play Practice loads these files automatically; its pre-play status calls
+`classifyExactBid` without adding schema fields or resolving a trick.
+Review rationale: `docs/COACHING_REVIEW.md`; manual steps: README.
+
+Remaining: two more reviewed content-only scenarios to satisfy the existing
+five-scenario acceptance criterion. This umbrella task remains IN PROGRESS;
+the requested three-scenario checkpoint does not include scoring or simulation.
+
+Validation: 278 tests pass, Flutter analysis is clean, strict validation accepts
+all 18 production files with complete feedback, and the web build succeeds.
 
 ### Acceptance criteria
 - Target tricks are visible.
 - Scenario changes coaching after the target is reached.
 - At least 5 manually reviewed scenarios exist.
+
+---
+
+## EC-048 — Enforce the known auction bound in play snapshots
+**Status:** READY
+
+Review found a pre-existing mismatch after the newly confirmed estimate rules:
+`play_safe_probable_001` has estimate 5 but winning auction bid 4. A Caller's
+estimate equals that bid and a non-Caller's cannot exceed it, so this combination
+is invalid regardless of caller identity. The current snapshot validator accepts
+it. Kept separate from EC-043's bounded content checkpoint.
+
+### Acceptance criteria
+- Reject an estimate above a supplied winning auction bid using the owning rule helper.
+- Add a regression and review/correct affected existing content and fixtures.
+- Preserve snapshots with no auction context; do not infer caller identity or
+  add estimate-phase ordering or scoring.
+- Run strict catalog validation and the relevant domain/parser tests.
 
 ---
 

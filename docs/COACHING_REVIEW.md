@@ -258,3 +258,54 @@ the most recent trick or the complete round history. Seat succession
 [game_rules_v1](GAME_RULES_V1.md#play-direction--seat-rotation)), but no
 attempt is made to validate leader succession *between* tricks, since that
 would require a trick-winner resolver this project does not have.
+
+## EC-043 — Exact-target checkpoint (2026-09-09)
+
+Three scenarios and all six legal choices were reviewed against
+`game_rules_v1`. These are authored local judgments, not statistical proof of
+optimal full-hand play. Schema/domain checks validate structure and legality;
+they do not prove the coaching ratings. No hidden cards, scoring or future
+leader succession are assumed. All three place South last after East → North
+→ West, so the current trick's winner is knowable from the shown cards.
+
+### `play_target_protection_001` — One trick short of your target
+
+South has three of an estimated four tricks. Hearts were led; KH and 3H are
+the only legal cards. KH beats QH, 8H and 7H with no player left to respond.
+Taking this guaranteed needed trick is strong; passing it with 3H is risky
+because later opportunities are unknown, rather than declared certainly bad.
+The retained king might win later. Taking the king now reaches four locally
+but does not guarantee avoiding all three remaining tricks.
+
+### `play_target_protection_002` — Four is enough
+
+Identical cards, trump and turn position isolate the changed public count:
+South already has four of four. Playing 3H is strong because QH wins and
+South avoids an extra trick. KH is weak because it certainly takes a fifth
+when a legal losing alternative exists. This is intentionally losing to
+protect the exact target, not treating a trick win as automatically good.
+Keeping KH may be dangerous later, but those tricks are unresolved; conceding
+this trick preserves the possibility of an exact finish rather than promising it.
+
+Both four-card snapshots have nine completed tricks in their taken maps.
+No auction bid or full estimate set is needed or inferred.
+
+### `play_target_protection_003` — Already past four
+
+South has five of four, with two cards and eleven completed tricks. South is
+void in Hearts, making both cards legal. Discarding 7C loses to QH; 2S is the
+only trump and wins. Neither can undo the fifth trick already taken.
+Both are reasonable: without scoring or another modeled objective, declaring
+one a superior recovery would invent a preference the exact-target rule does
+not provide. The club avoids additional excess but is not claimed to improve
+points or restore exact success. This contrasts with _002, where avoiding the
+trick still protects a reachable exact target.
+
+### Contract and verification
+
+No parser/schema extension or authored target flags. `classifyExactBid`
+classifies the visible estimate/taken snapshot for the generic pre-play label;
+the UI never updates that count on submission. Tests cover the reversed
+preferred choice, all three labels, both submissions per scenario, unchanged
+pre-play counts, and catalog loading/session completion. Future supported
+scenarios require only portable content and review documentation.

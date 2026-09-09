@@ -15,18 +15,19 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'bidding_training_test.dart' show pack, tap;
 
-List<PlayScenario> playPack() => [
-  for (final id in [
-    'play_safe_probable_001',
-    'play_safe_probable_002',
-    'play_void_tracking_001',
-    'play_void_tracking_002',
-    'play_void_tracking_003',
-  ])
-    PlayScenario.fromJson(
-      jsonDecode(File('content/scenarios/v1/play/$id.json').readAsStringSync()),
-    ),
-];
+List<PlayScenario> playPack() {
+  final files =
+      Directory('content/scenarios/v1/play')
+          .listSync()
+          .whereType<File>()
+          .where((file) => file.path.endsWith('.json'))
+          .toList()
+        ..sort((a, b) => a.path.compareTo(b.path));
+  return [
+    for (final file in files)
+      PlayScenario.fromJson(jsonDecode(file.readAsStringSync())),
+  ];
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,32 +38,28 @@ void main() {
 
   test('bundled play catalog is complete and immutable', () async {
     final scenarios = await loadPlayScenarios();
-    expect(scenarios, hasLength(5));
+    expect(scenarios, isNotEmpty);
     expect(scenarios.map((s) => s.id), playPack().map((s) => s.id));
     expect(() => scenarios.clear(), throwsUnsupportedError);
   });
 
-  test(
-    'all ten legal choices return exact authored feedback across ratings',
-    () {
-      final ratings = <DecisionRating>{};
-      var count = 0;
-      for (final scenario in playPack()) {
-        expect(scenario.missingEvaluationCount, 0);
-        for (final choice in scenario.situation.legalChoices) {
-          final result = scenario.evaluate(choice)!;
-          ratings.add(result.rating);
-          count++;
-        }
+  test('all legal choices return exact authored feedback across ratings', () {
+    final ratings = <DecisionRating>{};
+    for (final scenario in playPack()) {
+      expect(scenario.missingEvaluationCount, 0);
+      for (final choice in scenario.situation.legalChoices) {
+        final result = scenario.evaluate(choice)!;
+        ratings.add(result.rating);
+        expect(result.card, choice);
       }
-      expect(count, 10);
-      expect(ratings, {
-        DecisionRating.strong,
-        DecisionRating.weak,
-        DecisionRating.risky,
-      });
-    },
-  );
+    }
+    expect(ratings, {
+      DecisionRating.strong,
+      DecisionRating.weak,
+      DecisionRating.risky,
+      DecisionRating.reasonable,
+    });
+  });
 
   test(
     'illegal choices throw and missing legal feedback is never invented',
@@ -88,7 +85,7 @@ void main() {
     },
   );
 
-  testWidgets('all five situations can be reviewed and session completed', (
+  testWidgets('all situations can be reviewed and session completed', (
     tester,
   ) async {
     final scenarios = playPack();
