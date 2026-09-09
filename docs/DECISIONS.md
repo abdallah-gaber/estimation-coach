@@ -401,6 +401,24 @@ Further supported scenarios remain content-only. Already-above-target feedback
 does not claim that losing restores exact success or invent a scoring preference.
 Scoring, Risk and full-round orchestration remain outside this checkpoint.
 
+## D-021 — Freeze the seven-checkpoint MVP finish plan
+
+**Status:** Accepted — owner requested 2026-09-09
+
+Replace the open-ended delivery estimate with the seven ordered checkpoints,
+Definition of Done and discovery policy in [MVP_STATUS.md](MVP_STATUS.md).
+Anti-memorization requires both independent session selection and reviewed
+scenario variety. Controlled deterministic variants sit outside widgets and
+must preserve explicit game/coaching invariants; new supported scenarios remain
+content-only.
+
+New work defaults to POST-MVP. MVP BLOCKER requires evidence against the explicit
+Definition of Done and placement within an existing checkpoint. Adding an eighth
+checkpoint requires explicit owner approval. The seven readiness gates have fixed
+weights of 15/15/15/20/15/10/10 and binary completion credit; the current sum is
+45%, separate from CI status. Update docs and the local SVG when gates change.
+This decision authorizes documentation/governance only, not feature implementation.
+
 ## Decision template
 
 Copy this section for future decisions.

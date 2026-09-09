@@ -673,3 +673,34 @@ split it into independently verifiable tracker tasks and complete only a fitting
 checkpoint. Keep remaining work explicit; do not mark the umbrella task done.
 If an exact remaining-token counter is unavailable, state that limitation and
 use a conservative scope estimate rather than claiming an exact balance.
+
+## 17. Frozen MVP finish plan
+
+The seven-checkpoint finish plan in [docs/MVP_STATUS.md](docs/MVP_STATUS.md)
+and [PROJECT_TRACKER.md](PROJECT_TRACKER.md) is frozen, in this order:
+
+1. Finish EC-043: two remaining reviewed content-only scenarios.
+2. Anti-memorization sessions.
+3. Scenario Variants + Content Breadth.
+4. Personal Coaching.
+5. Training Hub.
+6. Egyptian Arabic + UI polish.
+7. MVP Acceptance, then `v1.0.0-mvp`.
+
+Agents must not add an eighth MVP checkpoint without explicit owner approval.
+Bounded implementation PRs can fit inside these checkpoints; they do not expand
+the roadmap. Newly discovered work defaults to **POST-MVP** unless it
+demonstrably blocks the explicit MVP Definition of Done. Label such a defect
+**MVP BLOCKER**, record the blocked criterion and evidence, and assign it to an
+existing checkpoint. Never silently expand scope or invent a release prerequisite.
+
+When a checkpoint closes, update roadmap/task status, readiness-gate evidence,
+README current focus and the repository-owned readiness SVG together. Compute
+readiness from the fixed weighted gates in MVP_STATUS; do not invent progress
+percentages. Reopen a gate if a blocker invalidates its completion evidence.
+
+Preserve the intended anti-memorization boundary:
+`Scenario Catalog → Session Selector → Optional Validated Variant Generator → existing trainer UI`.
+The UI must not randomize cards or contain scenario-generation logic. Controlled
+deterministic variants must preserve reviewed game/coaching invariants; arbitrary
+random card substitution is not acceptable. New supported scenarios stay content-only.

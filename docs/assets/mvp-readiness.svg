@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="174" viewBox="0 0 680 174" role="img" aria-labelledby="title desc">
+  <title id="title">MVP Readiness to Ship — 45%</title>
+  <desc id="desc">Fixed weighted gates: foundation 15%, bidding coach 15%, and play coach core 15% earned. Variety 20%, personal coaching 15%, hub and localization 10%, acceptance 10% remain. Total earned: 45 of 100. Not yet ready to ship.</desc>
+  <rect width="680" height="174" rx="18" fill="#101b30"/>
+  <g font-family="system-ui, -apple-system, Segoe UI, sans-serif">
+    <text x="40" y="37" fill="#f8fafc" font-size="18" font-weight="700">MVP Readiness to Ship</text>
+    <text x="640" y="39" text-anchor="end" fill="#67e8f9" font-size="28" font-weight="800">45%</text>
+    <!-- Track: 600 units. Fixed gate widths: 90,90,90,120,90,60,60.
+         Earned: 15+15+15 = 45%; 600*45/100 = 270 filled units. -->
+    <clipPath id="track"><rect x="40" y="60" width="600" height="28" rx="14"/></clipPath>
+    <g clip-path="url(#track)">
+      <rect x="40" y="60" width="600" height="28" fill="#334155"/>
+      <rect x="40" y="60" width="90" height="28" fill="#22d3ee"/>
+      <rect x="130" y="60" width="90" height="28" fill="#a78bfa"/>
+      <rect x="220" y="60" width="90" height="28" fill="#34d399"/>
+      <path d="M130 60v28 M220 60v28 M310 60v28 M430 60v28 M520 60v28 M580 60v28" stroke="#101b30" stroke-width="2"/>
+    </g>
+    <text x="40" y="113" fill="#e2e8f0" font-size="13">3 of 7 readiness gates complete · 45 of 100 weighted points</text>
+    <text x="40" y="141" fill="#cbd5e1" font-size="12">Runnable preview · Owner acceptance still required</text>
+  </g>
+</svg>
