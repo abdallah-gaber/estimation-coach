@@ -113,6 +113,47 @@ void main() {
   });
 
   testWidgets(
+    'Practice again requests a new session order instead of resetting to '
+    'the first loaded scenario',
+    (tester) async {
+      var calls = 0;
+      final orderA = [
+        playPack().firstWhere((s) => s.id == 'play_safe_probable_001'),
+        playPack().firstWhere((s) => s.id == 'play_safe_probable_002'),
+      ];
+      final orderB = orderA.reversed.toList();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PlayTrainingScreen(
+            loader: () async => (++calls == 1) ? orderA : orderB,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(orderA[0].title), findsOneWidget);
+
+      Future<void> completeSituation(PlayScenario scenario) async {
+        final choice = scenario.situation.legalChoices.first;
+        await tester.ensureVisible(card(choice.notation));
+        await tester.tap(card(choice.notation));
+        await tester.pumpAndSettle();
+        await tap(tester, 'Play card');
+      }
+
+      await completeSituation(orderA[0]);
+      await tap(tester, 'Next situation');
+      expect(find.text(orderA[1].title), findsOneWidget);
+      await completeSituation(orderA[1]);
+      await tap(tester, 'Finish session');
+      expect(find.text('Session complete'), findsOneWidget);
+
+      await tap(tester, 'Practice again');
+      expect(calls, 2);
+      expect(find.text(orderB[0].title), findsOneWidget);
+    },
+  );
+
+  testWidgets(
     'locked cards cannot be selected; Try another choice resets without advancing',
     (tester) async {
       final scenario = playPack().firstWhere(
@@ -208,8 +249,14 @@ void main() {
       await loadPlayScenarios();
     });
     await tester.pumpAndSettle();
-    await tester.ensureVisible(card('AH'));
-    await tester.tap(card('AH'));
+    // The default session is shuffled (EC-049): pick whichever card is
+    // actually legal in the situation shown rather than a fixed notation.
+    final legalCard = tester
+        .widgetList<PlayingCard>(find.byType(PlayingCard))
+        .firstWhere((widget) => widget.onTap != null)
+        .card;
+    await tester.ensureVisible(card(legalCard.notation));
+    await tester.tap(card(legalCard.notation));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Play card'));
     await tester.tap(find.text('Play card'));

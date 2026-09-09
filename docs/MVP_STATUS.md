@@ -2,7 +2,8 @@
 
 Updated 2026-09-09. **Runnable preview; not ready to ship.** Ten reviewed bidding
 hands and ten play scenarios are available. EC-048 is merged; EC-043 has all five
-reviewed exact-target scenarios. Progress storage, varied sessions, the hub
+reviewed exact-target scenarios. EC-049's Session Selector shuffles both
+practice sessions. Progress storage, scenario variety, the hub
 and English/مصري switching remain unfinished.
 
 [Task tracker](../PROJECT_TRACKER.md) owns individual task statuses. This page
@@ -13,12 +14,12 @@ Historical milestone headings in the tracker do not define another roadmap.
 
 Complete these checkpoints **in this order**. A checkpoint may use bounded PRs
 to fit review/context limits; those PRs are not additional roadmap checkpoints.
-Checkpoint 1 is complete. Next focus is checkpoint 2 (EC-049); it has not started.
+Checkpoints 1 and 2 are complete. Next focus is checkpoint 3 (EC-055); it has not started.
 
 | # | Checkpoint | Tasks | Status | Exit criteria |
 | --- | --- | --- | --- | --- |
 | 1 | Finish EC-043 | EC-043 | DONE — 5/5 scenarios | Two final scenarios add undertrumping evidence and a choice between safe winners in Sans. Content-only, existing contract, complete legal-choice coaching and documented review. |
-| 2 | Anti-memorization sessions | EC-049 | BACKLOG | Shuffled selection, no immediate repeats, and session order independent of catalog/file order. Selector is reproducible under test and handles small/exhausted pools explicitly. |
+| 2 | Anti-memorization sessions | EC-049 | DONE | A pure `selectSession` shuffles the eligible pool with an injected `Random`; `ScenarioSession` composes it with catalog loading, caching and previous-session-last tracking. Both trainers consume one `nextSession` call; "Practice again" requests a new order. Reproducible under test with controlled seeds; empty/single-item/exhausted pools have explicit behavior. |
 | 3 | Scenario Variants + Content Breadth | EC-055 | BACKLOG | Controlled deterministic variants preserve reviewed invariants and pass validation. A reviewed coverage matrix demonstrates distinct reasoning situations across bidding and the three MVP play concepts; variants alone do not count as new reasoning breadth. Owner repeated practice confirms variety requires reasoning, not answer recall. |
 | 4 | Personal Coaching | EC-050/051/052 | BACKLOG | Decisions persist locally across restart, map to documented skills, aggregate deterministically, and drive targeted weak-area practice. |
 | 5 | Training Hub | EC-053 | BACKLOG | Quick Mix, Bid Practice, Play Practice, Weak Areas and Continue are usable, including honest empty states and meaningful saved-session resume. |
@@ -59,11 +60,14 @@ The intended architecture is:
 Scenario Catalog → Session Selector → Optional Validated Variant Generator → existing trainer UI
 ```
 
-The selector owns session order, independent of asset filenames. It must avoid
-immediate repeats within a session and across session boundaries when the
-eligible pool allows an alternative. Define an explicit empty/single-item policy
-rather than pretending a repeat can always be avoided. Tests should use
-controlled seeds to prove reproducibility and different valid session orders.
+The Session Selector stage is implemented (EC-049,
+[D-022](DECISIONS.md)):
+it owns session order, independent of asset filenames, avoids immediate
+repeats within a session, and avoids starting a new session with the previous
+session's last scenario across session boundaries when the eligible pool
+allows an alternative. An empty pool returns an empty session; a single-item
+pool necessarily repeats. Tests use controlled seeds to prove reproducibility
+and different valid session orders.
 
 The optional variant stage means not every scenario must be transformed.
 Supported transformations are deterministic from a base scenario and seed or
@@ -92,7 +96,7 @@ is satisfied; otherwise it earns zero. No subjective partial percentages.
 | Foundation / architecture | 15% | 15% | EC-001/002/010/012/020/021/022/023/026 and portable content/domain separation delivered; required CI exists. |
 | Bidding Coach | 15% | 15% | EC-030/031/032/033 delivered: ten reviewed hands, 53 evaluated choices, visual legal decisions and evidence-based feedback. Variety is assessed separately. |
 | Play Coach core | 15% | 15% | EC-040/041/044/045/046/047/042/048 delivered: legal card play, portable scenarios, reviewed feedback, void evidence and known auction-bound validation. EC-043 content belongs to the variety gate. |
-| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoint 1 is complete; 2 and 3 remain open. No credit yet for session selection, validated variants or broader reviewed content. |
+| Variety / anti-memorization | 20% | 0% | Requires checkpoints 1–3 closed. Checkpoints 1 and 2 are complete; 3 remains open. Session selection is delivered; no credit yet for validated variants or broader reviewed content. |
 | Personal coaching | 15% | 0% | Checkpoint 4 closed: persistence, skill aggregation and targeted weak-area practice. |
 | Training hub + localization/polish | 10% | 0% | Both checkpoints 5 and 6 closed. |
 | Acceptance / ship | 10% | 0% | Checkpoint 7's Definition of Done evidence, owner acceptance and release tag `v1.0.0-mvp` recorded. |

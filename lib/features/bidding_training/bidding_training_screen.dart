@@ -4,6 +4,7 @@ import '../../app/visual_tokens.dart';
 import '../../core/coaching/evaluate_bid.dart';
 import '../../scenarios/bidding_scenario.dart';
 import '../../scenarios/load_bidding_scenarios.dart';
+import '../../scenarios/scenario_session.dart';
 import '../../shared/widgets/playing_card.dart';
 import 'bidding_labels.dart';
 import '../play_training/play_training_screen.dart';
@@ -17,6 +18,7 @@ class BiddingTrainingScreen extends StatefulWidget {
 }
 
 class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
+  late final Future<List<BiddingScenario>> Function() _nextSession;
   late Future<List<BiddingScenario>> _loading;
   final _scroll = ScrollController();
   final _feedbackKey = GlobalKey();
@@ -28,11 +30,17 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
   @override
   void initState() {
     super.initState();
+    _nextSession =
+        widget.loader ??
+        ScenarioSession<BiddingScenario>(
+          loadCatalog: loadBiddingScenarios,
+          idOf: (scenario) => scenario.id,
+        ).nextSession;
     _loading = _load();
   }
 
   Future<List<BiddingScenario>> _load() async {
-    final pack = await (widget.loader?.call() ?? loadBiddingScenarios());
+    final pack = await _nextSession();
     if (pack.isEmpty || pack.any((s) => s.missingEvaluationCount != 0)) {
       throw const FormatException('Training needs complete feedback');
     }
@@ -57,7 +65,13 @@ class _BiddingTrainingScreenState extends State<BiddingTrainingScreen> {
 
   void _advance({bool restart = false}) {
     setState(() {
-      _index = restart ? 0 : _index + 1;
+      if (restart) {
+        // A new session order, not a reset to the first loaded scenario.
+        _loading = _load();
+        _index = 0;
+      } else {
+        _index += 1;
+      }
       _tricks = null;
       _trump = null;
       _feedback = null;

@@ -41,6 +41,11 @@ rejects incomplete catalogs before showing decisions. It discovers JSON assets
 in sorted filename order and rejects duplicate IDs. Content additions must pass
 strict validation and receive the same strategic review.
 
+Sorted filename order is a catalog-loading detail only, not the order shown to
+the player: the Session Selector (EC-049) shuffles the loaded catalog into
+each practice session, so scenario position in a session carries no
+authorial/reasoning intent.
+
 The initial checkpoint's two scenarios are independent hands. Choosing Dash fixes zero for that hand;
 Next hand opens a different hand. No full auction, outcome, score, or progress
 history is simulated. Feedback labels decision quality and explicitly says that
